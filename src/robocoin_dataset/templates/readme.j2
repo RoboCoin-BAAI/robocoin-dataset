@@ -1,0 +1,55 @@
+---
+license: {{ license }}
+language:
+{%- for lang in language %}
+  - {{ lang }}
+{%- endfor %}
+task_categories:
+{%- for task in task_categories %}
+  - {{ task }}
+{%- endfor %}
+tags:
+{%- for tag in tags %}
+  - {{ tag }}
+{%- endfor %}
+size_categories: {{ size_categories }}
+configs:
+- config_name: {{ configs[0].config_name }}
+  data_files: {{ configs[0].data_files }}
+---
+
+## Dataset Authors
+This dataset is contributed by [{% for author in authors.contributed_by %}[{{ author.name }}]({{ author.url }}){% if not loop.last %}, {% endif %}{% endfor %}]
+
+This dataset is annotated by [{% for annotator in authors.annotated_by %}[{{ annotator.name }}]({{ annotator.url }}){% if not loop.last %}, {% endif %}{% endfor %}]
+
+## Dataset Description
+{{ dataset_description }}
+
+- **Homepage:** {{ homepage }}
+- **Paper:** {{ paper }}
+- **License:** {{ license }}
+
+## Dataset Tags
+{% for tag in tags %}
+- {{ tag }}
+{% endfor %}
+
+## Task Descriptions
+### tasks
+{{ tasks }}
+
+### sub_tasks
+{{ sub_tasks }}
+
+## Dataset Structure
+
+[meta/info.json](meta/info.json):
+```json
+{{get_meta_info_content()}}
+```
+
+## Citation
+```bibtex
+{{ citation_bibtex }}
+```

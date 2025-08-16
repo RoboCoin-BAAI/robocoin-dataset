@@ -1,0 +1,69 @@
+# info_template.yaml
+
+# License
+license: apache-2.0
+
+# Supported Languages
+language:
+  - en
+  - zh
+
+# Task Categories
+task_categories:
+  - robotics
+
+# Tags
+tags:
+  - RoboCoin
+  - LeRobot
+
+# Size Category
+size_categories: auto_generated
+
+# Dataset Configs
+configs:
+  - config_name: default
+    data_files: data/*/*.parquet
+
+# Dataset Authors
+authors:
+  contributed_by:
+    - name: RoboCoin
+      url: https://RoboCoin.github.io
+  annotated_by:
+    - name: RoboCoin
+      url: https://RoboCoin.github.io  # Optional field
+
+# Dataset Description
+dataset_description: This dataset uses an extended format based on [LeRobot](https://github.com/huggingface/lerobot) and is fully compatible with LeRobot.
+
+# External Links
+homepage: https://RoboCoin.github.io/
+paper: in comming
+license: apache-2.0
+
+# Task Descriptions (Supports multiple task descriptions)
+tasks: auto_generated
+sub_tasks: auto_generated
+
+episodes_num: auto_generated
+frames_num: auto_generated
+
+# Dataset Tags (Optional, can be used for tag clouds, etc.)
+dataset_tags: auto_generated
+
+# Dataset Structure (Supports files and inline content)
+structure:
+  file: auto_generated
+  content: auto_generated
+
+# Citation
+citation: in comming
+  # example:
+  # bibtex: |
+  #   @inproceedings{fu2024mobile,
+  #       author    = {Fu, Zipeng and Zhao, Tony Z. and Finn, Chelsea},
+  #       title     = {Mobile ALOHA: Learning Bimanual Mobile Manipulation with Low-Cost Whole-Body Teleoperation},
+  #       booktitle = {arXiv},
+  #       year      = {2024},
+  #   }
