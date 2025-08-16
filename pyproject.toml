@@ -1,7 +1,7 @@
 [project]
-name = "your-project-name"
+name = "robocoin-dataset"
 version = "0.1.0"
-description = "your-project-descrption"
+description = "robocoin dataset tools: such as format-convertor, hub-uploader, nas-uploader"
 readme = "README.md"
 requires-python = ">=3.9, <3.11"
 authors = [{ name = "Your Name", email = "YourEmail@email.com" }]
@@ -16,7 +16,7 @@ dependencies = [
 
 # scripts path
 [project.scripts]
-template_project = "template_project.main:main"
+# template_project = "template_project.main:main"
 # Add other scripts here
 
 [project.optional-dependencies]
@@ -69,7 +69,7 @@ docstring-code-format = true# 默认不格式化文档字符串中的代码示�
 [tool.setuptools.packages.find]
 where = ["src"]  # 源码目录
 include = [
-  "template_project",
+  "robocoin_dataset",
   # Add other dirs
   # "other_dir",
 ]

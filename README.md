@@ -1,8 +1,8 @@
-# Template Project 文档
+# RoboCoin Dataset 文档
 
-欢迎使用 `template-project` —— 一个标准化的 Python 项目模板。
+欢迎使用 `robocoin-dataset` —— 一个用于构建 robocoin 数据集的 Python 工具集项目。
 
-本项目旨在为你提供一个可复用、结构清晰、易于维护的 Python 项目基础结构，适合用于开发库、命令行工具或服务类应用，并采用 [`uv`](https://github.com/astral-sh/uv) 作为默认的包管理工具。
+本项目采用 [`uv`](https://github.com/astral-sh/uv) 作为默认的包管理工具。
 
 ---
 
@@ -22,11 +22,19 @@ pip install uv
 
 以下是开发者常见的工作流程：
 
-### 1. 克隆并进入项目目录
+### 1. 创建conda环境克隆并安装必要库
 
 ```bash
-git clone https://github.com/yourname/template-project.git
-cd template-project
+conda create -n robocoin-dataset
+conda activate robocoin-dataset
+conda install ffmpeg=7.1.1 -c conda-forge
+``` 
+
+### 2. 克隆并进入项目目录
+
+```bash
+git clone --recursive https://github.com/RoboCoin-BAAI/robocoin-dataset.git
+cd robocoin-dataset
 ```
 
 ### 2. 创建虚拟环境
@@ -50,7 +58,7 @@ source .venv/bin/activate    # Linux/macOS
 ### 4. 安装项目依赖
 
 ```bash
-uv sync
+uv pip install thirdparty/robocoin-lerobot
 ```
 
 #### 编辑模式
@@ -65,7 +73,7 @@ uv pip install -e .[dev]
 ```
 
 ### 5. 安装 pre-commit 钩子（提交前自动格式化和检查代码）
-```
+```bash
 pre-commit install
 ```
 
@@ -111,10 +119,6 @@ uv pip install -e .
 ## 🚀 快速开始开发
 
 ```bash
-# 运行主程序
-template_project
-
-# 或运行测试
 uv pip install -e .[test]
 pytest tests/
 ```
