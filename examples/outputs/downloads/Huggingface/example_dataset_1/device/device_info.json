@@ -1,0 +1,94 @@
+{
+    "device_list": [
+        {
+            "device_id": "7xK992pQ",
+            "device_type": "realman",
+            "device_type_info": "具身双臂升降平台",
+            "device_info": {
+                "cam_high": {
+                    "type": "Intel RealSense D435"
+                },
+                "cam_left_wrist": {
+                    "type": "Intel RealSense D435"
+                },
+                "cam_right_wrist": {
+                    "type": "Intel RealSense D435"
+                },
+                "piper_left": {
+                    "type": "RM65-B",
+                    "dimension": {
+                        "left_arm_joint_1": "rad",
+                        "left_arm_joint_2": "rad",
+                        "left_arm_joint_3": "rad",
+                        "left_arm_joint_4": "rad",
+                        "left_arm_joint_5": "rad",
+                        "left_arm_joint_6": "rad",
+                        "left_arm_joint_7": "rad",
+                        "left_gripper_joint": "rad",
+                        "left_end_effector_positions_x": "m",
+                        "left_end_effector_positions_y": "m",
+                        "left_end_effector_positions_z": "m",
+                        "left_end_effector_quat_x": null,
+                        "left_end_effector_quat_y": null,
+                        "left_end_effector_quat_z": null,
+                        "left_end_effector_quat_w": null
+                    },
+                    "description": {
+                        "left_arm_joint_1": null,
+                        "left_arm_joint_2": null,
+                        "left_arm_joint_3": null,
+                        "left_arm_joint_4": null,
+                        "left_arm_joint_5": null,
+                        "left_arm_joint_6": null,
+                        "left_arm_joint_7": null,
+                        "left_gripper_joint": null,
+                        "left_end_effector_positions_x": null,
+                        "left_end_effector_positions_y": null,
+                        "left_end_effector_positions_z": null,
+                        "left_end_effector_quat_x": null,
+                        "left_end_effector_quat_y": null,
+                        "left_end_effector_quat_z": null,
+                        "left_end_effector_quat_w": null
+                    }
+                },
+                "piper_right": {
+                    "type": "RM65-B",
+                    "dimension": {
+                        "right_arm_joint_1": "rad",
+                        "right_arm_joint_2": "rad",
+                        "right_arm_joint_3": "rad",
+                        "right_arm_joint_4": "rad",
+                        "right_arm_joint_5": "rad",
+                        "right_arm_joint_6": "rad",
+                        "right_arm_joint_7": "rad",
+                        "right_gripper_joint": "rad",
+                        "right_end_effector_positions_x": "m",
+                        "right_end_effector_positions_y": "m",
+                        "right_end_effector_positions_z": "m",
+                        "right_end_effector_quat_x": null,
+                        "right_end_effector_quat_y": null,
+                        "right_end_effector_quat_z": null,
+                        "right_end_effector_quat_w": null
+                    },
+                    "description": {
+                        "right_arm_joint_1": null,
+                        "right_arm_joint_2": null,
+                        "right_arm_joint_3": null,
+                        "right_arm_joint_4": null,
+                        "right_arm_joint_5": null,
+                        "right_arm_joint_6": null,
+                        "right_arm_joint_7": null,
+                        "right_gripper_joint": null,
+                        "right_end_effector_positions_x": null,
+                        "right_end_effector_positions_y": null,
+                        "right_end_effector_positions_z": null,
+                        "right_end_effector_quat_x": null,
+                        "right_end_effector_quat_y": null,
+                        "right_end_effector_quat_z": null,
+                        "right_end_effector_quat_w": null
+                    }
+                }
+            }
+        }
+    ]
+}

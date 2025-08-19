@@ -1,0 +1,1 @@
+python -m robocoin.datasets.download --config ./examples/datasets/configs/download_ms.yml

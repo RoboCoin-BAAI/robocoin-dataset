@@ -1,0 +1,1 @@
+python -m robocoin.datasets.miscellaneous.convert_csv_tags_to_yamls --config ./examples/datasets/configs/miscellaneous/convert_csv_tags_to_yamls.yml

@@ -16,11 +16,16 @@ dependencies = [
   "huggingface_hub",
   "draccus",
   "jinja2",
+  "numpy",
+  "numpy-quaternion",
+  "h5py",
+  "pyyaml",
 ]
 
 # scripts path
 [project.scripts]
 # template_project = "template_project.main:main"
+collect_dataset_info_files = "robocoin_dataset.scripts.dataset_statics.collect_dataset_info_files:main"
 # Add other scripts here
 
 [project.optional-dependencies]
@@ -34,7 +39,7 @@ docs = ["sphinx"]
 # ruff format and lint config
 [tool.ruff]
 line-length = 100
-indent-width = 2
+indent-width = 4
 # ruff format igonres
 exclude = [".git", ".venv", "__pypackages__", "build", "dist", "node_modules"]
 

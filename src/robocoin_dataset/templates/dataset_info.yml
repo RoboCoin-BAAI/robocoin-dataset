@@ -40,7 +40,6 @@ dataset_description: This dataset uses an extended format based on [LeRobot](htt
 # External Links
 homepage: https://RoboCoin.github.io/
 paper: in comming
-license: apache-2.0
 
 # Task Descriptions (Supports multiple task descriptions)
 tasks: auto_generated

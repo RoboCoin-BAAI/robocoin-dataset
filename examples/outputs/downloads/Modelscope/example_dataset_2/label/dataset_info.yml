@@ -1,0 +1,151 @@
+license: apache-2.0
+language:
+- en
+- zh
+task_categories:
+- robotics
+tags:
+- RobotCoin
+- LeRobot
+size_categories: <1K
+configs:
+- config_name: default
+  data_files: data/*/*.parquet
+authors:
+  contributed_by:
+  - name: RobotCoin
+    url: https://RobotCoin.github.io
+  annotated_by:
+  - name: RobotCoin
+    url: https://RobotCoin.github.io
+dataset_description: This dataset uses an extended format based on [LeRobot](https://github.com/huggingface/lerobot)
+  and is fully compatible with LeRobot.
+links:
+  Homepage: https://RobotCoin.github.io/
+  Paper: in comming
+  License: apache-2.0
+tasks:
+- stack basket
+sub_tasks:
+- Pick up the dark basket with the left gripper
+- Pick up the dark basket with the right gripper
+- Pick up the light basket with the left gripper
+- Pick up the light basket with the right gripper
+- Place the dark basket in the center of view with the left gripper
+- Place the dark basket on the light basket with the right gripper
+- Place the light basket in the center of view with the left gripper
+- Place the light basket on the dark basket with the right gripper
+- abnormal
+- end
+episodes_num: 0
+frames_num: 0
+dataset_tags:
+  场景类型:
+  - 餐厅
+  - 厨房
+  - 客厅
+  采集本体: realman
+  末端类型: 二指夹爪
+  相机数量: 3
+  相机类型:
+  - RGBD
+  - fisheye
+  声音传感器数量: 0
+  触觉传感器数量: 0
+  原子动作:
+  - 抓
+  - 拿
+  - 放
+  - 堆叠
+  - 移动
+  物品:
+    level1: 容器
+    level2: 篮子
+    level3: 黑色篮子
+    level4: null
+    level5: null
+  桌面高度: 77.2cm
+structure:
+  file: meta/info.json
+  content: "{\n    \"codebase_version\": \"v2.1\",\n    \"robot_type\": \"realman\"\
+    ,\n    \"total_episodes\": 499,\n    \"total_frames\": 290587,\n    \"total_tasks\"\
+    : 1,\n    \"total_videos\": 1497,\n    \"total_chunks\": 1,\n    \"chunks_size\"\
+    : 1000,\n    \"fps\": 25,\n    \"splits\": {\n        \"train\": \"0:499\"\n \
+    \   },\n    \"data_path\": \"data/chunk-{episode_chunk:03d}/episode_{episode_index:06d}.parquet\"\
+    ,\n    \"video_path\": \"videos/chunk-{episode_chunk:03d}/{video_key}/episode_{episode_index:06d}.mp4\"\
+    ,\n    \"features\": {\n        \"observation.images.cam_high\": {\n         \
+    \   \"dtype\": \"video\",\n            \"shape\": [\n                480,\n  \
+    \              640,\n                3\n            ],\n            \"names\"\
+    : [\n                \"height\",\n                \"width\",\n               \
+    \ \"channels\"\n            ],\n            \"info\": {\n                \"video.fps\"\
+    : 25.0,\n                \"video.height\": 480,\n                \"video.width\"\
+    : 640,\n                \"video.channels\": 3,\n                \"video.codec\"\
+    : \"h264\",\n                \"video.pix_fmt\": \"yuv420p\",\n               \
+    \ \"video.is_depth_map\": false,\n                \"has_audio\": false\n     \
+    \       }\n        },\n        \"observation.images.cam_left_wrist\": {\n    \
+    \        \"dtype\": \"video\",\n            \"shape\": [\n                480,\n\
+    \                640,\n                3\n            ],\n            \"names\"\
+    : [\n                \"height\",\n                \"width\",\n               \
+    \ \"channels\"\n            ],\n            \"info\": {\n                \"video.fps\"\
+    : 25.0,\n                \"video.height\": 480,\n                \"video.width\"\
+    : 640,\n                \"video.channels\": 3,\n                \"video.codec\"\
+    : \"h264\",\n                \"video.pix_fmt\": \"yuv420p\",\n               \
+    \ \"video.is_depth_map\": false,\n                \"has_audio\": false\n     \
+    \       }\n        },\n        \"observation.images.cam_right_wrist\": {\n   \
+    \         \"dtype\": \"video\",\n            \"shape\": [\n                480,\n\
+    \                640,\n                3\n            ],\n            \"names\"\
+    : [\n                \"height\",\n                \"width\",\n               \
+    \ \"channels\"\n            ],\n            \"info\": {\n                \"video.fps\"\
+    : 25.0,\n                \"video.height\": 480,\n                \"video.width\"\
+    : 640,\n                \"video.channels\": 3,\n                \"video.codec\"\
+    : \"h264\",\n                \"video.pix_fmt\": \"yuv420p\",\n               \
+    \ \"video.is_depth_map\": false,\n                \"has_audio\": false\n     \
+    \       }\n        },\n        \"states\": {\n            \"dtype\": \"float32\"\
+    ,\n            \"shape\": [\n                30\n            ],\n            \"\
+    name\": [\n                \"right_arm_joint_1\",\n                \"right_arm_joint_2\"\
+    ,\n                \"right_arm_joint_3\",\n                \"right_arm_joint_4\"\
+    ,\n                \"right_arm_joint_5\",\n                \"right_arm_joint_6\"\
+    ,\n                \"right_arm_joint_7\",\n                \"right_gripper_joint\"\
+    ,\n                \"right_end_effector_positions_x\",\n                \"right_end_effector_positions_y\"\
+    ,\n                \"right_end_effector_positions_z\",\n                \"right_end_effector_quat_x\"\
+    ,\n                \"right_end_effector_quat_y\",\n                \"right_end_effector_quat_z\"\
+    ,\n                \"right_end_effector_quat_w\",\n                \"left_arm_joint_1\"\
+    ,\n                \"left_arm_joint_2\",\n                \"left_arm_joint_3\"\
+    ,\n                \"left_arm_joint_4\",\n                \"left_arm_joint_5\"\
+    ,\n                \"left_arm_joint_6\",\n                \"left_arm_joint_7\"\
+    ,\n                \"left_gripper_joint\",\n                \"left_end_effector_positions_x\"\
+    ,\n                \"left_end_effector_positions_y\",\n                \"left_end_effector_positions_z\"\
+    ,\n                \"left_end_effector_quat_x\",\n                \"left_end_effector_quat_y\"\
+    ,\n                \"left_end_effector_quat_z\",\n                \"left_end_effector_quat_w\"\
+    \n            ]\n        },\n        \"actions\": {\n            \"dtype\": \"\
+    float32\",\n            \"shape\": [\n                30\n            ],\n   \
+    \         \"name\": [\n                \"right_arm_joint_1\",\n              \
+    \  \"right_arm_joint_2\",\n                \"right_arm_joint_3\",\n          \
+    \      \"right_arm_joint_4\",\n                \"right_arm_joint_5\",\n      \
+    \          \"right_arm_joint_6\",\n                \"right_arm_joint_7\",\n  \
+    \              \"right_gripper_joint\",\n                \"right_end_effector_positions_x\"\
+    ,\n                \"right_end_effector_positions_y\",\n                \"right_end_effector_positions_z\"\
+    ,\n                \"right_end_effector_quat_x\",\n                \"right_end_effector_quat_y\"\
+    ,\n                \"right_end_effector_quat_z\",\n                \"right_end_effector_quat_w\"\
+    ,\n                \"left_arm_joint_1\",\n                \"left_arm_joint_2\"\
+    ,\n                \"left_arm_joint_3\",\n                \"left_arm_joint_4\"\
+    ,\n                \"left_arm_joint_5\",\n                \"left_arm_joint_6\"\
+    ,\n                \"left_arm_joint_7\",\n                \"left_gripper_joint\"\
+    ,\n                \"left_end_effector_positions_x\",\n                \"left_end_effector_positions_y\"\
+    ,\n                \"left_end_effector_positions_z\",\n                \"left_end_effector_quat_x\"\
+    ,\n                \"left_end_effector_quat_y\",\n                \"left_end_effector_quat_z\"\
+    ,\n                \"left_end_effector_quat_w\"\n            ]\n        },\n \
+    \       \"next.done\": {\n            \"dtype\": \"bool\",\n            \"shape\"\
+    : [\n                1\n            ],\n            \"names\": null\n        },\n\
+    \        \"timestamp\": {\n            \"dtype\": \"float32\",\n            \"\
+    shape\": [\n                1\n            ],\n            \"names\": null\n \
+    \       },\n        \"frame_index\": {\n            \"dtype\": \"int64\",\n  \
+    \          \"shape\": [\n                1\n            ],\n            \"names\"\
+    : null\n        },\n        \"episode_index\": {\n            \"dtype\": \"int64\"\
+    ,\n            \"shape\": [\n                1\n            ],\n            \"\
+    names\": null\n        },\n        \"index\": {\n            \"dtype\": \"int64\"\
+    ,\n            \"shape\": [\n                1\n            ],\n            \"\
+    names\": null\n        },\n        \"task_index\": {\n            \"dtype\": \"\
+    int64\",\n            \"shape\": [\n                1\n            ],\n      \
+    \      \"names\": null\n        }\n    }\n}"
+citation: in comming

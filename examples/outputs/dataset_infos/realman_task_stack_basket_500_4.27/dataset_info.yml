@@ -1,0 +1,72 @@
+license: apache-2.0
+language:
+- en
+- zh
+task_categories:
+- robotics
+tags:
+- RobotCoin
+- LeRobot
+size_categories: <1K
+configs:
+- config_name: default
+  data_files: data/*/*.parquet
+authors:
+  contributed_by:
+  - name: RobotCoin
+    url: https://RobotCoin.github.io
+  annotated_by:
+  - name: RobotCoin
+    url: https://RobotCoin.github.io
+dataset_description: This dataset uses an extended format based on [LeRobot](https://github.com/huggingface/lerobot)
+  and is fully compatible with LeRobot.
+homepage: https://RobotCoin.github.io/
+paper: in comming
+tasks: stack basket
+sub_tasks: 'Place the light basket in the center of view with the left gripper
+
+  Place the dark basket on the light basket with the right gripper
+
+  Place the light basket on the dark basket with the right gripper
+
+  Pick up the light basket with the right gripper
+
+  Pick up the dark basket with the left gripper
+
+  Pick up the light basket with the left gripper
+
+  Place the dark basket in the center of view with the left gripper
+
+  Pick up the dark basket with the right gripper'
+episodes_num: 0
+frames_num: 0
+dataset_tags:
+  场景类型:
+  - 餐厅
+  - 厨房
+  - 客厅
+  采集本体: realman
+  末端类型: 二指夹爪
+  相机数量: 3
+  相机类型:
+  - RGBD
+  - fisheye
+  声音传感器数量: 0
+  触觉传感器数量: 0
+  原子动作:
+  - 抓
+  - 拿
+  - 放
+  - 堆叠
+  - 移动
+  物品:
+    level1: 容器
+    level2: 篮子
+    level3: 黑色篮子
+    level4: null
+    level5: null
+  桌面高度: 77.2cm
+structure:
+  file: auto_generated
+  content: auto_generated
+citation: in comming

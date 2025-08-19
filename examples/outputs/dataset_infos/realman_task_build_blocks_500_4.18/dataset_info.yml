@@ -1,0 +1,80 @@
+license: apache-2.0
+language:
+- en
+- zh
+task_categories:
+- robotics
+tags:
+- RobotCoin
+- LeRobot
+size_categories: <1K
+configs:
+- config_name: default
+  data_files: data/*/*.parquet
+authors:
+  contributed_by:
+  - name: RobotCoin
+    url: https://RobotCoin.github.io
+  annotated_by:
+  - name: RobotCoin
+    url: https://RobotCoin.github.io
+dataset_description: This dataset uses an extended format based on [LeRobot](https://github.com/huggingface/lerobot)
+  and is fully compatible with LeRobot.
+homepage: https://RobotCoin.github.io/
+paper: in comming
+tasks: build blocks
+sub_tasks: 'Place the box-shaped block onto the arch-shaped block with the right gripper
+
+  Grasp the arch-shaped block with the left gripper
+
+  Grasp the triangle-shaped block with the right gripper
+
+  Place the arch-shaped block in the center of view with the right gripper
+
+  Grasp the arch-shaped block with the right gripper
+
+  Grasp the box-shaped block with the left gripper
+
+  Grasp the triangle-shaped block with the left gripper
+
+  Place the triangle-shaped block onto the box-shaped block with the left gripper
+
+  Place the box-shaped block onto the arch-shaped block with the left gripper
+
+  Place the arch-shaped block in the center of view with the left gripper
+
+  Place the triangle-shaped block onto the box-shaped block with the right gripper
+
+  Grasp the box-shaped block with the right gripper'
+episodes_num: 0
+frames_num: 0
+dataset_tags:
+  场景类型:
+  - 卧室
+  - 学校
+  - 客厅
+  采集本体: realman
+  末端类型: 二指夹爪
+  相机数量: 3
+  相机类型:
+  - RGBD
+  - fisheye
+  声音传感器数量: 0
+  触觉传感器数量: 0
+  原子动作:
+  - 抓
+  - 拿
+  - 放
+  - 堆叠
+  - 移动
+  物品:
+    level1: 玩具
+    level2: 积木
+    level3: 拱形积木
+    level4: null
+    level5: null
+  桌面高度: 77.2cm
+structure:
+  file: auto_generated
+  content: auto_generated
+citation: in comming

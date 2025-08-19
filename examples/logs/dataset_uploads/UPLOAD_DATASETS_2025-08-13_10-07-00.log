@@ -1,0 +1,4 @@
+2025-08-13 10:07:00 - UPLOAD_DATASETS - INFO - Logging is enabled, output to: /home/lxc/work/RobotCoin/examples/datasets/logs/dataset_uploads/UPLOAD_DATASETS_2025-08-13_10-07-00.log
+2025-08-13 10:07:00 - UPLOAD_DATASETS - INFO - found 2 in path /home/lxc/work/RobotCoin/examples/datasets/example_datas, 2 datasets need to update.
+2025-08-13 10:07:04 - UPLOAD_DATASETS - INFO - dataset example_dataset_1: repo RoboCoin/example_dataset_1 has been uploaded successfully, commit_url is: https://huggingface.co/datasets/RoboCoin/example_dataset_1/commit/a8c84f188c76b2fd6ace6cfb8cac2269e14befe6
+2025-08-13 10:07:08 - UPLOAD_DATASETS - INFO - dataset example_dataset_2: repo RoboCoin/example_dataset_2 has been uploaded successfully, commit_url is: https://huggingface.co/datasets/RoboCoin/example_dataset_2/commit/d659c98ae0c83e4a1823953bbee8d4c0088578e8

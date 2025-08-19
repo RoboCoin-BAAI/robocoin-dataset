@@ -37,7 +37,7 @@ git clone --recursive https://github.com/RoboCoin-BAAI/robocoin-dataset.git
 cd robocoin-dataset
 ```
 
-### 2. 创建虚拟环境
+### 3. 创建虚拟环境
 
 ```bash
 uv venv
@@ -45,7 +45,7 @@ uv venv
 
 这将在项目根目录下创建 `.venv` 虚拟环境。
 
-### 3. 激活虚拟环境
+### 4. 激活虚拟环境
 
 ```bash
 source .venv/bin/activate    # Linux/macOS
@@ -55,10 +55,10 @@ source .venv/bin/activate    # Linux/macOS
 
 > 💡 提示：如果你不激活环境，`uv` 默认也会使用 `.venv`。
 
-### 4. 安装项目依赖
+### 5. 安装项目依赖
 
 ```bash
-uv pip install thirdparty/robocoin-lerobot
+uv pip install third_partes/robocoin-lerobot
 ```
 
 #### 编辑模式
@@ -72,7 +72,7 @@ uv pip install -e .
 uv pip install -e .[dev]
 ```
 
-### 5. 安装 pre-commit 钩子（提交前自动格式化和检查代码）
+### 6. 安装 pre-commit 钩子（提交前自动格式化和检查代码）
 ```bash
 pre-commit install
 ```

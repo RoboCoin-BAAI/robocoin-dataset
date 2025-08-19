@@ -1,0 +1,3 @@
+2025-08-13 11:44:35 - DsDownloadUtil-Modelscope - INFO - Logging enabled, output to: examples/datasets/logs/dataset_download/Modelscope/ds_download_2025-08-13_11-44-35.log
+2025-08-13 11:44:36 - DsDownloadUtil-Modelscope - INFO - dataset example_dataset_1 downloaded successfully to examples/datasets/outputs/downloads/Modelscope/example_dataset_1
+2025-08-13 11:44:38 - DsDownloadUtil-Modelscope - INFO - dataset example_dataset_2 downloaded successfully to examples/datasets/outputs/downloads/Modelscope/example_dataset_2

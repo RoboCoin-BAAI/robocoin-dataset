@@ -1,0 +1,3 @@
+2025-08-13 09:25:16 - GEN_DATASET_INFO - INFO - Logging is enabled, output to: /home/lxc/work/RobotCoin/examples/datasets/logs/generate_dataset_infos/GEN_DATASET_INFO_2025-08-13_09-25-16.log
+2025-08-13 09:25:16 - GEN_DATASET_INFO - INFO - Generated info for 'realman_task_build_blocks_500_4.18' at /home/lxc/work/RobotCoin/examples/datasets/outputs/dataset_infos/realman_task_build_blocks_500_4.18/dataset_info.yml
+2025-08-13 09:25:16 - GEN_DATASET_INFO - INFO - Generated info for 'realman_task_stack_basket_500_4.27' at /home/lxc/work/RobotCoin/examples/datasets/outputs/dataset_infos/realman_task_stack_basket_500_4.27/dataset_info.yml

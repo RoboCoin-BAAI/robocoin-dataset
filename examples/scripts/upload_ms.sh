@@ -1,0 +1,1 @@
+python -m robocoin.datasets.upload --config ./examples/datasets/configs/upload_ms.yml

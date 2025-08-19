@@ -1,0 +1,3 @@
+[submodule "third_parties/robocoin-lerobot"]
+	path = third_parties/robocoin-lerobot
+	url = https://github.com/RoboCoin-BAAI/robocoin-lerobot.git

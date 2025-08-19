@@ -1,0 +1,1 @@
+python -m robocoin.datasets.gen_info --config ./examples/datasets/configs/gen_info.yml

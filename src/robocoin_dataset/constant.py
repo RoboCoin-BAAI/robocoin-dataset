@@ -11,24 +11,21 @@ from pathlib import Path
 
 
 class DatasetsHubEnum(str, Enum):
-    """
-    Enumeration of supported dataset hub platforms.
+  """
+  Enumeration of supported dataset hub platforms.
 
-    Attributes:
-        HUGGINGFACE: Huggingface platform identifier.
-        MODELSCOPE: Modelscope platform identifier.
-    """
+  Attributes:
+      HUGGINGFACE: Huggingface platform identifier.
+      MODELSCOPE: Modelscope platform identifier.
+  """
 
-    HUGGINGFACE = "Huggingface"
-    MODELSCOPE = "Modelscope"
+  huggingface = "huggingface"
+  modelscope = "modelscope"
 
 
 # Platform configuration
-DS_PLATFORM_NAME = "RoboCoin"
+DS_PLATFORM_NAME = "robocoin"
 """str: Name of the dataset platform."""
-
-DEFAULT_DOWNLOAD_PATH = f"~/.cache/{DS_PLATFORM_NAME}"
-"""str: Default path for downloading datasets."""
 
 
 # Upload configuration
@@ -37,14 +34,6 @@ DEFAULT_UPLOAD_ALLOW_PATTERNS = None
 
 DEFAULT_UPLOAD_IGNORE_PATTERNS = [".commit_message"]
 """list[str]: Default file patterns to ignore during upload."""
-
-
-# Download configuration
-DEFAULT_DOWNLOAD_ALLOW_PATTERNS = None
-"""Optional[list[str]]: Default file patterns to allow during download (None means all files)."""
-
-DEFAULT_DOWNLOAD_IGNORE_PATTERNS = [".commit_message", ".gitattributes"]
-"""list[str]: Default file patterns to ignore during download."""
 
 
 # Commit and versioning
@@ -88,25 +77,25 @@ README_FILE = "README.md"
 
 
 LOCAL_DATASET_CHECK_STRUCTURE = [
-    LEROBOT_META_INFO_FILE,
-    ANNOTATION_SOURCE_FILE,
-    DEVICE_INFO_SOURCE_FILE,
+  LEROBOT_META_INFO_FILE,
+  ANNOTATION_SOURCE_FILE,
+  DEVICE_INFO_SOURCE_FILE,
 ]
 """list[str]: Required files for basic local dataset validation."""
 
 GEN_README_DATASET_ADDITIONAL_CHECK_STRUCTURE = [
-    DATASET_INFO_FILE,
+  DATASET_INFO_FILE,
 ]
 """list[str]: Additional files required for README generation."""
 
 UPLOAD_DATASET_ADDITIONAL_CHECK_STRUCTURE = [
-    README_FILE,
+  README_FILE,
 ]
 """list[str]: Additional files required for dataset upload."""
 
 IGNORED_SUBTASKS = [
-    "end",
-    "abnormal",
+  "end",
+  "abnormal",
 ]
 """list[str]: Subtasks that should be ignored during processing."""
 
@@ -125,3 +114,5 @@ DATASETS_GEN_INFO_LOG_FOLDER = "datasets_genreadme_logs"
 
 DATASET_INFO_TEMPLATE_FILE = "templates/dataset_info.yml"
 """str: Path to the dataset info template file."""
+
+DEFAULT_OUTPUT_LOG_PATH = Path("./outputs/logs")

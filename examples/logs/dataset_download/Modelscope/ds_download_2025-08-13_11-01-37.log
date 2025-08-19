@@ -1,0 +1,5 @@
+2025-08-13 11:01:37 - DsDownloadUtil-Modelscope - INFO - Logging enabled, output to: examples/datasets/logs/dataset_download/Modelscope/ds_download_2025-08-13_11-01-37.log
+2025-08-13 11:01:37 - DsDownloadUtil-Modelscope - INFO - download root path /home/lxc/work/RoboCoin/examples/datasets/outputs/downloads/Modelscope does not exists, try to create it.
+2025-08-13 11:01:37 - DsDownloadUtil-Modelscope - INFO - mkdir /home/lxc/work/RoboCoin/examples/datasets/outputs/downloads/Modelscope success
+2025-08-13 11:01:38 - DsDownloadUtil-Modelscope - INFO - dataset example_dataset_1 downloaded successfully to examples/datasets/outputs/downloads/Modelscope/example_dataset_1
+2025-08-13 11:01:39 - DsDownloadUtil-Modelscope - INFO - dataset example_dataset_2 downloaded successfully to examples/datasets/outputs/downloads/Modelscope/example_dataset_2

@@ -1,0 +1,18 @@
+# 相机类型, 例如: rgbd, fisheye, depth，可使用多个标签，每行一个标签 
+# camera_types:
+# - rgbd
+# - fisheye
+# - depth
+
+# 相机型号, 例如: realsense_d435, zed2, hikvision，可使用多个标签，每行一个标签
+# camera_models:
+# - realsense_d435
+# - zed2
+# - hikvision
+
+# 相机数量: 1, 2, 3, 4, 5, 6, 7, 8
+# camera_num: 3
+
+# 
+# 声音传感器数量: 0
+# 触觉传感器数量: 0

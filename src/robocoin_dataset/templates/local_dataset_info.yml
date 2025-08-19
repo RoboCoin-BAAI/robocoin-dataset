@@ -1,0 +1,60 @@
+# dataset_name使用小写字母和下划线命名，例如 
+# dataset_name: pickup_objects_on_table
+dataset_name: pickup_objects_on_table
+
+# dataset_uuid为数据集的唯一标识符，由程序自动生成，无需人工填写
+dataset_uuid: 
+
+# 任务描述, 使用英文语句描述, 可使用多个描述, 每行一个描述, 例如: 
+# task_desriptions: 
+# - pickup apples from table and place it into basket.
+# - pickup oranges from table and place it into basket.
+# - pickup bananas from table and place it into basket.
+# 每次新增任务时, 必须在最后新增任务描述, 以避免任务描述的编号错误
+task_descriptions: 
+- pickup apples from table and place it into basket.
+
+# 场景类型, 例如: restaurant, kitchen, living_room，可使用多个标签，每行一个标签
+scene_type:
+- restaurant
+- kitchen
+
+# 原子动作: 例如: 抓, 拿, 放, 堆叠, 移动
+atomic_actions:
+- grasp
+- pickup
+- place
+- move
+
+# 物品: 分层级描述物品类别，例如:
+objects:
+- table:
+  level1: furniture
+  level2: table
+  level3: null
+  level4: null
+  level5: null
+- rag: 
+  level1: clothing
+  level2: rag
+  level3: null
+  level4: null
+  level5: null
+
+- basket:
+  level1: container
+  level2: basket
+  level3: null
+  level4: null
+  level5: null
+
+# 操作平面高度, 单位为cm, 例如: 77.2cm
+operation_platform_heigth: 77.2
+
+
+# device_model为数据集的设备类型，例如：agilex_pika_sense, agilex_cobot_magic_aloha, realman, 建议使用设备官方型号
+device_model: agilex_pika_sense
+
+# 末端设备类型, 例如: two_finger_gripper, three_finger_hand, five_finger_hand
+end_effector_type: two_finger_gripper
+

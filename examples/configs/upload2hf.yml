@@ -1,0 +1,71 @@
+# upload2hf.yml
+# used to config class LocalDsUploadConfig
+# class LocalDsUploadConfig(LocalDsConfig): 
+
+# ---------------------------------------------------------------------------
+# refer to 
+# class LocalDsUploadConfig(LocalDsConfig):
+#     hub_name: DatasetsHubEnum = DatasetsHubEnum.HUGGINGFACE
+#     token: str = ""
+#     output_path: str = ""
+
+# Path to the directory containing task tags YAML files.
+# which hub to upload to
+# Huggingface or Modelscope
+hub_name: Huggingface
+
+# token for authentication with the hub.
+token: 
+
+# output path where the history info of dataset uploading should be saved.
+output_path: ./examples/datasets/outputs/upload_history
+
+# ---------------------------------------------------------------------------
+# refer to 
+# class LocalDsConfig:
+#     root_path: Path = field(default_factory=Path)
+#     process_all: bool = True
+#     subdirs_to_process: list[str] = field(default_factory=list)
+#     subdirs_to_ignore: list[str] = field(default_factory=list)
+#     log_config: LogConfig = field(default_factory=LogConfig)
+
+# Path to the root directory of the datasets, which contains all datasets.
+root_path: ./examples/datasets/example_datas/
+
+# process_all is set to true by default,
+# it means all subdirectories will be processed,
+process_all: true
+
+# if you want to process only specific subdirectories,
+# set it to false and use subdirs_to_process to specify which subdirectories to process.
+# process_all: false
+
+# subdirs_to_process will not be considered if process_all is set to true.
+# or you can use the following format to specify subdirs to process,
+# each subdir will be considered as a separate dataset.
+# process_all: false
+# subdirs_to_process: 
+  # - realman_task_build_blocks_500_4.18
+  # - realman_task_stack_basket_500_4.27
+subdirs_to_process: []
+
+# subdirs_to_ignore is set to empty list by default,
+# it means no subdirectories will be ignored.
+# subdirs_to_ignore: []
+# or you can use the following format to specify subdirs to ignore.
+subdirs_to_ignore:
+  - not_a_dataset_dir
+
+# Log configuration
+log_config:
+    # where to save log files, the log directory will be created if it does not exist
+    log_dir: ./examples/datasets/logs/dataset_uploads
+    # whether to log to console
+    log_to_console: true
+    # log level, can be DEBUG, INFO, WARNING, ERROR, CRITICAL
+    log_level: INFO
+
+
+# ---------------------------------------------------------------------------
+# usage example:
+# python -m robocoin.datasets.upload --config ./examples/datasets/configs/upload_hf.yml
