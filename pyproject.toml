@@ -26,6 +26,7 @@ dependencies = [
 [project.scripts]
 # template_project = "template_project.main:main"
 collect_dataset_info_files = "robocoin_dataset.scripts.dataset_statics.collect_dataset_info_files:main"
+collect_dataset_statics = "robocoin_dataset.scripts.dataset_statics.collect_dataset_statics:main"
 # Add other scripts here
 
 [project.optional-dependencies]
