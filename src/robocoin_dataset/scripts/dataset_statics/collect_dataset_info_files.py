@@ -49,10 +49,10 @@ collect_dataset_info_files /mnt/nas/datas/ ./outputs/collected_dataset_infos/
 1. 输入参数：root_path, output_path
 2. 函数功能：
  (1) 如果output_path目录不存在，则创建该目录
- (2) 收集root_path目录下的所有子目录的local_dataset_info.yml文件，重命名为locao_dataset_info_1.yml并保存到output_path目录下
+ (2) 收集root_path目录下的所有子目录的local_dataset_info.yml文件，重命名为locao_dataset_info_1..n.yml并保存到output_path目录下
  (3) 另外新建一个local_dataset_info_hub.yml文件, 内容示例如下：
 ```yaml
-locao_dataset_info_1: /mnt/nas/datas/pika/pickup_apples/
+full_path(locao_dataset_info_1): /mnt/nas/datas/pika/pickup_apples/
 ```
 
 """
