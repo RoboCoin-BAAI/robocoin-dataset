@@ -1,6 +1,6 @@
-import json
 import os
 from pathlib import Path
+import re
 
 from .dataset_statics_collector import DatasetStaticsCollector
 
@@ -13,31 +13,55 @@ class DatasetStaticsCollectorUnitree(DatasetStaticsCollector):
         """
         Collect episode frames number from the dataset path.
         """
-        for root, _, files in os.walk(self.dataset_dir):
-            if "data.json" not in files:
-                continue
-            del _[:]  
+        statics_paths = []
+        for current_path, subdirs, files in os.walk(self.dataset_dir):
+            if "data.json" in files:
+                file_path = Path(current_path) / "data.json"
+                statics_paths.append(file_path)
+                subdirs.clear()
 
-            data_file = Path(root) / "data.json"
-            max_idx = -1
+        if not statics_paths:
+            raise FileNotFoundError(f"No statistic.txt found in {self.dataset_dir}")
+        
+        idx_pattern = re.compile(rb'"idx"\s*:\s*(\d+)')
 
-            with open(data_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    if line.strip().startswith("{"):
-                        try:
-                            obj = json.loads(line)
-                            idx = obj.get("idx")
-                            if isinstance(idx, int):
-                                max_idx = max(max_idx, idx)
-                        except json.JSONDecodeError:
-                            continue
-                    else:
-                        if "idx" in line:
-                            parts = line.split()
-                            if len(parts) > 2:
-                                try:
-                                    idx = int(parts[2])
-                                    max_idx = max(max_idx, idx)
-                                except ValueError:
-                                    continue
-            self.episode_frame_cnt[str(data_file.parent)] = max_idx + 1
+        for file_path in statics_paths:
+            idx_count = 0  
+            try:
+                with file_path.open("r", encoding="utf-8") as f:
+                    for line in f:
+                        for m in idx_pattern.finditer(line):
+                            idx_count += 1  
+            except Exception as e:
+                print(f"Error reading {file_path}: {e}")
+
+            self.dataset_statics.episode_frames_num.append(idx_count)
+            
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
