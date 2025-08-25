@@ -24,9 +24,15 @@ class DatasetStaticsCollectorHdf5(DatasetStaticsCollector):
         if not hdf5_files:
             raise FileNotFoundError(f"No HDF5 files found in {self.dataset_dir}")
 
-        try:
-            with h5py.File(hdf5_files[0], "r") as f:
-                episode_frames_num = f["action"].shape()[0]
-                self.dataset_statics.episode_frames_num += episode_frames_num
-        except Exception as e:
-            raise ValueError(f"Error opening HDF5 file: {e}")
+        hdf5_file_in_processing = ""
+        for hdf5_file in hdf5_files:
+            hdf5_file_in_processing = hdf5_file
+            if not hdf5_file.is_file():
+                continue
+            try:
+                with h5py.File(hdf5_file, "r") as f:
+                    if "action" in f:
+                        episode_frames_num = f["observations.qpos"].shape[0]
+                        self.dataset_statics.episode_frames_num.append(episode_frames_num)
+            except Exception as e:
+                print(f"Error processing HDF5 file {hdf5_file_in_processing}: {e}")

@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.9, <3.11"
 authors = [{ name = "Your Name", email = "YourEmail@email.com" }]
 
-# project dependencies
 dependencies = [
   # add your own dependencies
   # "dora-rs >= 0.3.9",
@@ -20,13 +19,21 @@ dependencies = [
   "numpy-quaternion",
   "h5py",
   "pyyaml",
-]
+  "deepmerge",
+  "opencv-python",
+  "json-lines",
+  "rosbags",
+  "ruamel.yaml",
+
+] # project dependencies
 
 # scripts path
 [project.scripts]
 # template_project = "template_project.main:main"
 collect_dataset_info_files = "robocoin_dataset.scripts.dataset_statics.collect_dataset_info_files:main"
+fix_dataset_info_files = "robocoin_dataset.scripts.dataset_statics.fix_dataset_info_files:main"
 collect_dataset_statics = "robocoin_dataset.scripts.dataset_statics.collect_dataset_statics:main"
+list_devices = "robocoin_dataset.scripts.dataset_statics.tests.list_devices:main"
 # Add other scripts here
 
 [project.optional-dependencies]

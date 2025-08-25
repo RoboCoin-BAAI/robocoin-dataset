@@ -18,10 +18,11 @@ class DatasetStaticsCollector:
             raise FileNotFoundError(f"Dataset info file {self.dataset_info_file} not found.")
         if not self.dataset_dir.exists():
             raise FileNotFoundError(f"Dataset directory {self.dataset_dir} not found.")
-        if self.dataset_info_file.suffix != ".yml":
+        if self.dataset_info_file.suffix != ".yml" and self.dataset_info_file.suffix != ".yaml":
             raise ValueError(f"Dataset info file {self.dataset_info_file} must be a YAML file.")
 
         self.dataset_statics = DatasetStatics()
+        print(f"Collecting dataset statics for {self.dataset_dir}...")
 
     def collect(self) -> DatasetStatics:
         """
@@ -29,7 +30,7 @@ class DatasetStaticsCollector:
         """
         self._collect_dataset_info()
         self._collect_episode_frames_num()
-        pass
+        return self.dataset_statics
 
     def _collect_dataset_info(self) -> DatasetStatics:
         """

@@ -13,22 +13,34 @@ class DatasetStaticsCollectorPika(DatasetStaticsCollector):
         Collect episode frames number from the dataset path.
         """
         # Implement the logic to collect episode frames number
-        statics_path = []
-        for current_path, subdirs, files in os.walk(self.dataset_dir):
-            if "statistic.txt" in files:
-                file_path = Path(current_path) / "statistic.txt"
-                statics_path.append(file_path)
-                subdirs.clear()
 
-        if not statics_path:
-            raise FileNotFoundError(f"No statistic.txt found in {self.dataset_dir}")
+        def find_first_jpg_dir_count(episode_dir: str) -> int:
+            for root, dirs, files in os.walk(episode_dir):
+                jpg_files = [
+                    f for f in files if f.lower().endswith(".jpg") or f.lower().endswith(".jpeg")
+                ]
+                if jpg_files:
+                    return len(jpg_files)
+            return 0
 
-        for file_path in statics_path:
-            with open(file_path) as file:
-                lines = file.readlines()
-                for line in lines:
-                    if "camera/color/pikaDepthCamera_l" in line:
-                        parts = line.split(" ")
-                        if len(parts) > 2:
-                            self.dataset_statics.episode_frames_num.append(int(parts[2]))
-                            break
+        dirs_to_scan = []
+
+        episode_dirs = []
+        dirs_to_scan.append(self.dataset_dir)
+
+        while len(dirs_to_scan) > 0:
+            current_path = dirs_to_scan.pop(0)
+            dirs = Path(current_path).iterdir()
+            for dir in dirs:
+                if not dir.is_dir():
+                    continue
+                if dir.name.startswith("episode"):
+                    episode_dirs.append(dir)
+                    continue
+                dirs_to_scan.append(dir)
+        print(f"Found {len(episode_dirs)} episode dirs...")
+        for episode_dir in episode_dirs:
+            print(f"Processing {episode_dir}...")
+            episode_frame_num = find_first_jpg_dir_count(episode_dir)
+            print(f"Episode frame num: {episode_frame_num}")
+            self.dataset_statics.episode_frames_num.append(find_first_jpg_dir_count(episode_dir))

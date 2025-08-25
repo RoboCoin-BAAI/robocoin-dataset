@@ -15,7 +15,7 @@ class DatasetStaticsCollectorFactory:
         self.config_file = config_file
         if not self.config_file.exists():
             raise FileNotFoundError(f"Config file {self.config_file} not found.")
-        if self.config_file.suffix != ".yml":
+        if self.config_file.suffix != ".yml" and self.config_file.suffix != ".yaml":
             raise ValueError(f"Config file {self.config_file} must be a YAML file.")
 
         try:
@@ -44,10 +44,10 @@ class DatasetStaticsCollectorFactory:
         if not dataset_dir.exists():
             raise FileNotFoundError(f"Dataset directory {dataset_dir} not found.")
 
-        if dataset_info_file.suffix != ".yml":
+        if dataset_info_file.suffix != ".yaml" and dataset_info_file.suffix != ".yml":
             raise ValueError(f"Dataset info file {dataset_info_file} must be a YAML file.")
 
-        device_model = ""
+        device_model = []
         try:
             with open(dataset_info_file) as file:
                 data = yaml.safe_load(file)
@@ -55,6 +55,9 @@ class DatasetStaticsCollectorFactory:
         except Exception as e:
             print(f"Error loading dataset info file {dataset_info_file}: {e}")
 
+        if not device_model:
+            raise ValueError(f"Device model not found in dataset info file {dataset_info_file}.")
+        device_model = device_model[0]
         if device_model not in self.collectors_config:
             raise ValueError(
                 f"Unsupported device model: {device_model}. Available models: {list(self.collectors_config.keys())}"
@@ -67,5 +70,4 @@ class DatasetStaticsCollectorFactory:
             collector_class = getattr(module, class_name)
             return collector_class(dataset_info_file, dataset_dir)
         except Exception as e:
-            print(f"Error loading dataset info file {dataset_info_file}: {e}")
-            raise
+            raise e from e

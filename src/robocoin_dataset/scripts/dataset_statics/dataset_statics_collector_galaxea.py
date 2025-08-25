@@ -5,7 +5,7 @@ from rosbags.rosbag1 import Reader
 from .dataset_statics_collector import DatasetStaticsCollector
 
 
-class DatasetStaticsCollectorgalaxea(DatasetStaticsCollector):
+class DatasetStaticsCollectorGalaxea(DatasetStaticsCollector):
     def __init__(self, dataset_info_file: Path, dataset_dir: Path) -> None:
         super().__init__(dataset_info_file, dataset_dir)
 
@@ -30,28 +30,3 @@ class DatasetStaticsCollectorgalaxea(DatasetStaticsCollector):
                     self.dataset_statics.episode_frames_num.append(episode_frames_num)
         except Exception as e:
             print(f"Error processing {bag_file.name}: {e}")
-                
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        

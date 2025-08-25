@@ -10,7 +10,7 @@ def generate_h5_task_info_file(h5dir_path: Path) -> None:
     """
     Generate a UUID mark file in the specified H5 directory.
 
-    Args:
+    Arg:
       h5dir_path (str): Path to the H5 directory where the UUID file will be created.
     """
 

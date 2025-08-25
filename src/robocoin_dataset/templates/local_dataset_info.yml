@@ -28,20 +28,21 @@ atomic_actions:
 
 # 物品: 分层级描述物品类别，例如:
 objects:
-- table:
+- object_name: table
   level1: furniture
   level2: table
   level3: null
   level4: null
   level5: null
-- rag: 
+
+- object_name: rag 
   level1: clothing
   level2: rag
   level3: null
   level4: null
   level5: null
 
-- basket:
+- object_name: basket
   level1: container
   level2: basket
   level3: null
@@ -57,4 +58,7 @@ device_model: agilex_pika_sense
 
 # 末端设备类型, 例如: two_finger_gripper, three_finger_hand, five_finger_hand
 end_effector_type: two_finger_gripper
+
+device__list:
+
 

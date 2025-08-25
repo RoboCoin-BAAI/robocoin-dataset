@@ -11,16 +11,16 @@ from pathlib import Path
 
 
 class DatasetsHubEnum(str, Enum):
-  """
-  Enumeration of supported dataset hub platforms.
+    """
+    Enumeration of supported dataset hub platforms.
 
-  Attributes:
-      HUGGINGFACE: Huggingface platform identifier.
-      MODELSCOPE: Modelscope platform identifier.
-  """
+    Attributes:
+        HUGGINGFACE: Huggingface platform identifier.
+        MODELSCOPE: Modelscope platform identifier.
+    """
 
-  huggingface = "huggingface"
-  modelscope = "modelscope"
+    huggingface = "huggingface"
+    modelscope = "modelscope"
 
 
 # Platform configuration
@@ -77,25 +77,25 @@ README_FILE = "README.md"
 
 
 LOCAL_DATASET_CHECK_STRUCTURE = [
-  LEROBOT_META_INFO_FILE,
-  ANNOTATION_SOURCE_FILE,
-  DEVICE_INFO_SOURCE_FILE,
+    LEROBOT_META_INFO_FILE,
+    ANNOTATION_SOURCE_FILE,
+    DEVICE_INFO_SOURCE_FILE,
 ]
 """list[str]: Required files for basic local dataset validation."""
 
 GEN_README_DATASET_ADDITIONAL_CHECK_STRUCTURE = [
-  DATASET_INFO_FILE,
+    DATASET_INFO_FILE,
 ]
 """list[str]: Additional files required for README generation."""
 
 UPLOAD_DATASET_ADDITIONAL_CHECK_STRUCTURE = [
-  README_FILE,
+    README_FILE,
 ]
 """list[str]: Additional files required for dataset upload."""
 
 IGNORED_SUBTASKS = [
-  "end",
-  "abnormal",
+    "end",
+    "abnormal",
 ]
 """list[str]: Subtasks that should be ignored during processing."""
 
@@ -116,3 +116,28 @@ DATASET_INFO_TEMPLATE_FILE = "templates/dataset_info.yml"
 """str: Path to the dataset info template file."""
 
 DEFAULT_OUTPUT_LOG_PATH = Path("./outputs/logs")
+
+LOCAL_DATASET_INFO_FILE = "local_dataset_info.yml"
+
+DEVICE_LIST_KEY = "device_list"
+
+DEVICE_TO_FEATURES_FILE = "device_to_features.yml"
+
+
+LEROBOT_FEATURES_KEY = "features"
+
+LEROBOT_OSERVATION_KEY = "observation"
+
+LEROBOT_IMAGE_KEY = "images"
+
+LEROBOT_STATE_KEY = "state"
+
+LEROBOT_ACTION_KEY = "action"
+
+LEROBOT_CAM_NAME_KEY = "cam_name"
+
+LEROBOT_STATE_NAME_KEY = "state_name"
+
+LEROBOT_ACTION_NAME_KEY = "action_name"
+
+LEROBOT_DEFAULT_IMAGE_SHAPE_NAMES = ["height", "width", "channels"]

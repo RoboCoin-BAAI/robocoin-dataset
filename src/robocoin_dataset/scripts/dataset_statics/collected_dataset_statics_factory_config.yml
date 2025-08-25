@@ -1,0 +1,71 @@
+# config.yml
+agilex_pika_sense:
+  module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_pika
+  class: DatasetStaticsCollectorPika
+
+agilex_pika_sense_single:
+  module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_pika
+  class: DatasetStaticsCollectorPika
+
+# agilex_cobot_magic_aloha:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_hdf5
+#   class: DatasetStaticsCollectorHdf5
+
+# agilex_cobot_decoupled_magic:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_hdf5
+#   class: DatasetStaticsCollectorHdf5
+
+# realman_rmc_aidal:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_hdf5
+#   class: DatasetStaticsCollectorHdf5
+
+# galaxea_r1_lite:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_galaxea.py
+#   class: DatasetStaticsCollectorGalaxea
+
+# adora_dual_v1: 
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_lerobot.py
+#   class: DatasetStaticsCollectorLerobot
+
+# unitree_g1:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_unitree
+#   class: DatasetStaticsCollectorUnitree
+
+# human:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_visionpro_
+#   class: DatasetStaticsCollectorVisionPro
+
+# visionpro:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_visionpro_
+#   class: DatasetStaticsCollectorVisionPro
+
+# discover_robotics_aitbot_mmk2:
+#   module: robocoin_dataset.scripts.dataset_statics.dataset_statics_collector_visionpro_
+#   class: DatasetStaticsCollectorVisionPro
+
+
+# unitree_g1
+# galaxea_r1_lite
+# agilex_cobot_magic_aloha
+# realman_rmc_aidal
+# agilex_pika_sense
+# discover_robotics_aitbot_mmk2
+# human
+# visionpro
+# agilex_pika_sense_single
+# agilex_cobot_decoupled_magic
+# adora_dual_v1
+
+
+# pika：/docker/1.上传数据/data4/pika/task_build_blocks_1000_4.27
+# 单臂pika：
+# /docker/1.上传数据/待标注数据/pika/task_pour_basket_single_arm_banana_1000_5.26
+# 松灵合体：/docker/1.上传数据/data4/aloha/task_glasses_500_4.23
+# 松灵分体：/docker/1.上传数据/data4/松灵分体/task_pour_bowl_500_4.23
+# 睿尔曼：/docker/1.上传数据/data4/realman/task_build_blocks _500_4.18
+# 星海图：/docker/八月数据/星海图/yunfan/put_the_pen_200
+# adora：/docker/1.上传数据/data4/futurewei机器人/adora_dual_grasp_best_100
+# 宇树：/docker/1.上传数据/data1/宇树G1迟程组/G1_grab_bread_1038
+# human：/docker/1.上传数据/data4/visionpro/task_document_bag_1000_4.25
+# 求之mmk：暂时没传到nas，我传上去之后补充一个路径
+

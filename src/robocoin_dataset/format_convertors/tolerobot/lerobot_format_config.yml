@@ -1,0 +1,23 @@
+features:
+  observation:
+    images:
+      cam_high: some_args
+      cam_left_wrist: some_args
+      cam_right_wrist: some_args
+      
+    # audio:
+    #   mic_high: some_args
+    #   mic_left_wrist: some_args
+    #   mic_right_wrist: some_args
+
+    state:
+      gripper: some_args
+      left_wrist: some_args
+      right_wrist: some_args
+      left_elbow: some_args
+      right_elbow: some_args
+
+  action:
+
+
+    

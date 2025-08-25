@@ -1,0 +1,25 @@
+dataset_uuid:
+dataset_name:
+lerobot_dataset_local_path:
+lerobot_dataset_process_status: 
+  format_converted: false
+  data_annotated: false
+  readme_generated: false
+
+modelscope_hub:
+  uploaded: false
+  modelscope_repo_id:
+
+huggingface_hub:
+  uploaded: false
+  huggingface_repo_id:
+
+baai_hub:
+  uploaded: false
+  baai_repo_id:
+
+dataset_evluation:
+  policy_evaluation:
+    act_policy: false
+    diffustion_policy: false
+    pi0_policy: false
