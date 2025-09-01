@@ -67,3 +67,4 @@ uv.lock
 .settings
 
 outputs/
+**/temp/

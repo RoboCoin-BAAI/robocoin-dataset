@@ -3,15 +3,20 @@ from pathlib import Path
 
 import yaml
 
-from .dataset_statics_collector import DatasetStaticsCollector
+from .episode_frames_collector import EpisodeFramesCollector
 
 
-class DatasetStaticsCollectorFactory:
+class EpisodeFramesCollectorFactory:
     """
     Factory class to create dataset statics collectors based on the type.
     """
 
-    def __init__(self, config_file: Path) -> None:
+    def __init__(
+        self,
+        config_file: Path = Path(__file__).parent
+        / "configs"
+        / "episode_frames_collector_factory_config.yaml",
+    ) -> None:
         self.config_file = config_file
         if not self.config_file.exists():
             raise FileNotFoundError(f"Config file {self.config_file} not found.")
@@ -22,11 +27,11 @@ class DatasetStaticsCollectorFactory:
             with open(self.config_file) as file:
                 self.collectors_config = yaml.safe_load(file)
         except yaml.YAMLError as e:
-            raise ValueError(f"Error parsing YAML config file {self.config_file}: {e}")
+            raise ValueError(f"Error parsing YAML config file {self.config_file}") from e
 
     def create_collector(
         self, dataset_info_file: Path, dataset_dir: Path
-    ) -> DatasetStaticsCollector:
+    ) -> EpisodeFramesCollector:
         """
         Create a dataset statics collector based on the collector type.
 
@@ -36,7 +41,7 @@ class DatasetStaticsCollectorFactory:
             dataset_dir (Path): Path to the dataset directory.
 
         Returns:
-            DatasetStaticsCollector: An instance of the appropriate collector.
+            EpisodeFramesCollector: An instance of the appropriate collector.
         """
 
         if not dataset_info_file.exists():
@@ -53,7 +58,7 @@ class DatasetStaticsCollectorFactory:
                 data = yaml.safe_load(file)
                 device_model = data.get("device_model", "")
         except Exception as e:
-            print(f"Error loading dataset info file {dataset_info_file}: {e}")
+            raise ValueError(f"Error loading dataset info file {dataset_info_file}: {e}")
 
         if not device_model:
             raise ValueError(f"Device model not found in dataset info file {dataset_info_file}.")
@@ -70,4 +75,6 @@ class DatasetStaticsCollectorFactory:
             collector_class = getattr(module, class_name)
             return collector_class(dataset_info_file, dataset_dir)
         except Exception as e:
-            raise e from e
+            raise ImportError(
+                f"Failed to import collector class for device model {device_model}. Error: {e}"
+            )

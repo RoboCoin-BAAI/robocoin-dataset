@@ -117,16 +117,16 @@ DATASET_INFO_TEMPLATE_FILE = "templates/dataset_info.yml"
 
 DEFAULT_OUTPUT_LOG_PATH = Path("./outputs/logs")
 
-LOCAL_DATASET_INFO_FILE = "local_dataset_info.yml"
+LOCAL_DATASET_INFO_FILE = "local_dataset_info.yaml"
 
 DEVICE_LIST_KEY = "device_list"
 
-DEVICE_TO_FEATURES_FILE = "device_to_features.yml"
+DEVICE_TO_FEATURES_FILE = "device_lerobot/features/device2features.yml"
 
 
 LEROBOT_FEATURES_KEY = "features"
 
-LEROBOT_OSERVATION_KEY = "observation"
+LEROBOT_OBSERVATION_KEY = "observation"
 
 LEROBOT_IMAGE_KEY = "images"
 
@@ -134,10 +134,17 @@ LEROBOT_STATE_KEY = "state"
 
 LEROBOT_ACTION_KEY = "action"
 
-LEROBOT_CAM_NAME_KEY = "cam_name"
+FEATURE_CAM_NAME_KEY = "cam_name"
 
-LEROBOT_STATE_NAME_KEY = "state_name"
-
-LEROBOT_ACTION_NAME_KEY = "action_name"
+LEROBOT_FEATURE_DESCRIPTON_KEY = "description"
 
 LEROBOT_DEFAULT_IMAGE_SHAPE_NAMES = ["height", "width", "channels"]
+
+FEATURE_NAME_KEY = "names"
+
+TASK_DESCRIPTIONS_KEY = "task_descriptions"
+
+LOCAL_TASK_INFO_FILE_NAME = "local_task_info.yaml"
+
+
+TASK_INDEX_KEY = "task_index"

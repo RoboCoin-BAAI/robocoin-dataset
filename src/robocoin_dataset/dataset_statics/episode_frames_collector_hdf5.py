@@ -2,14 +2,14 @@ from pathlib import Path
 
 import h5py
 
-from .dataset_statics_collector import DatasetStaticsCollector
+from .episode_frames_collector import EpisodeFramesCollector
 
 
-class DatasetStaticsCollectorHdf5(DatasetStaticsCollector):
+class EpisodeFramesCollectorHdf5(EpisodeFramesCollector):
     def __init__(self, dataset_info_file: Path, dataset_dir: Path) -> None:
         super().__init__(dataset_info_file, dataset_dir)
 
-    def _collect_episode_frames_num(self) -> None:
+    def _collect_episode_frames_num(self) -> list[int]:
         """
         Collect episode frames number from the dataset path.
         """
@@ -24,15 +24,14 @@ class DatasetStaticsCollectorHdf5(DatasetStaticsCollector):
         if not hdf5_files:
             raise FileNotFoundError(f"No HDF5 files found in {self.dataset_dir}")
 
-        hdf5_file_in_processing = ""
+        episode_frames_num: list[int] = []
         for hdf5_file in hdf5_files:
-            hdf5_file_in_processing = hdf5_file
             if not hdf5_file.is_file():
                 continue
             try:
                 with h5py.File(hdf5_file, "r") as f:
-                    if "action" in f:
-                        episode_frames_num = f["observations.qpos"].shape[0]
-                        self.dataset_statics.episode_frames_num.append(episode_frames_num)
-            except Exception as e:
-                print(f"Error processing HDF5 file {hdf5_file_in_processing}: {e}")
+                    episode_frames_num.append(f["/observations/qpos"].shape[0])
+            except Exception:
+                continue
+
+        return episode_frames_num

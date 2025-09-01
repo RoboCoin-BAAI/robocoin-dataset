@@ -24,7 +24,8 @@ dependencies = [
   "json-lines",
   "rosbags",
   "ruamel.yaml",
-
+  "scipy",
+  "natsort",
 ] # project dependencies
 
 # scripts path
@@ -32,8 +33,10 @@ dependencies = [
 # template_project = "template_project.main:main"
 collect_dataset_info_files = "robocoin_dataset.scripts.dataset_statics.collect_dataset_info_files:main"
 fix_dataset_info_files = "robocoin_dataset.scripts.dataset_statics.fix_dataset_info_files:main"
-collect_dataset_statics = "robocoin_dataset.scripts.dataset_statics.collect_dataset_statics:main"
+collect_dataset_episode_frames_num = "robocoin_dataset.scripts.dataset_statics.collect_dataset_episode_frames_num:main"
 list_devices = "robocoin_dataset.scripts.dataset_statics.tests.list_devices:main"
+list_invalid_episode_num_info_files = "robocoin_dataset.scripts.dataset_statics.list_invalid_episode_num_info_files:main"
+convert2lerobot = "robocoin_dataset.scripts.format_convertors.tolerobot.convert2lerobot:main"
 # Add other scripts here
 
 [project.optional-dependencies]
