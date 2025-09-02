@@ -14,7 +14,7 @@ from robocoin_dataset.constant import (
     TASK_DESCRIPTIONS_KEY,
     TASK_INDEX_KEY,
 )
-from robocoin_dataset.format_convertors.tolerobot.constant import (
+from robocoin_dataset.format_converter.tolerobot.constant import (
     ACTION_KEY,
     ARGS_KEY,
     CAM_NAME_KEY,
@@ -37,7 +37,7 @@ from robocoin_dataset.format_convertors.tolerobot.constant import (
     SUB_ACTION_KEY,
     SUB_STATE_KEY,
 )
-from robocoin_dataset.utils.spatial_data_convertor import spatial_covertor_funcs
+from robocoin_dataset.format_converter.utils.spatial_data_convertor import spatial_covertor_funcs
 
 
 class LerobotFormatConvertor:

@@ -9,14 +9,14 @@ import numpy as np
 from natsort import natsorted
 from PIL import Image
 
-from robocoin_dataset.format_convertors.tolerobot.constant import (
+from robocoin_dataset.format_converter.tolerobot.constant import (
     ARGS_KEY,
     FEATURES_KEY,
     OBSERVATION_KEY,
     STATE_KEY,
     SUB_STATE_KEY,
 )
-from robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor import (
+from robocoin_dataset.format_converter.tolerobot.lerobot_format_convertor import (
     LerobotFormatConvertor,
 )
 
