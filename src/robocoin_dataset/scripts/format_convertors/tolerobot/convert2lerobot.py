@@ -116,7 +116,10 @@ def convert2lerobot(
     total_episodes = convertor.get_episodes_num()
     print(f"Total Episodes: {total_episodes}")
     for task, ep_idx in tqdm(
-        convertor.convert(), total=total_episodes, desc="Converting Dataset", unit="episode"
+        convertor.convert(),
+        total=total_episodes,
+        desc="Converting Dataset",
+        unit="episode",
     ):
         tqdm.write(f"Converted episode {ep_idx} of task {task}")
 
@@ -169,6 +172,7 @@ if __name__ == "__main__":
 
 
 """ usage:
+source .venv/bin/activate
 convert2lerobot \
     --dataset_path /mnt/nas/1.上传数据/data4/realman/task_stir_coffee_500_4.27 \
     --output_path ./outputs/lerobot_convertor/ \
@@ -176,5 +180,6 @@ convert2lerobot \
     --factory_config_path ./src/robocoin_dataset/scripts/format_convertors/tolerobot/configs/convertor_factory_config.yaml \
     --repo_id robocoin/stir_coffee \
     --log_path ./outputs/lerobot_convertor/logs/
+
 
 """

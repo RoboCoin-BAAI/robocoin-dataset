@@ -53,8 +53,6 @@ class LerobotFormatConvertorHdf5(LerobotFormatConvertor):
             images_buffer = self._prepare_episode_images_buffer(task_path, ep_idx)
 
         h5_path = args_dict["h5_path"]
-        print("h5_override _get_frame_image")
-        print(f"h5_path: {h5_path}, keys: {images_buffer.keys()}")
         image_bytes = images_buffer[h5_path][frame_idx]
         img = Image.open(io.BytesIO(image_bytes))
         return np.array(img)
@@ -113,11 +111,11 @@ class LerobotFormatConvertorHdf5(LerobotFormatConvertor):
         return self._get_episode_h5_data(task_path, ep_idx)
 
     # @override
-    def _prepare_episode_state_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_states_buffer(self, task_path: Path, ep_idx: int) -> any:
         return self._get_episode_h5_data(task_path, ep_idx)
 
     # @override
-    def _prepare_episode_action_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_actions_buffer(self, task_path: Path, ep_idx: int) -> any:
         return self._get_episode_h5_data(task_path, ep_idx)
 
     @cached_property
@@ -133,11 +131,10 @@ class LerobotFormatConvertorHdf5(LerobotFormatConvertor):
     def _get_episode_h5_data(self, task_path: Path, ep_idx: int) -> any:
         should_load = self.h5_buffer.task_path != task_path or self.h5_buffer.ep_idx != ep_idx
         if not should_load:
-            print(f"buffer is ok, skipping Loading episode {ep_idx} from {task_path}")
             return self.h5_buffer.h5_data
         self.h5_buffer.h5_data = {}
 
-        def _get_dataset(name: str, obj: any) -> np.ndarray:
+        def _get_dataset(name: str, obj: any) -> None:
             if isinstance(obj, h5py.Dataset):
                 self.h5_buffer.h5_data[name] = obj[()]
 
@@ -146,6 +143,4 @@ class LerobotFormatConvertorHdf5(LerobotFormatConvertor):
             self.h5_buffer.task_path = task_path
             self.h5_buffer.ep_idx = ep_idx
 
-        print("h5_file loaded")
-        print(self.h5_buffer.h5_data.keys())
         return self.h5_buffer.h5_data

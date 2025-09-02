@@ -143,10 +143,10 @@ class LerobotFormatConvertor:
     def _prepare_episode_images_buffer(self, task_path: Path, ep_idx: int) -> any:
         return None
 
-    def _prepare_episode_state_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_states_buffer(self, task_path: Path, ep_idx: int) -> any:
         return None
 
-    def _prepare_episode_action_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_actions_buffer(self, task_path: Path, ep_idx: int) -> any:
         return None
 
     def _get_task_episodes_num(self, task_path: Path) -> int:
@@ -167,13 +167,9 @@ class LerobotFormatConvertor:
         Generate a single frame for the episode.
         """
         frame_data = {}
-        print(f"_gen_episode_frame, {images_buffer.keys()}")
         frame_data[FRAME_IDX_KEY] = frame_idx
-        print(f"_gen_frame_images, {images_buffer.keys()}")
         frame_data[IMAGE_KEY] = self._get_frame_images(task_path, ep_idx, frame_idx, images_buffer)
-        print(f"_gen_frame_states, {states_buffer.keys()}")
         frame_data[STATE_KEY] = self._get_frame_states(task_path, ep_idx, frame_idx, states_buffer)
-        print(f"_gen_frame_actions, {actions_buffer.keys()}")
         frame_data[ACTION_KEY] = self._get_frame_actions(
             task_path, ep_idx, frame_idx, actions_buffer
         )
@@ -318,7 +314,6 @@ class LerobotFormatConvertor:
 
     def _get_one_frame_image(self, args_dict: dict) -> np.ndarray:
         task_path = list(self.path_task_dict.keys())[0]
-        print("_get_one_frame_image")
         return self._get_frame_image(
             task_path=task_path, ep_idx=0, frame_idx=0, args_dict=args_dict
         )
@@ -393,7 +388,7 @@ class LerobotFormatConvertor:
         return images
 
     def _get_frame_states(
-        self, task_path: Path, ep_idx: int, frame_idx: int, episode_buffer: any = None
+        self, task_path: Path, ep_idx: int, frame_idx: int, states_buffer: any = None
     ) -> dict[str, np.ndarray]:
         lerobot_feature = self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             LEROBOT_FEATURE_KEY
@@ -409,7 +404,7 @@ class LerobotFormatConvertor:
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
                 args_dict=args_dict,
-                sub_states_buffer=episode_buffer,
+                sub_states_buffer=states_buffer,
             )
             if CONVERT_FUNC_KEY in state_config:
                 if state_config[CONVERT_FUNC_KEY] in spatial_covertor_funcs:
@@ -423,7 +418,7 @@ class LerobotFormatConvertor:
         return {lerobot_feature: np.concatenate(sub_states_datas)}
 
     def _get_frame_actions(
-        self, task_path: Path, ep_idx: int, frame_idx: int, episode_buffer: any = None
+        self, task_path: Path, ep_idx: int, frame_idx: int, actions_buffer: any = None
     ) -> dict[str, np.ndarray]:
         lerobot_feature = self.convertor_config[FEATURES_KEY][ACTION_KEY][LEROBOT_FEATURE_KEY]
         sub_actions_datas: list[np.ndarray] = []
@@ -436,7 +431,7 @@ class LerobotFormatConvertor:
                 frame_idx=frame_idx,
                 args_dict=args_dict,
                 names_num=names_num,
-                sub_actions_buffer=episode_buffer,
+                sub_actions_buffer=actions_buffer,
             )
 
             if CONVERT_FUNC_KEY in action_config:
@@ -454,36 +449,36 @@ class LerobotFormatConvertor:
         task_path: Path,
         ep_idx: int,
         frame_idx: int,
-        episode_images_buffer: any = None,
-        episode_states_buffer: any = None,
-        episode_actions_buffer: any = None,
+        images_buffer: any = None,
+        states_buffer: any = None,
+        actions_buffer: any = None,
     ) -> dict[str, np.ndarray]:
         return {
             **self._get_frame_images(
                 task_path=task_path,
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
-                images_buffer=episode_images_buffer,
+                images_buffer=images_buffer,
             ),
             **self._get_frame_states(
                 task_path=task_path,
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
-                states=episode_states_buffer,
+                states_buffer=states_buffer,
             ),
             **self._get_frame_actions(
                 task_path=task_path,
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
-                episode_buffer=episode_actions_buffer,
+                actions_buffer=actions_buffer,
             ),
         }
 
     def _prepare_episode_buffers(self, task_path: Path, ep_idx: int) -> tuple[any, any, any]:
         return (
             self._prepare_episode_images_buffer(task_path=task_path, ep_idx=ep_idx),
-            self._prepare_episode_state_buffer(task_path=task_path, ep_idx=ep_idx),
-            self._prepare_episode_action_buffer(task_path=task_path, ep_idx=ep_idx),
+            self._prepare_episode_states_buffer(task_path=task_path, ep_idx=ep_idx),
+            self._prepare_episode_actions_buffer(task_path=task_path, ep_idx=ep_idx),
         )
 
     def _get_lerobot_image_features(self) -> dict:
@@ -535,7 +530,12 @@ class LerobotFormatConvertor:
 
     def _create_lerobot_dataset(self, repo_id: str, **kwargs: any) -> LeRobotDataset:
         return LeRobotDataset.create(
-            repo_id=repo_id, features=self._get_lerobot_features(), fps=self.fps, **kwargs
+            repo_id=repo_id,
+            features=self._get_lerobot_features(),
+            fps=self.fps,
+            video_backend="pyav",
+            root=self.output_path / repo_id,
+            **kwargs,
         )
 
     def _get_episode_task(self, ep_idx: int) -> str:
@@ -551,7 +551,6 @@ class LerobotFormatConvertor:
     ) -> Iterable[dict]:
         for frame_idx in range(self._get_episode_frames_num(task_path=task_path, ep_idx=ep_idx)):
             try:
-                print(f"_gen_episode_frame {frame_idx}")
                 frame_data = self._gen_episode_frame(
                     task_path, ep_idx, frame_idx, images_buffer, states_buffer, actions_buffer
                 )
@@ -567,22 +566,21 @@ class LerobotFormatConvertor:
         dataset = self._create_lerobot_dataset(self.repo_id)
         for task_path, task in self.path_task_dict.items():
             for ep_idx in range(self._get_task_episodes_num(task_path)):
-                images_buffer, state_buffer, action_buffer = self._prepare_episode_buffers(
+                images_buffer, states_buffer, actions_buffer = self._prepare_episode_buffers(
                     task_path, ep_idx
                 )
-                print(f"Converting task {task} episode {ep_idx}")
                 for frame_data in self._gen_episode_frames(
-                    task_path, ep_idx, images_buffer, state_buffer, action_buffer
+                    task_path, ep_idx, images_buffer, states_buffer, actions_buffer
                 ):
                     lerobot_datas = self._get_lerobot_datas(
                         task_path=task_path,
                         ep_idx=ep_idx,
                         frame_idx=frame_data[FRAME_IDX_KEY],
-                        episode_images_buffer=frame_data[IMAGE_KEY],
-                        episode_states_buffer=frame_data[STATE_KEY],
-                        episode_actions_buffer=frame_data[ACTION_KEY],
+                        images_buffer=images_buffer,
+                        states_buffer=states_buffer,
+                        actions_buffer=actions_buffer,
                     )
-                    dataset.add_frame(lerobot_datas, self._get_episode_task(ep_idx), task=task)
+                    dataset.add_frame(frame=lerobot_datas, task=self._get_episode_task(ep_idx))
 
                 dataset.save_episode()
                 yield (task, ep_idx)
