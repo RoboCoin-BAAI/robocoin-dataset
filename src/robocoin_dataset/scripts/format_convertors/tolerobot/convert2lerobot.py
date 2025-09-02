@@ -114,7 +114,6 @@ def convert2lerobot(
     )
 
     total_episodes = convertor.get_episodes_num()
-    print(f"Total Episodes: {total_episodes}")
     for task, ep_idx in tqdm(
         convertor.convert(),
         total=total_episodes,
@@ -181,5 +180,12 @@ convert2lerobot \
     --repo_id robocoin/stir_coffee \
     --log_path ./outputs/lerobot_convertor/logs/
 
+convert2lerobot \
+    --dataset_path /mnt/nas/1.上传数据/data4/realman/task_stir_coffee_500_4.27 \ # 数据集路径
+    --output_path /mnt/nas/robocoin_datasets/robocoin/realman_rmc_aidal_stir_coffee \ # lerobot数据集存放路径
+    --device_model realman_rmc_aidal \ # 设备型号
+    --factory_config_path ./src/robocoin_dataset/scripts/format_convertors/tolerobot/configs/convertor_factory_config.yaml \ # 配置dict
+    --repo_id robocoin/realman_rmc_aidal_stir_coffee \ # 数据集仓库id
+    --log_path /mnt/nas/robocoin_datasets/robocoin/realman_rmc_aidal_stir_coffee/logs \ # 日志存放路径
 
 """
