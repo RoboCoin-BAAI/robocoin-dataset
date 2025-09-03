@@ -68,3 +68,5 @@ uv.lock
 
 outputs/
 **/temp/
+
+db/

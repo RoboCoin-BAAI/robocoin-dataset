@@ -26,6 +26,7 @@ dependencies = [
   "ruamel.yaml",
   "scipy",
   "natsort",
+  "sqlalchemy",
 ] # project dependencies
 
 # scripts path
