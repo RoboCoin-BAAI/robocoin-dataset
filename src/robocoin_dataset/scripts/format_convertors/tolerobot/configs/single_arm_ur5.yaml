@@ -1,3 +1,4 @@
+### jpg+json
 ### fps by manual
 fps: 30
 features:
@@ -149,7 +150,7 @@ features:
 
       args:
         ### keys and values by manual
-        h5_path: action
+        h5_path: observations/qpos
         range_from: 0
         range_to: 7
     
@@ -158,7 +159,7 @@ features:
       - left_gripper_open_rad
       args:
         ### keys and values by manual
-        h5_path: action
+        h5_path: observations/qpos
         range_from: 10
         range_to: 11
 
@@ -173,7 +174,7 @@ features:
       - left_joint_7_rad
       args:
         ### keys and values by manual
-        h5_path: action
+        h5_path: observations/qpos
         range_from: 50
         range_to: 57
 
@@ -182,7 +183,7 @@ features:
       - right_gripper_open_rad
       args:
         ### keys and values by manual
-        h5_path: action
+        h5_path: observations/qpos
         range_from: 60
         range_to: 61
     

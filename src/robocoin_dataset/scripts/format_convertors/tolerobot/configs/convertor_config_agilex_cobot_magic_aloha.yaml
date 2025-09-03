@@ -18,6 +18,19 @@ features:
       # names: [height, width, channels]
       # lerobot_feature: observations.images.cam_high : by _gen_lerobot_features()
         
+    ### values by manual
+    - cam_name: cam_high_realsense
+      args:
+
+        ### key and values by manual
+        h5_path: observations/images/cam_high_realsense
+
+
+      ### values by function
+      # dtype: video
+      # shape: [480, 640, 3]
+      # names: [height, width, channels]
+      # lerobot_feature: observations.images.cam_center : by _gen_lerobot_features()
 
     ### values by manual
     - cam_name: cam_left_wrist_rgb
@@ -55,7 +68,7 @@ features:
       # names: 
       # - right_joint_1_rad
       # - ...
-      # - right_joint_7_rad
+      # - right_joint_6_rad
       # - ...
 
 
@@ -68,14 +81,13 @@ features:
         - right_joint_4_rad
         - right_joint_5_rad
         - right_joint_6_rad
-        - right_joint_7_rad
 
         args:
           ### keys and values by manual
           h5_path: observations/qpos
           range_from: 0
-          range_to: 7
-        
+          range_to: 6
+
         ### values by manual
         # convert_func: degree2rad
       
@@ -99,13 +111,12 @@ features:
         - left_joint_4_rad
         - left_joint_5_rad
         - left_joint_6_rad
-        - left_joint_7_rad
 
         args:
           ### keys and values by manual
           h5_path: observations/qpos
           range_from: 50
-          range_to: 57
+          range_to: 56
 
         ### values by manual
         # convert_func: degree2rad
@@ -132,7 +143,7 @@ features:
     # names:
     # - right_joint_1_rad
     # - ...
-    # - right_joint_7_rad
+    # - right_joint_6_rad
     # - ...
 
     ### values by manual
@@ -145,14 +156,13 @@ features:
       - right_joint_4_rad
       - right_joint_5_rad
       - right_joint_6_rad
-      - right_joint_7_rad
 
       args:
         ### keys and values by manual
         h5_path: action
         range_from: 0
-        range_to: 7
-    
+        range_to: 6
+
     ### values by manual
     - names: 
       - left_gripper_open_rad
@@ -170,12 +180,11 @@ features:
       - left_joint_4_rad
       - left_joint_5_rad
       - left_joint_6_rad
-      - left_joint_7_rad
       args:
         ### keys and values by manual
         h5_path: action
         range_from: 50
-        range_to: 57
+        range_to: 56
 
     ### values by manual
     - names: 

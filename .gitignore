@@ -68,3 +68,9 @@ uv.lock
 
 outputs/
 **/temp/
+
+
+data/
+
+extracted_data/
+
