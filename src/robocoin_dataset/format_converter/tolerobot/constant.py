@@ -45,3 +45,5 @@ MODULE_KEY = "module"
 CLASS_KEY = "class"
 
 FLOAT32 = "float32"
+
+LEFORMAT_PATH = "leformat_path"

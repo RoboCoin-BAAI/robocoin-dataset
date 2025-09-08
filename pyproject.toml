@@ -27,6 +27,7 @@ dependencies = [
   "scipy",
   "natsort",
   "sqlalchemy",
+  "websockets",
 ] # project dependencies
 
 # scripts path

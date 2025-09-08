@@ -36,9 +36,10 @@ class LerobotFormatConvertorHdf5(LerobotFormatConvertor):
         convertor_config: dict,
         repo_id: str,
         logger: logging.Logger | None = None,
+        **kwargs: dict,
     ) -> None:
         self.h5_buffer: H5Buffer = H5Buffer()
-        super().__init__(dataset_path, output_path, convertor_config, repo_id, logger)
+        super().__init__(dataset_path, output_path, convertor_config, repo_id, logger, **kwargs)
 
     # @override
     def _get_frame_image(

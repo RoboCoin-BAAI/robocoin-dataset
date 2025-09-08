@@ -53,6 +53,7 @@ class LerobotFormatConvertor:
         convertor_config: dict,
         repo_id: str,
         logger: logging.Logger | None = None,
+        **kwargs: dict,
     ) -> None:
         if not dataset_path:
             raise ValueError("Dataset path must be provided.")
@@ -98,6 +99,8 @@ class LerobotFormatConvertor:
             raise ValueError(
                 f"Dataset info file {LOCAL_DATASET_INFO_FILE} not found in {self.dataset_path}."
             )
+
+        self.kwargs = kwargs
 
     @abstractmethod
     def _get_frame_image(
@@ -411,7 +414,7 @@ class LerobotFormatConvertor:
                     if spatial_covertor_funcs[state_config[CONVERT_FUNC_KEY]]:
                         sub_states_data = spatial_covertor_funcs[state_config[CONVERT_FUNC_KEY]](
                             sub_states_data
-                        )
+                        ).astype(np.float32)
 
             sub_states_datas.append(sub_states_data)
 
@@ -439,7 +442,7 @@ class LerobotFormatConvertor:
                     if spatial_covertor_funcs[action_config[CONVERT_FUNC_KEY]]:
                         sub_actions_data = spatial_covertor_funcs[action_config[CONVERT_FUNC_KEY]](
                             sub_actions_data
-                        )
+                        ).astype(np.float32)
             sub_actions_datas.append(sub_actions_data)
 
         return {lerobot_feature: np.concatenate(sub_actions_datas)}
@@ -528,13 +531,12 @@ class LerobotFormatConvertor:
             **self._get_lerobot_action_feature(),
         }
 
-    def _create_lerobot_dataset(self, repo_id: str, **kwargs: any) -> LeRobotDataset:
+    def _create_lerobot_dataset(self, repo_id: str, **kwargs: dict) -> LeRobotDataset:
         return LeRobotDataset.create(
             repo_id=repo_id,
             features=self._get_lerobot_features(),
             fps=self.fps,
-            video_backend="pyav",
-            root=self.output_path / repo_id,
+            root=self.output_path,
             **kwargs,
         )
 
@@ -562,28 +564,30 @@ class LerobotFormatConvertor:
 
         pass
 
-    def convert(self) -> Iterable[dict[str, int]]:
-        dataset = self._create_lerobot_dataset(self.repo_id)
+    def convert(self) -> Iterable[tuple[str, int, int]]:
+        dataset = self._create_lerobot_dataset(self.repo_id, **self.kwargs)
+        ep_idx = 0
         for task_path, task in self.path_task_dict.items():
-            for ep_idx in range(self._get_task_episodes_num(task_path)):
+            for task_ep_idx in range(self._get_task_episodes_num(task_path)):
                 images_buffer, states_buffer, actions_buffer = self._prepare_episode_buffers(
-                    task_path, ep_idx
+                    task_path, task_ep_idx
                 )
                 for frame_data in self._gen_episode_frames(
-                    task_path, ep_idx, images_buffer, states_buffer, actions_buffer
+                    task_path, task_ep_idx, images_buffer, states_buffer, actions_buffer
                 ):
                     lerobot_datas = self._get_lerobot_datas(
                         task_path=task_path,
-                        ep_idx=ep_idx,
+                        ep_idx=task_ep_idx,
                         frame_idx=frame_data[FRAME_IDX_KEY],
                         images_buffer=images_buffer,
                         states_buffer=states_buffer,
                         actions_buffer=actions_buffer,
                     )
-                    dataset.add_frame(frame=lerobot_datas, task=self._get_episode_task(ep_idx))
+                    dataset.add_frame(frame=lerobot_datas, task=self._get_episode_task(task_ep_idx))
 
                 dataset.save_episode()
-                yield (task, ep_idx)
+                yield (task, task_ep_idx, ep_idx)
+                ep_idx += 1
 
     def get_episodes_num(self) -> int:
         return sum(self._get_task_episodes_num(task) for task in self.path_task_dict.keys())
@@ -599,6 +603,7 @@ class LerobotFormatConvertorFactory:
         factory_config: dict,
         repo_id: str,
         logger: logging.Logger | None = None,
+        **kwargs: dict,
     ) -> LerobotFormatConvertor:
         if not dataset_path.exists():
             raise FileNotFoundError(f"Dataset path {dataset_path} does not exist.")
@@ -621,4 +626,5 @@ class LerobotFormatConvertorFactory:
             convertor_config=convertor_config,
             repo_id=repo_id,
             logger=logger,
+            **kwargs,
         )

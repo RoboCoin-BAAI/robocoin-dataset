@@ -2,12 +2,13 @@ import argparse
 import logging
 import sys
 from datetime import datetime
+from multiprocessing import Process, cpu_count
 from pathlib import Path
 
 import yaml
 from tqdm import tqdm
 
-from robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_factory import (
+from robocoin_dataset.format_converter.tolerobot.lerobot_format_convertor import (
     LerobotFormatConvertor,
     LerobotFormatConvertorFactory,
 )
@@ -76,6 +77,7 @@ def convert2lerobot(
     factory_config_path: Path,
     repo_id: str,
     log_path: Path,
+    **kwargs: dict,
 ) -> LerobotFormatConvertor:
     """
     Convert dataset to lerobot format.
@@ -111,34 +113,48 @@ def convert2lerobot(
         repo_id=repo_id,
         logger=logger,
         output_path=output_path,
+        **kwargs,
     )
 
     total_episodes = convertor.get_episodes_num()
-    for task, ep_idx in tqdm(
+    for task, task_ep_idx, ep_idx in tqdm(
         convertor.convert(),
         total=total_episodes,
         desc="Converting Dataset",
         unit="episode",
     ):
-        tqdm.write(f"Converted episode {ep_idx} of task {task}")
+        logger.info(f"Converted episode {task_ep_idx} of task {task}, total ep_idx is:{ep_idx}")
 
 
-def main() -> None:
+def worker(args: dict, output_suffix: int) -> None:
+    # 创建新的输出路径
+    args.output_path = args.output_path / f"output_{output_suffix}"
+    # 执行转换操作
+    args_dict = vars(args)
+    args_dict.pop("num_processes", None)
+    convert2lerobot(**vars(args))
+
+
+def main_mp() -> None:
     argparser = argparse.ArgumentParser(description="Convert dataset to lerobot format.")
+    # ... 保留原有参数设置 ...
+    argparser.add_argument(
+        "--num_processes",
+        type=int,
+        default=int(cpu_count() / 4),  # 默认情况下，使用所有可用的CPU核心/4
+        help="Number of processes to use for the conversion (default: all available cores)",
+    )
     argparser.add_argument(
         "--dataset_path",
         type=Path,
-        default=Path("outputs/collected_dataset_statics/"),
     )
     argparser.add_argument(
         "--output_path",
         type=Path,
-        default=Path("outputs/collected_dataset_statics/"),
     )
     argparser.add_argument(
         "--device_model",
         type=str,
-        default="h5",
     )
     argparser.add_argument(
         "--factory_config_path",
@@ -155,37 +171,54 @@ def main() -> None:
         type=Path,
         default=Path("outputs/lerobot_convertor/logs/"),
     )
-
-    convert2lerobot(
-        dataset_path=argparser.parse_args().dataset_path,
-        output_path=argparser.parse_args().output_path,
-        device_model=argparser.parse_args().device_model,
-        factory_config_path=argparser.parse_args().factory_config_path,
-        repo_id=argparser.parse_args().repo_id,
-        log_path=argparser.parse_args().log_path,
+    argparser.add_argument(
+        "--image_writer_processes",
+        type=int,
+        default=4,
+        help="Number of processes for image writing (default: 4)",
     )
+    argparser.add_argument(
+        "--image_writer_threads",
+        type=int,
+        default=4,
+        help="Number of threads per process for image writing (default: 2)",
+    )
+    argparser.add_argument(
+        "--video_backend",
+        type=str,
+        choices=["pyav", "opencv"],
+        default="pyav",
+        help="Backend for video processing (default: pyav)",
+    )
+    args = argparser.parse_args()
+
+    processes = []
+    for i in range(args.num_processes):
+        # 对于每个进程，我们传递相同的参数，但指定不同的输出后缀
+        p = Process(target=worker, args=(args, i + 1))
+        p.start()
+        processes.append(p)
+
+    # 等待所有进程完成
+    for p in processes:
+        p.join()
 
 
 if __name__ == "__main__":
-    main()
+    main_mp()
 
+"""_summary_
 
-""" usage:
-source .venv/bin/activate
-convert2lerobot \
-    --dataset_path /mnt/nas/1.上传数据/data4/realman/task_stir_coffee_500_4.27 \
-    --output_path ./outputs/lerobot_convertor/ \
-    --device_model realman_rmc_aidal \
-    --factory_config_path ./src/robocoin_dataset/scripts/format_convertors/tolerobot/configs/convertor_factory_config.yaml \
-    --repo_id robocoin/stir_coffee \
-    --log_path ./outputs/lerobot_convertor/logs/
-
-convert2lerobot \
-    --dataset_path /mnt/nas/1.上传数据/data4/realman/task_stir_coffee_500_4.27 \ # 数据集路径
-    --output_path /mnt/nas/robocoin_datasets/robocoin/realman_rmc_aidal_stir_coffee \ # lerobot数据集存放路径
-    --device_model realman_rmc_aidal \ # 设备型号
-    --factory_config_path ./src/robocoin_dataset/scripts/format_convertors/tolerobot/configs/convertor_factory_config.yaml \ # 配置dict
-    --repo_id robocoin/realman_rmc_aidal_stir_coffee \ # 数据集仓库id
-    --log_path /mnt/nas/robocoin_datasets/robocoin/realman_rmc_aidal_stir_coffee/logs \ # 日志存放路径
+python scripts/format_converters/tolerobot/convert2lerobot.py \
+--dataset_path /home/lxc/Downloads/stir_coffee/stir_coffee_2 \
+--output_path ./outputs/lerobot_converter_test/ \
+--device_model realman_rmc_aidal \
+--factory_config_path scripts/format_converters/tolerobot/configs/convertor_factory_config.yaml \
+--repo_id robocoin/realman_rmc_aidal_stir_coffee \
+--log_path ./outputs/robocoin/logs \
+--image_writer_processes 4 \
+--image_writer_threads 4 \
+--video_backend opencv \
+--num_processes 8
 
 """

@@ -24,7 +24,7 @@ def main() -> None:
     print(f"database path: {db_path}")
 
     # 初始化数据库引擎
-    db = DatasetDatabase(db_path=db_path)
+    db = DatasetDatabase(db_file=db_path)
 
     # 创建所有表
 

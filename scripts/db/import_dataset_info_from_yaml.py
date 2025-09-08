@@ -67,7 +67,7 @@ def main() -> None:
     try:
         print(f"📌 正在导入 YAML 文件: {args.yaml_file}")
         # 初始化数据库引擎
-        db = DatasetDatabase(db_path=db_path)
+        db = DatasetDatabase(db_file=db_path)
         print(f"💾 数据库文件位置: {db_path}")
 
         upsert_dataset_info(yaml_data, db)

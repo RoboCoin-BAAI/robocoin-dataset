@@ -3,15 +3,18 @@ from enum import Enum as PyEnum
 from sqlalchemy import (
     Boolean,
     Column,
+    DateTime,
     Enum,
     Float,
     ForeignKey,
     Integer,
     String,
     Table,
+    Text,
     UniqueConstraint,
 )
 from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -22,10 +25,10 @@ Base = declarative_base()
 
 
 class ConvertStatus(str, PyEnum):
-    pending = "pending"
-    processing = "processing"
-    completed = "completed"
-    failed = "failed"
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
 
 
 # =====================
@@ -45,6 +48,7 @@ class DatasetDB(Base):
     device_model = Column(String(100), nullable=False)
     end_effector_type = Column(String(100), nullable=False)
     operation_platform_height = Column(Float, nullable=True)
+    yaml_file_path = Column(String(255), nullable=True, unique=True)
 
     # 多对多关系
     scene_types = relationship(
@@ -152,8 +156,21 @@ class LeFormatConvertDB(Base):
     # ✅ 使用 dataset_uuid 作为关联字段
     dataset_uuid = Column(String(255), index=True, nullable=False)
 
-    convert_status = Column(Enum(ConvertStatus), default=ConvertStatus.pending, nullable=False)
+    convert_status = Column(Enum(ConvertStatus), default=ConvertStatus.PENDING, nullable=False)
     convert_path = Column(String(255), nullable=True)  # 移除 unique=True，允许多个不同路径
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=func.now(),  # 插入时默认时间
+        onupdate=func.now(),  # 更新时自动更新为当前时间
+        nullable=False,
+    )
+
+    # 📝 新增字段：最后更新信息（可用于记录状态变更详情、错误信息等）
+    update_message = Column(
+        Text,  # 使用 Text 类型支持较长内容
+        nullable=True,  # 允许为空，初始无信息
+    )
 
     # ✅ 唯一约束：一个 uuid 最多一个转换记录
     __table_args__ = (UniqueConstraint("dataset_uuid", name="uix_dataset_uuid_convert"),)
