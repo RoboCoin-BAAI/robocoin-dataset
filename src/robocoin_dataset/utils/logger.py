@@ -7,7 +7,7 @@ from pathlib import Path
 
 def setup_logger(
     name: str,
-    log_dir: str | Path,
+    log_dir: Path,
     level=logging.INFO,  # noqa: ANN001
     max_bytes: int = 10 * 1024 * 1024,  # 10MB
     backup_count: int = 5,

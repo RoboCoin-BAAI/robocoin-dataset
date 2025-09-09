@@ -47,3 +47,23 @@ CLASS_KEY = "class"
 FLOAT32 = "float32"
 
 LEFORMAT_PATH = "leformat_path"
+
+CONVERTER_FACTORY_CONFIG = "converter_factory_config"
+
+CONVERTER_CONFIG = "converter_config"
+
+CONVERTER_CLASS_NAME = "converter_class_name"
+
+CONVERTER_MODULE_PATH = "converter_module_path"
+
+CONVERTER_KWARGS = "kwargs"
+
+REPO_ID = "repo_id"
+
+DEVICE_MODEL = "device_model"
+
+VIDEO_BACKEND = "video_backend"
+IMAGE_WRITER_PROCESSES = "image_writer_processes"
+IMAGE_WRITER_THREADS = "image_writer_threads"
+
+CONVERTER_LOG_DIR = "converter_log_dir"
