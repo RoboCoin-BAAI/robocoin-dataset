@@ -70,9 +70,16 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
             images_buffer = self._prepare_episode_images_buffer(task_path, ep_idx)
 
         h5_path = args_dict["h5_path"]
-        image_bytes = images_buffer[h5_path][frame_idx]
-        img = Image.open(io.BytesIO(image_bytes))
-        return np.array(img)
+        image_data = images_buffer[h5_path][frame_idx]
+        
+        # 检查数据类型：如果是numpy数组直接返回，如果是字节流则解码
+        if isinstance(image_data, np.ndarray):
+            # 直接存储的numpy图像数组（如VisionPro格式）
+            return image_data
+        else:
+            # JPEG字节流（如ALOHA格式）
+            img = Image.open(io.BytesIO(image_data))
+            return np.array(img)
 
     # @override
     def _get_frame_sub_states(
@@ -178,16 +185,32 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
         
         try:
             with h5py.File(sample_h5_file, 'r') as h5_file:
-                # Check if observations/images exists
-                if 'observations' not in h5_file or 'images' not in h5_file['observations']:
-                    if logger:
-                        logger.warning("No observations/images group found in HDF5 file")
-                    return
+                available_cameras = []
                 
-                # Get available camera names
-                available_cameras = list(h5_file['observations/images'].keys())
-                if logger:
-                    logger.info(f"Detected cameras: {available_cameras}")
+                # 首先检查标准ALOHA格式: observations/images
+                if 'observations' in h5_file and 'images' in h5_file['observations']:
+                    available_cameras = list(h5_file['observations/images'].keys())
+                    if logger:
+                        logger.info(f"Detected ALOHA format cameras: {available_cameras}")
+                else:
+                    # 检查VisionPro格式：根目录直接包含图像数据集
+                    for key in h5_file.keys():
+                        dataset = h5_file[key]
+                        if (isinstance(dataset, h5py.Dataset) and 
+                            len(dataset.shape) == 4 and  # (frames, height, width, channels)
+                            dataset.dtype in [np.uint8, np.float32]):
+                            available_cameras.append(key)
+                    
+                    if logger:
+                        logger.info(f"Detected VisionPro format cameras: {available_cameras}")
+                        if not available_cameras:
+                            logger.warning("No image datasets found in HDF5 file")
+                            return
+                
+                if not available_cameras:
+                    if logger:
+                        logger.warning("No cameras detected in HDF5 file")
+                    return
                 
                 # Update the config to only include cameras that actually exist
                 if FEATURES_KEY in converter_config and OBSERVATION_KEY in converter_config[FEATURES_KEY]:
@@ -198,8 +221,14 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
                         for camera_config in original_cameras:
                             if ARGS_KEY in camera_config and 'h5_path' in camera_config[ARGS_KEY]:
                                 h5_path = camera_config[ARGS_KEY]['h5_path']
-                                # Extract camera name from h5_path (e.g., "observations/images/cam_high" -> "cam_high")
-                                camera_name = h5_path.split('/')[-1]
+                                
+                                # Extract camera name from h5_path 
+                                if h5_path.startswith('observations/images/'):
+                                    # ALOHA format: "observations/images/cam_high" -> "cam_high"
+                                    camera_name = h5_path.split('/')[-1]
+                                else:
+                                    # VisionPro format: direct path like "img_front"
+                                    camera_name = h5_path
                                 
                                 if camera_name in available_cameras:
                                     updated_cameras.append(camera_config)
