@@ -44,7 +44,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
         converter_config: dict,
         repo_id: str,
         device_model: str | None = None,
-        converter_log_dir: Path | None = None,
+        logger: logging.Logger | None = None,
         video_backend: str = "pyav",
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
@@ -58,9 +58,10 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             alignment_config = AlignmentConfig.emergency_config()
         self.alignment_config = alignment_config
         
-        # Note: logger will be available after super().__init__
-        self.time_aligner = None
-        self.sync_analyzer = None
+        # 初始化时间对齐组件（使用临时logger，如果没有提供的话）
+        temp_logger = logger if logger else logging.getLogger(__name__)
+        self.time_aligner = create_time_aligner(alignment_config, temp_logger)
+        self.sync_analyzer = TimeSyncAnalyzer(temp_logger)
         
         super().__init__(
             dataset_path=dataset_path,
@@ -68,15 +69,16 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             converter_config=converter_config,
             repo_id=repo_id,
             device_model=device_model,
-            converter_log_dir=converter_log_dir,
+            logger=logger,
             video_backend=video_backend,
             image_writer_processes=image_writer_processes,
             image_writer_threads=image_writer_threads,
         )
         
-        # Now we can use self.logger
-        self.time_aligner = create_time_aligner(alignment_config, self.logger)
-        self.sync_analyzer = TimeSyncAnalyzer(self.logger)
+        # 如果logger在super()调用后发生了变化，重新初始化组件
+        if self.logger != temp_logger:
+            self.time_aligner = create_time_aligner(alignment_config, self.logger)
+            self.sync_analyzer = TimeSyncAnalyzer(self.logger)
 
     # @override
     def _get_frame_image(
@@ -125,7 +127,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
                 return state_data[from_idx:to_idx]
             else:
                 # 转换为numpy数组再切片
-                return np.array(state_data)[from_idx:to_idx]
+                return np.array(state_data, dtype=np.float32)[from_idx:to_idx]
         else:
             raise ValueError(f"No state data found for topic {topic_name} at frame {frame_idx}")
 
@@ -148,7 +150,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
                 return action_data[from_idx:to_idx]
             else:
                 # 转换为numpy数组再切片
-                return np.array(action_data)[from_idx:to_idx]
+                return np.array(action_data, dtype=np.float32)[from_idx:to_idx]
         else:
             raise ValueError(f"No action data found for topic {topic_name} at frame {frame_idx}")
 
@@ -297,7 +299,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             
         # 处理关节状态消息 - sensor_msgs/JointState
         elif hasattr(first_msg, 'name') and hasattr(first_msg, 'position'):
-            return [np.array(msg.position) for msg in messages]
+            return [np.array(msg.position, dtype=np.float32) for msg in messages]
             
         # 处理IMU消息 - sensor_msgs/Imu
         elif hasattr(first_msg, 'linear_acceleration') and hasattr(first_msg, 'angular_velocity'):
@@ -305,7 +307,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             for msg in messages:
                 linear_acc = [msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
                 angular_vel = [msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]
-                imu_data.append(np.array(linear_acc + angular_vel))
+                imu_data.append(np.array(linear_acc + angular_vel, dtype=np.float32))
             return imu_data
             
         # 处理Twist消息 - geometry_msgs/TwistStamped
@@ -315,12 +317,12 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
                 twist_msg = msg.twist if hasattr(msg, 'twist') else msg
                 linear = [twist_msg.linear.x, twist_msg.linear.y, twist_msg.linear.z]
                 angular = [twist_msg.angular.x, twist_msg.angular.y, twist_msg.angular.z]
-                twist_data.append(np.array(linear + angular))
+                twist_data.append(np.array(linear + angular, dtype=np.float32))
             return twist_data
             
         # 处理数值数组消息 - std_msgs/Float64MultiArray等
         elif hasattr(first_msg, 'data') and isinstance(first_msg.data, (list, tuple)):
-            return [np.array(msg.data) for msg in messages]
+            return [np.array(msg.data, dtype=np.float32) for msg in messages]
             
         # 处理几何消息 - geometry_msgs类型
         elif hasattr(first_msg, 'pose') or hasattr(first_msg, 'position'):
@@ -365,20 +367,20 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             return np.array([
                 pose.position.x, pose.position.y, pose.position.z,
                 pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w
-            ])
+            ], dtype=np.float32)
         elif hasattr(geom_msg, 'position'):
             pos = geom_msg.position
-            return np.array([pos.x, pos.y, pos.z])
+            return np.array([pos.x, pos.y, pos.z], dtype=np.float32)
         else:
-            return np.array([])
+            return np.array([], dtype=np.float32)
             
     def _msg_to_array(self, msg) -> np.ndarray:
         """通用消息转数组函数"""
         if hasattr(msg, 'data'):
             if isinstance(msg.data, (list, tuple)):
-                return np.array(msg.data)
+                return np.array(msg.data, dtype=np.float32)
             else:
-                return np.array([msg.data])
+                return np.array([msg.data], dtype=np.float32)
         else:
             # 尝试提取所有数值字段
             values = []
@@ -387,4 +389,4 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
                     attr_value = getattr(msg, attr_name)
                     if isinstance(attr_value, (int, float)):
                         values.append(attr_value)
-            return np.array(values) if values else np.array([])
+            return np.array(values, dtype=np.float32) if values else np.array([], dtype=np.float32)
