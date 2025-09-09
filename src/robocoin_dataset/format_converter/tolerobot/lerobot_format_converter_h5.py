@@ -42,6 +42,10 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
         image_writer_threads: int = 4,
     ) -> None:
         self.h5_buffer: H5Buffer = H5Buffer()
+        
+        # Auto-detect cameras before calling super().__init__
+        self._auto_detect_and_update_camera_config(converter_config, Path(dataset_path), logger)
+        
         super().__init__(
             dataset_path=dataset_path,
             output_path=output_path,
@@ -157,3 +161,62 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
             self.h5_buffer.ep_idx = ep_idx
 
         return self.h5_buffer.h5_data
+
+    def _auto_detect_and_update_camera_config(self, converter_config: dict, dataset_path: Path, logger: logging.Logger | None = None) -> None:
+        """
+        Auto-detect available cameras in HDF5 files and update the converter config accordingly.
+        """
+        # Find the first HDF5 file to inspect
+        h5_files = list(dataset_path.rglob("*.h5")) + list(dataset_path.rglob("*.hdf5"))
+        if not h5_files:
+            if logger:
+                logger.warning("No HDF5 files found for camera auto-detection")
+            return
+        
+        sample_h5_file = h5_files[0]
+        if logger:
+            logger.info(f"Auto-detecting cameras from sample file: {sample_h5_file}")
+        
+        try:
+            with h5py.File(sample_h5_file, 'r') as h5_file:
+                # Check if observations/images exists
+                if 'observations' not in h5_file or 'images' not in h5_file['observations']:
+                    if logger:
+                        logger.warning("No observations/images group found in HDF5 file")
+                    return
+                
+                # Get available camera names
+                available_cameras = list(h5_file['observations/images'].keys())
+                if logger:
+                    logger.info(f"Detected cameras: {available_cameras}")
+                
+                # Update the config to only include cameras that actually exist
+                if FEATURES_KEY in converter_config and OBSERVATION_KEY in converter_config[FEATURES_KEY]:
+                    if 'images' in converter_config[FEATURES_KEY][OBSERVATION_KEY]:
+                        original_cameras = converter_config[FEATURES_KEY][OBSERVATION_KEY]['images']
+                        updated_cameras = []
+                        
+                        for camera_config in original_cameras:
+                            if ARGS_KEY in camera_config and 'h5_path' in camera_config[ARGS_KEY]:
+                                h5_path = camera_config[ARGS_KEY]['h5_path']
+                                # Extract camera name from h5_path (e.g., "observations/images/cam_high" -> "cam_high")
+                                camera_name = h5_path.split('/')[-1]
+                                
+                                if camera_name in available_cameras:
+                                    updated_cameras.append(camera_config)
+                                    if logger:
+                                        logger.info(f"Keeping camera config: {camera_config.get('cam_name', camera_name)}")
+                                else:
+                                    if logger:
+                                        logger.warning(f"Removing camera config for non-existent camera: {camera_config.get('cam_name', camera_name)} (path: {h5_path})")
+                        
+                        # Update the config
+                        converter_config[FEATURES_KEY][OBSERVATION_KEY]['images'] = updated_cameras
+                        
+                        if logger:
+                            logger.info(f"Updated camera config to include {len(updated_cameras)} cameras")
+                
+        except Exception as e:
+            if logger:
+                logger.error(f"Error during camera auto-detection: {e}")
+            # Don't raise the error, just continue with original config

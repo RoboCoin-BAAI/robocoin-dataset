@@ -616,9 +616,19 @@ class LerobotFormatConverterFactory:
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
         logger: logging.Logger | None = None,
+        converter_log_dir: Path | None = None,
     ) -> LerobotFormatConverter:
         if not dataset_path.exists():
             raise FileNotFoundError(f"Dataset path {dataset_path} does not exist.")
+
+        # Create logger from converter_log_dir if provided and logger is None
+        if logger is None and converter_log_dir is not None:
+            from robocoin_dataset.utils.logger import setup_logger
+            logger = setup_logger(
+                name="lerobot_format_converter", 
+                log_dir=converter_log_dir, 
+                level=logging.INFO
+            )
 
         module = importlib.import_module(converter_module_path)
         convertor_class = getattr(module, converter_class_name)
