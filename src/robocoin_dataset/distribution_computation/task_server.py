@@ -148,7 +148,7 @@ class TaskServer:
 
         self._task_content_dict[task_id] = task_content
         await websocket.send(msg)
-        self.logger.info(f"Assigned task to client {info[CLIENT_ID]} | Task: {task_content}")
+        self.logger.info(f"Assigned task {TASK_ID} to client {info[CLIENT_ID]}")
 
     @abstractmethod
     def handle_task_result(self, task_content: dict, task_result_content: dict) -> None:
@@ -177,9 +177,6 @@ class TaskServer:
                     task_result_content = msg.get(MSG_CONTENT)
                     task_content = self.get_task_content(task_id)
 
-                    # self.handle_task_result(
-                    #     task_content=task_content, task_result_content=task_result_content
-                    # )
                     await asyncio.to_thread(
                         self.handle_task_result,
                         task_content=task_content,

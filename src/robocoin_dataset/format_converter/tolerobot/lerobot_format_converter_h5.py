@@ -16,8 +16,8 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     STATE_KEY,
     SUB_STATE_KEY,
 )
-from robocoin_dataset.format_converter.tolerobot.lerobot_format_convertor import (
-    LerobotFormatConvertor,
+from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import (
+    LerobotFormatConverter,
 )
 
 
@@ -28,20 +28,32 @@ class H5Buffer:
     ep_idx: int | None = None
 
 
-class LerobotFormatConvertorHdf5(LerobotFormatConvertor):
+class LerobotFormatConverterHdf5(LerobotFormatConverter):
     def __init__(
         self,
         dataset_path: str,
         output_path: str,
-        convertor_config: dict,
+        converter_config: dict,
         repo_id: str,
+        device_model: str,
         logger: logging.Logger | None = None,
-        **kwargs: dict,
+        video_backend: str = "pyav",
+        image_writer_processes: int = 4,
+        image_writer_threads: int = 4,
     ) -> None:
         self.h5_buffer: H5Buffer = H5Buffer()
-        super().__init__(dataset_path, output_path, convertor_config, repo_id, logger, **kwargs)
+        super().__init__(
+            dataset_path=dataset_path,
+            output_path=output_path,
+            converter_config=converter_config,
+            repo_id=repo_id,
+            device_model=device_model,
+            logger=logger,
+            video_backend=video_backend,
+            image_writer_processes=image_writer_processes,
+            image_writer_threads=image_writer_threads,
+        )
 
-    # @override
     def _get_frame_image(
         self,
         task_path: Path,
@@ -89,7 +101,7 @@ class LerobotFormatConvertorHdf5(LerobotFormatConvertor):
 
     # @override
     def _get_episode_frames_num(self, task_path: Path, ep_idx: int) -> int:
-        args = self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][SUB_STATE_KEY][0][
+        args = self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][SUB_STATE_KEY][0][
             ARGS_KEY
         ]
         if "h5_path" not in args:

@@ -53,7 +53,7 @@ async def main() -> None:
         logger=setup_logger(
             name="leformat_convertor_client",
             log_dir=args.log_path,
-            level=logging.INFO,
+            level=logging.ERROR,
         ),
     )
     await client.run()  # 创建任务并调度执行

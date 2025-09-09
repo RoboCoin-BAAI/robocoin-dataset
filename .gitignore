@@ -72,6 +72,12 @@ logs/
 
 **/temp/
 
+
+data/
+
+extracted_data/
+
+
 db/
 
 alembic/
