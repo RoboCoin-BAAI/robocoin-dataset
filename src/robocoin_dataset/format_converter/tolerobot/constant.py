@@ -67,3 +67,5 @@ IMAGE_WRITER_PROCESSES = "image_writer_processes"
 IMAGE_WRITER_THREADS = "image_writer_threads"
 
 CONVERTER_LOG_DIR = "converter_log_dir"
+
+CONVERTER_LOG_NAME = "converter_log_name"

@@ -28,7 +28,7 @@ class H5Buffer:
     ep_idx: int | None = None
 
 
-class LerobotFormatConverterHdf5(LerobotFormatConverter):
+class LerobotFormatConverterHdf5Test(LerobotFormatConverter):
     def __init__(
         self,
         dataset_path: str,
@@ -117,7 +117,7 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
 
     # @override
     def _get_task_episodes_num(self, task_path: Path) -> int:
-        return len(self.task_episode_h5file_paths[task_path])
+        return 1
 
     # @override
     def _prepare_episode_images_buffer(self, task_path: Path, ep_idx: int) -> any:

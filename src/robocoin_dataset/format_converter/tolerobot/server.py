@@ -22,6 +22,7 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     CONVERTER_CLASS_NAME,
     CONVERTER_CONFIG,
     CONVERTER_LOG_DIR,
+    CONVERTER_LOG_NAME,
     CONVERTER_MODULE_PATH,
     IMAGE_WRITER_PROCESSES,
     IMAGE_WRITER_THREADS,
@@ -127,52 +128,51 @@ class LeFormatConverterTaskServer(TaskServer):
                         .all()
                     )
 
-        if not results:
-            return None
+            if not results:
+                return None
 
-        for item in results:
-            dataset_path = str(Path(item.yaml_file_path).parent)
-            leformat_path = str(
-                Path(self.convert_root_path) / f"{item.device_model}_{item.dataset_name}"
-            )
-
-            client_log_path = (
-                Path(self.convert_root_path)
-                / "client_logs"
-                / f"{item.device_model}_{item.dataset_name}"
-            )
-
-            try:
-                converter_config = self._get_converter_config(item.device_model)
-                repo_id = (
-                    f"{ROBOCOIN_PLATFORM}/{item.device_model.lower()}_{item.dataset_name.lower()}"
+            for item in results:
+                dataset_path = str(Path(item.yaml_file_path).parent)
+                leformat_path = str(
+                    Path(self.convert_root_path) / f"{item.device_model}_{item.dataset_name}"
                 )
-            except Exception:
-                continue
-            # 在同一个 session 或新开一个
-            upsert_leformat_convert(
-                session=session,
-                ds_uuid=item.dataset_uuid,
-                convert_status=ConvertStatus.PROCESSING,
-            )
-            converter_module_path = self._get_converter_module_path(item.device_model)
-            converter_class_name = self._get_converter_class_name(item.device_model)
 
-            return {
-                DATASET_UUID: item.dataset_uuid,
-                DATASET_NAME: item.dataset_name,
-                LEFORMAT_PATH: leformat_path,
-                DATASET_PATH: dataset_path,
-                DEVICE_MODEL: item.device_model,
-                CONVERTER_CONFIG: converter_config,
-                CONVERTER_MODULE_PATH: converter_module_path,
-                CONVERTER_CLASS_NAME: converter_class_name,
-                VIDEO_BACKEND: self.video_backend,
-                IMAGE_WRITER_PROCESSES: self.image_writer_processes,
-                IMAGE_WRITER_THREADS: self.image_writer_threads,
-                CONVERTER_LOG_DIR: str(client_log_path),
-                REPO_ID: repo_id,
-            }
+                leformat_name = f"{item.device_model.lower()}_{item.dataset_name.lower()}"
+
+                client_log_path = Path(self.convert_root_path) / "client_logs" / leformat_name
+
+                try:
+                    converter_config = self._get_converter_config(item.device_model)
+                    repo_id = f"{ROBOCOIN_PLATFORM}/{leformat_name}"
+                except Exception:
+                    continue
+                # 在同一个 session 或新开一个
+                upsert_leformat_convert(
+                    session=session,
+                    ds_uuid=item.dataset_uuid,
+                    convert_status=ConvertStatus.PROCESSING,
+                )
+                self.logger.info(f"upsert convert status to PROCESSING: {item.dataset_uuid}")
+                converter_module_path = self._get_converter_module_path(item.device_model)
+                converter_class_name = self._get_converter_class_name(item.device_model)
+
+                self.logger.info(f"converter_log_dir: {client_log_path}")
+                return {
+                    DATASET_UUID: item.dataset_uuid,
+                    DATASET_NAME: item.dataset_name,
+                    LEFORMAT_PATH: leformat_path,
+                    DATASET_PATH: dataset_path,
+                    DEVICE_MODEL: item.device_model,
+                    CONVERTER_CONFIG: converter_config,
+                    CONVERTER_MODULE_PATH: converter_module_path,
+                    CONVERTER_CLASS_NAME: converter_class_name,
+                    VIDEO_BACKEND: self.video_backend,
+                    IMAGE_WRITER_PROCESSES: self.image_writer_processes,
+                    IMAGE_WRITER_THREADS: self.image_writer_threads,
+                    CONVERTER_LOG_DIR: str(client_log_path),
+                    REPO_ID: repo_id,
+                    CONVERTER_LOG_NAME: leformat_name,
+                }
         return None
 
     def handle_task_result(self, task_content: dict, task_result_content: dict) -> None:
@@ -195,3 +195,4 @@ class LeFormatConverterTaskServer(TaskServer):
                     leformat_path=leformat_path,
                     update_message=task_status_msg,
                 )
+                self.logger.info(f"upsert {ds_uuid} convert status to {convert_status}")
