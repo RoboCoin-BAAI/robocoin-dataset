@@ -25,9 +25,9 @@ from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import
 @dataclass
 class Mmk2Buffer:
     """MMK2数据缓冲区"""
-    main_bson_data: Dict[str, List[Dict]] = None  # episode_0(8).bson数据
-    hand_bson_data: List[Dict] = None             # xhand_control_data(7).bson数据
-    camera_groups: Dict[str, List[Path]] = None   # 相机图像文件组
+    main_bson_data: Dict[str, List[Dict]] = None  
+    hand_bson_data: List[Dict] = None             
+    camera_groups: Dict[str, List[Path]] = None   
     task_path: Path = None
     ep_idx: int = None
 
@@ -128,8 +128,8 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
         output_path: str,
         converter_config: dict,
         repo_id: str,
-        device_model: str | None = None,
-        converter_log_dir: Path | None = None,
+        device_model: str,
+        logger: logging.Logger | None = None,
         video_backend: str = "pyav",
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
@@ -141,7 +141,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
             converter_config=converter_config,
             repo_id=repo_id,
             device_model=device_model,
-            converter_log_dir=converter_log_dir,
+            logger=logger,
             video_backend=video_backend,
             image_writer_processes=image_writer_processes,
             image_writer_threads=image_writer_threads,
@@ -169,10 +169,16 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
         
         camera_files = images_buffer["camera_groups"][camera_dir]
         
+        # 处理稀疏图像：如果请求的帧索引超出范围，使用最后一个可用的图像
         if frame_idx >= len(camera_files):
-            raise ValueError(f"Frame index {frame_idx} out of range for camera {camera_dir}. Available frames: {len(camera_files)}")
-        
-        image_path = camera_files[frame_idx]
+            if len(camera_files) == 0:
+                raise ValueError(f"No images available for camera {camera_dir}")
+            
+            # 使用最后一个可用的图像
+            self.logger.warning(f"Frame index {frame_idx} out of range for camera {camera_dir}. Available frames: {len(camera_files)}. Using last available frame.")
+            image_path = camera_files[-1]
+        else:
+            image_path = camera_files[frame_idx]
         
         if not image_path.exists():
             raise ValueError(f"Image file not found: {image_path}")
@@ -216,7 +222,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 raise ValueError(f"Field '{field}' not found in frame data")
             
             values = frame_data["data"][field]
-            return np.array(values[range_from:range_to])
+            return np.array(values[range_from:range_to], dtype=np.float32)
             
         elif bson_file == "xhand_control_data(7).bson":
             # 手部数据
@@ -237,7 +243,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                     raise ValueError(f"Path '{data_path}' not found in hand data")
             
             if isinstance(data, list):
-                return np.array(data[range_from:range_to])
+                return np.array(data[range_from:range_to], dtype=np.float32)
             else:
                 raise ValueError(f"Expected list data for path '{data_path}', got {type(data)}")
         
