@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from natsort import natsorted
 
-from robocoin_dataset.format_convertors.tolerobot.constant import (
+from robocoin_dataset.format_converter.tolerobot.constant import (
     ARGS_KEY,
     FEATURES_KEY,
     OBSERVATION_KEY,
@@ -17,8 +17,8 @@ from robocoin_dataset.format_convertors.tolerobot.constant import (
     ACTION_KEY,
     SUB_ACTION_KEY,
 )
-from robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor import (
-    LerobotFormatConvertor,
+from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import (
+    LerobotFormatConverter,
 )
 
 
@@ -119,19 +119,33 @@ def parse_bson_document(data: bytes, offset: int = 0) -> tuple[Dict, int]:
     return result, offset + doc_size
 
 
-class LerobotFormatConvertorMmk2(LerobotFormatConvertor):
+class LerobotFormatConverterMmk2(LerobotFormatConverter):
     """MMK2机器人转换器 - JPG+BSON格式"""
     
     def __init__(
         self,
         dataset_path: str,
         output_path: str,
-        convertor_config: dict,
+        converter_config: dict,
         repo_id: str,
-        logger: logging.Logger | None = None,
+        device_model: str | None = None,
+        converter_log_dir: Path | None = None,
+        video_backend: str = "pyav",
+        image_writer_processes: int = 4,
+        image_writer_threads: int = 4,
     ) -> None:
         self.mmk2_buffer: Mmk2Buffer = Mmk2Buffer()
-        super().__init__(dataset_path, output_path, convertor_config, repo_id, logger)
+        super().__init__(
+            dataset_path=dataset_path,
+            output_path=output_path,
+            converter_config=converter_config,
+            repo_id=repo_id,
+            device_model=device_model,
+            converter_log_dir=converter_log_dir,
+            video_backend=video_backend,
+            image_writer_processes=image_writer_processes,
+            image_writer_threads=image_writer_threads,
+        )
 
     # @override
     def _get_frame_image(
@@ -177,7 +191,7 @@ class LerobotFormatConvertorMmk2(LerobotFormatConvertor):
         sub_states_buffer: any = None,
     ) -> np.ndarray:
         if not sub_states_buffer:
-            sub_states_buffer = self._prepare_episode_state_buffer(task_path, ep_idx)
+            sub_states_buffer = self._prepare_episode_states_buffer(task_path, ep_idx)
         
         bson_file = args_dict["bson_file"]
         data_path = args_dict["data_path"]
@@ -237,11 +251,10 @@ class LerobotFormatConvertorMmk2(LerobotFormatConvertor):
         ep_idx: int,
         frame_idx: int,
         args_dict: dict,
-        names_num: int,
         sub_actions_buffer: any = None,
     ) -> np.ndarray:
         if not sub_actions_buffer:
-            sub_actions_buffer = self._prepare_episode_action_buffer(task_path, ep_idx)
+            sub_actions_buffer = self._prepare_episode_actions_buffer(task_path, ep_idx)
         
         # 动作数据处理逻辑与状态数据类似
         return self._get_frame_sub_states(task_path, ep_idx, frame_idx, args_dict, sub_actions_buffer)
@@ -291,7 +304,7 @@ class LerobotFormatConvertorMmk2(LerobotFormatConvertor):
         return {"camera_groups": camera_groups}
 
     # @override
-    def _prepare_episode_state_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_states_buffer(self, task_path: Path, ep_idx: int) -> any:
         """准备状态数据缓冲区"""
         episode_dir = self._get_episode_directory(task_path, ep_idx)
         
@@ -321,9 +334,9 @@ class LerobotFormatConvertorMmk2(LerobotFormatConvertor):
         }
 
     # @override
-    def _prepare_episode_action_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_actions_buffer(self, task_path: Path, ep_idx: int) -> any:
         """准备动作数据缓冲区 - 与状态数据共用"""
-        return self._prepare_episode_state_buffer(task_path, ep_idx)
+        return self._prepare_episode_states_buffer(task_path, ep_idx)
 
     def _get_episode_directory(self, task_path: Path, ep_idx: int) -> Path:
         """获取episode目录"""
