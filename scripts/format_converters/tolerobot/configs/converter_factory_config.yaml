@@ -1,4 +1,54 @@
 realman_rmc_aidal: 
-  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
-  class: LerobotFormatConverterHdf5
-  converter_config_path: converter_config_realman_rmc_aidal.yaml
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_h5
+  class: LerobotFormatConvertorHdf5
+  convertor_config_path: convertor_config_realman_rmc_aidal.yaml
+
+agilex_cobot_magic_aloha:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_h5
+  class: LerobotFormatConvertorHdf5
+  convertor_config_path: convertor_config_agilex_cobot_magic_aloha.yaml
+
+galaxea_r1_lite:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_rosbag
+  class: LerobotFormatConvertorRosbag
+  convertor_config_path: convertor_config_galaxea_r1_lite.yaml
+
+unitree_g1:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_g1
+  class: LerobotFormatConvertorG1
+  convertor_config_path: convertor_config_unitree_g1.yaml
+
+unitree_g1_multi_camera:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_g1
+  class: LerobotFormatConvertorG1
+  convertor_config_path: convertor_config_unitree_g1_multi_camera_auto.yaml
+
+discover_robotics_aitbot_mmk2:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_mmk2
+  class: LerobotFormatConvertorMmk2
+  convertor_config_path: convertor_config_discover_robotics_aitbot_mmk2.yaml
+
+agiex_pika_sense_single:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_h5
+  class: LerobotFormatConvertorHdf5
+  convertor_config_path: convertor_config_agiex_pika_sense_single.yaml
+
+agilex_cobot_decoupled_magic:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_h5
+  class: LerobotFormatConvertorHdf5
+  convertor_config_path: convertor_config_agilex_cobot_decoupled_magic.yaml
+
+agilex_pika_sense:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_pika
+  class: LerobotFormatConvertorPika
+  convertor_config_path: convertor_config_agilex_pika_sense.yaml
+
+single_arm_ur5:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_ur5
+  class: LerobotFormatConvertorUr5
+  convertor_config_path: convertor_config_single_arm_ur5.yaml
+
+visionpro:
+  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_h5
+  class: LerobotFormatConvertorHdf5
+  convertor_config_path: convertor_config_visionpro.yaml
