@@ -3,7 +3,7 @@ from pathlib import Path
 
 from modelscope.hub.api import HubApi  # noqa: E402
 
-from robocoin_dataset.constant import (  # noqa: E402
+from robocoin_dataset.hub_upload.constant import (  # noqa: E402
     DEFAULT_UPLOAD_ALLOW_PATTERNS,
     DEFAULT_UPLOAD_IGNORE_PATTERNS,
     MODELSCOPE_BUG_EXCEPTON_MSG,

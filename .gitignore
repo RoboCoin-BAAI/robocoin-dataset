@@ -67,6 +67,9 @@ uv.lock
 .settings
 
 outputs/
+output/
+logs/
+
 **/temp/
 
 
@@ -74,3 +77,8 @@ data/
 
 extracted_data/
 
+
+db/
+
+alembic/
+alembic.ini

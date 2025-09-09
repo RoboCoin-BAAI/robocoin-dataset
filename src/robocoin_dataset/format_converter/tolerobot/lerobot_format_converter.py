@@ -14,11 +14,10 @@ from robocoin_dataset.constant import (
     TASK_DESCRIPTIONS_KEY,
     TASK_INDEX_KEY,
 )
-from robocoin_dataset.format_convertors.tolerobot.constant import (
+from robocoin_dataset.format_converter.tolerobot.constant import (
     ACTION_KEY,
     ARGS_KEY,
     CAM_NAME_KEY,
-    CLASS_KEY,
     CONVERT_FUNC_KEY,
     DEFAULT_IMAGE_SHAPE_NAMES,
     DTYPE_KEY,
@@ -29,7 +28,6 @@ from robocoin_dataset.format_convertors.tolerobot.constant import (
     IMAGE_DTYPE_VALUE,
     IMAGE_KEY,
     LEROBOT_FEATURE_KEY,
-    MODULE_KEY,
     NAME_KEY,
     OBSERVATION_KEY,
     SHAPE_KEY,
@@ -37,10 +35,11 @@ from robocoin_dataset.format_convertors.tolerobot.constant import (
     SUB_ACTION_KEY,
     SUB_STATE_KEY,
 )
-from robocoin_dataset.utils.spatial_data_convertor import spatial_covertor_funcs
+from robocoin_dataset.format_converter.utils.spatial_data_convertor import spatial_covertor_funcs
+from robocoin_dataset.utils.logger import setup_logger
 
 
-class LerobotFormatConvertor:
+class LerobotFormatConverter:
     """
     Base class for converting datasets to the LeRobot format.
     This class should be extended by specific dataset format converters.
@@ -50,9 +49,13 @@ class LerobotFormatConvertor:
         self,
         dataset_path: str,
         output_path: str,
-        convertor_config: dict,
+        converter_config: dict,
         repo_id: str,
-        logger: logging.Logger | None = None,
+        device_model: str | None = None,
+        converter_log_dir: Path | None = None,
+        video_backend: str = "pyav",
+        image_writer_processes: int = 4,
+        image_writer_threads: int = 4,
     ) -> None:
         if not dataset_path:
             raise ValueError("Dataset path must be provided.")
@@ -66,16 +69,19 @@ class LerobotFormatConvertor:
         if not self.dataset_path.exists():
             raise FileNotFoundError(f"Dataset path {self.dataset_path} does not exist.")
         self.output_path = Path(output_path).expanduser().absolute()
-        self.output_path.mkdir(parents=True, exist_ok=True)
 
-        if not convertor_config:
+        if not converter_config:
             raise ValueError("Convertor config must be provided.")
 
-        self.convertor_config = convertor_config
+        self.converter_config = converter_config
 
         self.repo_id = repo_id
 
-        self.logger = logger
+        self.logger = setup_logger(
+            name="lerobot_format_convertor", log_dir=converter_log_dir, level=logging.INFO
+        )
+        self.logger.info(f"Using dataset path: {self.dataset_path}")
+        self.device_model = device_model
 
         try:
             self._validate_convertor_config()
@@ -88,7 +94,7 @@ class LerobotFormatConvertor:
         for task_path in self.path_task_dict.keys():
             self.task_episodes_num[task_path] = self._get_task_episodes_num(task_path)
 
-        self.fps = self.convertor_config[FPS]
+        self.fps = self.converter_config[FPS]
 
         self._gen_image_configs()
         self._gen_action_configs()
@@ -98,6 +104,10 @@ class LerobotFormatConvertor:
             raise ValueError(
                 f"Dataset info file {LOCAL_DATASET_INFO_FILE} not found in {self.dataset_path}."
             )
+
+        self.video_backend = video_backend
+        self.image_writer_processes = image_writer_processes
+        self.image_writer_threads = image_writer_threads
 
     @abstractmethod
     def _get_frame_image(
@@ -143,10 +153,10 @@ class LerobotFormatConvertor:
     def _prepare_episode_images_buffer(self, task_path: Path, ep_idx: int) -> any:
         return None
 
-    def _prepare_episode_state_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_states_buffer(self, task_path: Path, ep_idx: int) -> any:
         return None
 
-    def _prepare_episode_action_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_actions_buffer(self, task_path: Path, ep_idx: int) -> any:
         return None
 
     def _get_task_episodes_num(self, task_path: Path) -> int:
@@ -167,13 +177,9 @@ class LerobotFormatConvertor:
         Generate a single frame for the episode.
         """
         frame_data = {}
-        print(f"_gen_episode_frame, {images_buffer.keys()}")
         frame_data[FRAME_IDX_KEY] = frame_idx
-        print(f"_gen_frame_images, {images_buffer.keys()}")
         frame_data[IMAGE_KEY] = self._get_frame_images(task_path, ep_idx, frame_idx, images_buffer)
-        print(f"_gen_frame_states, {states_buffer.keys()}")
         frame_data[STATE_KEY] = self._get_frame_states(task_path, ep_idx, frame_idx, states_buffer)
-        print(f"_gen_frame_actions, {actions_buffer.keys()}")
         frame_data[ACTION_KEY] = self._get_frame_actions(
             task_path, ep_idx, frame_idx, actions_buffer
         )
@@ -185,23 +191,23 @@ class LerobotFormatConvertor:
         Validate the convertor config.
         """
         # check features:
-        if FEATURES_KEY not in self.convertor_config:
+        if FEATURES_KEY not in self.converter_config:
             raise ValueError(f"Convertion config must contain {FEATURES_KEY} key.")
 
         # check features.observation:
-        if OBSERVATION_KEY not in self.convertor_config[FEATURES_KEY]:
+        if OBSERVATION_KEY not in self.converter_config[FEATURES_KEY]:
             raise ValueError(
                 f"Convertion config must contain {OBSERVATION_KEY} key in {FEATURES_KEY}."
             )
 
         # check features.observation.images:
-        if IMAGE_KEY not in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY]:
+        if IMAGE_KEY not in self.converter_config[FEATURES_KEY][OBSERVATION_KEY]:
             raise ValueError(
                 f"Convertion config must contain {IMAGE_KEY} key in {FEATURES_KEY}.{OBSERVATION_KEY}."
             )
 
         cam_names: list[str] = []
-        for image_config in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
+        for image_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
             if CAM_NAME_KEY not in image_config:
                 raise ValueError(
                     f"Convertion config must contain {CAM_NAME_KEY} key in {FEATURES_KEY}.{OBSERVATION_KEY}.{IMAGE_KEY}."
@@ -217,18 +223,18 @@ class LerobotFormatConvertor:
                 f"Convertion config has same cam_names in {FEATURES_KEY}.{OBSERVATION_KEY}.{IMAGE_KEY}"
             )
 
-        if STATE_KEY not in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY]:
+        if STATE_KEY not in self.converter_config[FEATURES_KEY][OBSERVATION_KEY]:
             raise ValueError(
                 f"Convertion config must contain {STATE_KEY} key in {FEATURES_KEY}.{OBSERVATION_KEY}."
             )
 
-        if SUB_STATE_KEY not in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY]:
+        if SUB_STATE_KEY not in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY]:
             raise ValueError(
                 f"Convertion config must contain {SUB_STATE_KEY} key in {FEATURES_KEY}.{OBSERVATION_KEY}.{STATE_KEY}."
             )
 
         sub_state_names = []
-        for sub_state_config in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
+        for sub_state_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             SUB_STATE_KEY
         ]:
             if NAME_KEY not in sub_state_config:
@@ -247,16 +253,16 @@ class LerobotFormatConvertor:
             )
 
         # check features.action:
-        if ACTION_KEY not in self.convertor_config[FEATURES_KEY]:
+        if ACTION_KEY not in self.converter_config[FEATURES_KEY]:
             raise ValueError(f"Convertion config must contain {ACTION_KEY} key in {FEATURES_KEY}.")
 
-        if SUB_ACTION_KEY not in self.convertor_config[FEATURES_KEY][ACTION_KEY]:
+        if SUB_ACTION_KEY not in self.converter_config[FEATURES_KEY][ACTION_KEY]:
             raise ValueError(
                 f"Convertion config must contain {SUB_ACTION_KEY} key in {FEATURES_KEY}.{ACTION_KEY}."
             )
 
         sub_action_names = []
-        for sub_action_config in self.convertor_config[FEATURES_KEY][ACTION_KEY][SUB_ACTION_KEY]:
+        for sub_action_config in self.converter_config[FEATURES_KEY][ACTION_KEY][SUB_ACTION_KEY]:
             if NAME_KEY not in sub_action_config:
                 raise ValueError(
                     f"Convertion config must contain {NAME_KEY} key in {FEATURES_KEY}.{ACTION_KEY}.{SUB_ACTION_KEY}."
@@ -318,7 +324,6 @@ class LerobotFormatConvertor:
 
     def _get_one_frame_image(self, args_dict: dict) -> np.ndarray:
         task_path = list(self.path_task_dict.keys())[0]
-        print("_get_one_frame_image")
         return self._get_frame_image(
             task_path=task_path, ep_idx=0, frame_idx=0, args_dict=args_dict
         )
@@ -334,9 +339,9 @@ class LerobotFormatConvertor:
 
     def _gen_image_configs(self) -> None:
         sample_frame_images = self._get_one_frame_images(
-            self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]
+            self.converter_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]
         )
-        for image_config in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
+        for image_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
             image_config[LEROBOT_FEATURE_KEY] = (
                 f"{OBSERVATION_KEY}.{IMAGE_KEY}.{image_config[CAM_NAME_KEY]}"
             )
@@ -352,33 +357,33 @@ class LerobotFormatConvertor:
 
     def _gen_state_configs(self) -> None:
         sub_state_names = []
-        for sub_state_config in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
+        for sub_state_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             SUB_STATE_KEY
         ]:
             sub_state_names.extend(sub_state_config[NAME_KEY])
-        self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][NAME_KEY] = sub_state_names
-        self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][SHAPE_KEY] = (
+        self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][NAME_KEY] = sub_state_names
+        self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][SHAPE_KEY] = (
             len(sub_state_names),
         )
-        self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][LEROBOT_FEATURE_KEY] = (
+        self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][LEROBOT_FEATURE_KEY] = (
             f"{OBSERVATION_KEY}.{STATE_KEY}"
         )
 
     def _gen_action_configs(self) -> None:
         sub_action_names = []
-        for sub_action_config in self.convertor_config[FEATURES_KEY][ACTION_KEY][SUB_ACTION_KEY]:
+        for sub_action_config in self.converter_config[FEATURES_KEY][ACTION_KEY][SUB_ACTION_KEY]:
             sub_action_names.extend(sub_action_config[NAME_KEY])
-        self.convertor_config[FEATURES_KEY][ACTION_KEY][NAME_KEY] = sub_action_names
+        self.converter_config[FEATURES_KEY][ACTION_KEY][NAME_KEY] = sub_action_names
 
-        self.convertor_config[FEATURES_KEY][ACTION_KEY][SHAPE_KEY] = (len(sub_action_names),)
+        self.converter_config[FEATURES_KEY][ACTION_KEY][SHAPE_KEY] = (len(sub_action_names),)
 
-        self.convertor_config[FEATURES_KEY][ACTION_KEY][LEROBOT_FEATURE_KEY] = ACTION_KEY
+        self.converter_config[FEATURES_KEY][ACTION_KEY][LEROBOT_FEATURE_KEY] = ACTION_KEY
 
     def _get_frame_images(
         self, task_path: Path, ep_idx: int, frame_idx: int, images_buffer: any
     ) -> dict[str, np.ndarray]:
         images = {}
-        for image_config in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
+        for image_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
             lerobot_feature = image_config[LEROBOT_FEATURE_KEY]
             args_dict = image_config[ARGS_KEY]
             image = self._get_frame_image(
@@ -393,14 +398,14 @@ class LerobotFormatConvertor:
         return images
 
     def _get_frame_states(
-        self, task_path: Path, ep_idx: int, frame_idx: int, episode_buffer: any = None
+        self, task_path: Path, ep_idx: int, frame_idx: int, states_buffer: any = None
     ) -> dict[str, np.ndarray]:
-        lerobot_feature = self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
+        lerobot_feature = self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             LEROBOT_FEATURE_KEY
         ]
 
         sub_states_datas: list[np.ndarray] = []
-        for state_config in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
+        for state_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             SUB_STATE_KEY
         ]:
             args_dict = state_config[ARGS_KEY]
@@ -409,25 +414,25 @@ class LerobotFormatConvertor:
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
                 args_dict=args_dict,
-                sub_states_buffer=episode_buffer,
+                sub_states_buffer=states_buffer,
             )
             if CONVERT_FUNC_KEY in state_config:
                 if state_config[CONVERT_FUNC_KEY] in spatial_covertor_funcs:
                     if spatial_covertor_funcs[state_config[CONVERT_FUNC_KEY]]:
                         sub_states_data = spatial_covertor_funcs[state_config[CONVERT_FUNC_KEY]](
                             sub_states_data
-                        )
+                        ).astype(np.float32)
 
             sub_states_datas.append(sub_states_data)
 
         return {lerobot_feature: np.concatenate(sub_states_datas)}
 
     def _get_frame_actions(
-        self, task_path: Path, ep_idx: int, frame_idx: int, episode_buffer: any = None
+        self, task_path: Path, ep_idx: int, frame_idx: int, actions_buffer: any = None
     ) -> dict[str, np.ndarray]:
-        lerobot_feature = self.convertor_config[FEATURES_KEY][ACTION_KEY][LEROBOT_FEATURE_KEY]
+        lerobot_feature = self.converter_config[FEATURES_KEY][ACTION_KEY][LEROBOT_FEATURE_KEY]
         sub_actions_datas: list[np.ndarray] = []
-        for action_config in self.convertor_config[FEATURES_KEY][ACTION_KEY][SUB_ACTION_KEY]:
+        for action_config in self.converter_config[FEATURES_KEY][ACTION_KEY][SUB_ACTION_KEY]:
             names_num = len(action_config[NAME_KEY])
             args_dict = action_config[ARGS_KEY]
             sub_actions_data = self._get_frame_sub_actions(
@@ -436,7 +441,7 @@ class LerobotFormatConvertor:
                 frame_idx=frame_idx,
                 args_dict=args_dict,
                 names_num=names_num,
-                sub_actions_buffer=episode_buffer,
+                sub_actions_buffer=actions_buffer,
             )
 
             if CONVERT_FUNC_KEY in action_config:
@@ -444,7 +449,7 @@ class LerobotFormatConvertor:
                     if spatial_covertor_funcs[action_config[CONVERT_FUNC_KEY]]:
                         sub_actions_data = spatial_covertor_funcs[action_config[CONVERT_FUNC_KEY]](
                             sub_actions_data
-                        )
+                        ).astype(np.float32)
             sub_actions_datas.append(sub_actions_data)
 
         return {lerobot_feature: np.concatenate(sub_actions_datas)}
@@ -454,41 +459,41 @@ class LerobotFormatConvertor:
         task_path: Path,
         ep_idx: int,
         frame_idx: int,
-        episode_images_buffer: any = None,
-        episode_states_buffer: any = None,
-        episode_actions_buffer: any = None,
+        images_buffer: any = None,
+        states_buffer: any = None,
+        actions_buffer: any = None,
     ) -> dict[str, np.ndarray]:
         return {
             **self._get_frame_images(
                 task_path=task_path,
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
-                images_buffer=episode_images_buffer,
+                images_buffer=images_buffer,
             ),
             **self._get_frame_states(
                 task_path=task_path,
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
-                states=episode_states_buffer,
+                states_buffer=states_buffer,
             ),
             **self._get_frame_actions(
                 task_path=task_path,
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
-                episode_buffer=episode_actions_buffer,
+                actions_buffer=actions_buffer,
             ),
         }
 
     def _prepare_episode_buffers(self, task_path: Path, ep_idx: int) -> tuple[any, any, any]:
         return (
             self._prepare_episode_images_buffer(task_path=task_path, ep_idx=ep_idx),
-            self._prepare_episode_state_buffer(task_path=task_path, ep_idx=ep_idx),
-            self._prepare_episode_action_buffer(task_path=task_path, ep_idx=ep_idx),
+            self._prepare_episode_states_buffer(task_path=task_path, ep_idx=ep_idx),
+            self._prepare_episode_actions_buffer(task_path=task_path, ep_idx=ep_idx),
         )
 
     def _get_lerobot_image_features(self) -> dict:
         lerobot_image_features = {}
-        for image_config in self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
+        for image_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
             leroot_feature_key = image_config[LEROBOT_FEATURE_KEY]
             image_feature = {}
             image_feature[DTYPE_KEY] = image_config[DTYPE_KEY]
@@ -499,7 +504,7 @@ class LerobotFormatConvertor:
 
     def _get_lerobot_state_feature(self) -> dict:
         lerobot_state_feature = {}
-        lerobot_feature_key = self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
+        lerobot_feature_key = self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             LEROBOT_FEATURE_KEY
         ]
         state_feature = {}
@@ -507,10 +512,10 @@ class LerobotFormatConvertor:
         #     DTYPE_KEY
         # ]
         state_feature[DTYPE_KEY] = FLOAT32
-        state_feature[SHAPE_KEY] = self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
+        state_feature[SHAPE_KEY] = self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             SHAPE_KEY
         ]
-        state_feature[NAME_KEY] = self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
+        state_feature[NAME_KEY] = self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             NAME_KEY
         ]
         lerobot_state_feature[lerobot_feature_key] = state_feature
@@ -518,11 +523,11 @@ class LerobotFormatConvertor:
 
     def _get_lerobot_action_feature(self) -> dict:
         lerobot_action_feature = {}
-        lerobot_feature_key = self.convertor_config[FEATURES_KEY][ACTION_KEY][LEROBOT_FEATURE_KEY]
+        lerobot_feature_key = self.converter_config[FEATURES_KEY][ACTION_KEY][LEROBOT_FEATURE_KEY]
         action_feature = {}
         action_feature[DTYPE_KEY] = FLOAT32
-        action_feature[SHAPE_KEY] = self.convertor_config[FEATURES_KEY][ACTION_KEY][SHAPE_KEY]
-        action_feature[NAME_KEY] = self.convertor_config[FEATURES_KEY][ACTION_KEY][NAME_KEY]
+        action_feature[SHAPE_KEY] = self.converter_config[FEATURES_KEY][ACTION_KEY][SHAPE_KEY]
+        action_feature[NAME_KEY] = self.converter_config[FEATURES_KEY][ACTION_KEY][NAME_KEY]
         lerobot_action_feature[lerobot_feature_key] = action_feature
         return lerobot_action_feature
 
@@ -533,9 +538,16 @@ class LerobotFormatConvertor:
             **self._get_lerobot_action_feature(),
         }
 
-    def _create_lerobot_dataset(self, repo_id: str, **kwargs: any) -> LeRobotDataset:
+    def _create_lerobot_dataset(self) -> LeRobotDataset:
         return LeRobotDataset.create(
-            repo_id=repo_id, features=self._get_lerobot_features(), fps=self.fps, **kwargs
+            repo_id=self.repo_id,
+            features=self._get_lerobot_features(),
+            fps=self.fps,
+            robot_type=self.device_model,
+            root=self.output_path,
+            video_backend=self.video_backend,
+            image_writer_processes=self.image_writer_processes,
+            image_writer_threads=self.image_writer_threads,
         )
 
     def _get_episode_task(self, ep_idx: int) -> str:
@@ -551,7 +563,6 @@ class LerobotFormatConvertor:
     ) -> Iterable[dict]:
         for frame_idx in range(self._get_episode_frames_num(task_path=task_path, ep_idx=ep_idx)):
             try:
-                print(f"_gen_episode_frame {frame_idx}")
                 frame_data = self._gen_episode_frame(
                     task_path, ep_idx, frame_idx, images_buffer, states_buffer, actions_buffer
                 )
@@ -563,64 +574,63 @@ class LerobotFormatConvertor:
 
         pass
 
-    def convert(self) -> Iterable[dict[str, int]]:
-        dataset = self._create_lerobot_dataset(self.repo_id)
+    def convert(self) -> Iterable[tuple[str, int, int]]:
+        dataset = self._create_lerobot_dataset()
+        ep_idx = 0
         for task_path, task in self.path_task_dict.items():
-            for ep_idx in range(self._get_task_episodes_num(task_path)):
-                images_buffer, state_buffer, action_buffer = self._prepare_episode_buffers(
-                    task_path, ep_idx
+            for task_ep_idx in range(self._get_task_episodes_num(task_path)):
+                images_buffer, states_buffer, actions_buffer = self._prepare_episode_buffers(
+                    task_path, task_ep_idx
                 )
-                print(f"Converting task {task} episode {ep_idx}")
                 for frame_data in self._gen_episode_frames(
-                    task_path, ep_idx, images_buffer, state_buffer, action_buffer
+                    task_path, task_ep_idx, images_buffer, states_buffer, actions_buffer
                 ):
                     lerobot_datas = self._get_lerobot_datas(
                         task_path=task_path,
-                        ep_idx=ep_idx,
+                        ep_idx=task_ep_idx,
                         frame_idx=frame_data[FRAME_IDX_KEY],
-                        episode_images_buffer=frame_data[IMAGE_KEY],
-                        episode_states_buffer=frame_data[STATE_KEY],
-                        episode_actions_buffer=frame_data[ACTION_KEY],
+                        images_buffer=images_buffer,
+                        states_buffer=states_buffer,
+                        actions_buffer=actions_buffer,
                     )
-                    dataset.add_frame(lerobot_datas, self._get_episode_task(ep_idx), task=task)
+                    dataset.add_frame(frame=lerobot_datas, task=self._get_episode_task(task_ep_idx))
 
                 dataset.save_episode()
-                yield (task, ep_idx)
+                yield (task, task_ep_idx, ep_idx)
+                ep_idx += 1
 
     def get_episodes_num(self) -> int:
         return sum(self._get_task_episodes_num(task) for task in self.path_task_dict.keys())
 
 
-class LerobotFormatConvertorFactory:
+class LerobotFormatConverterFactory:
     @staticmethod
-    def create_convertor(
+    def create_converter(
         dataset_path: Path,
         device_model: str,
         output_path: Path,
-        convertor_config: dict,
-        factory_config: dict,
+        converter_config: dict,
+        converter_module_path: str,
+        converter_class_name: str,
         repo_id: str,
-        logger: logging.Logger | None = None,
-    ) -> LerobotFormatConvertor:
+        video_backend: str = "pyav",
+        image_writer_processes: int = 4,
+        image_writer_threads: int = 4,
+        converter_log_dir: str | None = None,
+    ) -> LerobotFormatConverter:
         if not dataset_path.exists():
             raise FileNotFoundError(f"Dataset path {dataset_path} does not exist.")
 
-        if not factory_config:
-            raise ValueError("Factory config is empty.")
-
-        if device_model not in factory_config:
-            raise ValueError(f"Device model {device_model} not found in factory config.")
-
-        class_config = factory_config[device_model]
-        module_path = class_config[MODULE_KEY]
-        class_name = class_config[CLASS_KEY]
-
-        module = importlib.import_module(module_path)
-        convertor_class = getattr(module, class_name)
+        module = importlib.import_module(converter_module_path)
+        convertor_class = getattr(module, converter_class_name)
         return convertor_class(
             dataset_path=dataset_path,
             output_path=output_path,
-            convertor_config=convertor_config,
+            converter_config=converter_config,
             repo_id=repo_id,
-            logger=logger,
+            device_model=device_model,
+            converter_log_dir=converter_log_dir,
+            video_backend=video_backend,
+            image_writer_processes=image_writer_processes,
+            image_writer_threads=image_writer_threads,
         )

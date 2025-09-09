@@ -2,7 +2,7 @@ from pathlib import Path
 
 from huggingface_hub import HfApi
 
-from robocoin_dataset.constant import (
+from robocoin_dataset.hub_upload.constant import (
     DEFAULT_UPLOAD_ALLOW_PATTERNS,
     DEFAULT_UPLOAD_IGNORE_PATTERNS,
 )
