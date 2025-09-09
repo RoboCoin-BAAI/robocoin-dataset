@@ -12,17 +12,17 @@ from PIL import Image
 from rosbags.highlevel import AnyReader
 from rosbags.typesys import get_types_from_msg, register_types
 
-from robocoin_dataset.format_convertors.tolerobot.constant import (
+from robocoin_dataset.format_converter.tolerobot.constant import (
     ARGS_KEY,
     FEATURES_KEY,
     OBSERVATION_KEY,
     STATE_KEY,
     SUB_STATE_KEY,
 )
-from robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor import (
-    LerobotFormatConvertor,
+from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import (
+    LerobotFormatConverter,
 )
-from robocoin_dataset.format_convertors.tolerobot.time_alignment import (
+from robocoin_dataset.format_converter.tolerobot.time_alignment import (
     AlignmentConfig,
     create_time_aligner,
     TimeSyncAnalyzer
@@ -36,14 +36,18 @@ class RosbagBuffer:
     ep_idx: int | None = None
 
 
-class LerobotFormatConvertorRosbag(LerobotFormatConvertor):
+class LerobotFormatConverterRosbag(LerobotFormatConverter):
     def __init__(
         self,
         dataset_path: str,
         output_path: str,
-        convertor_config: dict,
+        converter_config: dict,
         repo_id: str,
-        logger: logging.Logger | None = None,
+        device_model: str | None = None,
+        converter_log_dir: Path | None = None,
+        video_backend: str = "pyav",
+        image_writer_processes: int = 4,
+        image_writer_threads: int = 4,
         alignment_config: AlignmentConfig | None = None,
     ) -> None:
         self.rosbag_buffer: RosbagBuffer = RosbagBuffer()
@@ -53,10 +57,26 @@ class LerobotFormatConvertorRosbag(LerobotFormatConvertor):
             # 默认使用应急策略以保证兼容性
             alignment_config = AlignmentConfig.emergency_config()
         self.alignment_config = alignment_config
-        self.time_aligner = create_time_aligner(alignment_config, logger)
-        self.sync_analyzer = TimeSyncAnalyzer(logger)
         
-        super().__init__(dataset_path, output_path, convertor_config, repo_id, logger)
+        # Note: logger will be available after super().__init__
+        self.time_aligner = None
+        self.sync_analyzer = None
+        
+        super().__init__(
+            dataset_path=dataset_path,
+            output_path=output_path,
+            converter_config=converter_config,
+            repo_id=repo_id,
+            device_model=device_model,
+            converter_log_dir=converter_log_dir,
+            video_backend=video_backend,
+            image_writer_processes=image_writer_processes,
+            image_writer_threads=image_writer_threads,
+        )
+        
+        # Now we can use self.logger
+        self.time_aligner = create_time_aligner(alignment_config, self.logger)
+        self.sync_analyzer = TimeSyncAnalyzer(self.logger)
 
     # @override
     def _get_frame_image(
@@ -116,7 +136,6 @@ class LerobotFormatConvertorRosbag(LerobotFormatConvertor):
         ep_idx: int,
         frame_idx: int,
         args_dict: dict,
-        names_num: int,
         sub_actions_buffer: any = None,
     ) -> np.ndarray:
         topic_name = args_dict["topic_name"]
@@ -160,11 +179,11 @@ class LerobotFormatConvertorRosbag(LerobotFormatConvertor):
         return self._get_episode_rosbag_data(task_path, ep_idx)
 
     # @override
-    def _prepare_episode_state_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_states_buffer(self, task_path: Path, ep_idx: int) -> any:
         return self._get_episode_rosbag_data(task_path, ep_idx)
 
     # @override
-    def _prepare_episode_action_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_actions_buffer(self, task_path: Path, ep_idx: int) -> any:
         return self._get_episode_rosbag_data(task_path, ep_idx)
 
     @cached_property

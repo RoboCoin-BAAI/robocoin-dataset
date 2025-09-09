@@ -10,15 +10,15 @@ import numpy as np
 from natsort import natsorted
 from PIL import Image
 
-from robocoin_dataset.format_convertors.tolerobot.constant import (
+from robocoin_dataset.format_converter.tolerobot.constant import (
     ARGS_KEY,
     FEATURES_KEY,
     OBSERVATION_KEY,
     STATE_KEY,
     SUB_STATE_KEY,
 )
-from robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor import (
-    LerobotFormatConvertor,
+from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import (
+    LerobotFormatConverter,
 )
 
 
@@ -29,23 +29,37 @@ class G1Buffer:
     ep_idx: int | None = None
 
 
-class LerobotFormatConvertorG1(LerobotFormatConvertor):
+class LerobotFormatConverterG1(LerobotFormatConverter):
     def __init__(
         self,
         dataset_path: str,
         output_path: str,
-        convertor_config: dict,
+        converter_config: dict,
         repo_id: str,
-        logger: logging.Logger | None = None,
+        device_model: str | None = None,
+        converter_log_dir: Path | None = None,
+        video_backend: str = "pyav",
+        image_writer_processes: int = 4,
+        image_writer_threads: int = 4,
     ) -> None:
         self.g1_buffer: G1Buffer = G1Buffer()
         
         # G1多相机自动检测
-        if self._has_auto_camera_detection(convertor_config):
+        if self._has_auto_camera_detection(converter_config):
             print("G1: 启用多相机自动检测")
-            convertor_config = self._auto_configure_cameras(convertor_config, dataset_path)
+            converter_config = self._auto_configure_cameras(converter_config, dataset_path)
         
-        super().__init__(dataset_path, output_path, convertor_config, repo_id, logger)
+        super().__init__(
+            dataset_path=dataset_path,
+            output_path=output_path,
+            converter_config=converter_config,
+            repo_id=repo_id,
+            device_model=device_model,
+            converter_log_dir=converter_log_dir,
+            video_backend=video_backend,
+            image_writer_processes=image_writer_processes,
+            image_writer_threads=image_writer_threads,
+        )
 
     # @override
     def _get_frame_image(
@@ -97,7 +111,7 @@ class LerobotFormatConvertorG1(LerobotFormatConvertor):
         sub_states_buffer: any = None,
     ) -> np.ndarray:
         if not sub_states_buffer:
-            sub_states_buffer = self._prepare_episode_state_buffer(task_path, ep_idx)
+            sub_states_buffer = self._prepare_episode_states_buffer(task_path, ep_idx)
         
         # 解析JSON路径，例如: "states.left_arm.qpos"
         json_path = args_dict["json_path"]
@@ -128,11 +142,10 @@ class LerobotFormatConvertorG1(LerobotFormatConvertor):
         ep_idx: int,
         frame_idx: int,
         args_dict: dict,
-        names_num: int,
         sub_actions_buffer: any = None,
     ) -> np.ndarray:
         if not sub_actions_buffer:
-            sub_actions_buffer = self._prepare_episode_action_buffer(task_path, ep_idx)
+            sub_actions_buffer = self._prepare_episode_actions_buffer(task_path, ep_idx)
         
         # 解析JSON路径，例如: "actions.left_arm.qpos"
         json_path = args_dict["json_path"]
@@ -207,11 +220,11 @@ class LerobotFormatConvertorG1(LerobotFormatConvertor):
         }
 
     # @override
-    def _prepare_episode_state_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_states_buffer(self, task_path: Path, ep_idx: int) -> any:
         return self._get_episode_json_data(task_path, ep_idx)
 
     # @override
-    def _prepare_episode_action_buffer(self, task_path: Path, ep_idx: int) -> any:
+    def _prepare_episode_actions_buffer(self, task_path: Path, ep_idx: int) -> any:
         return self._get_episode_json_data(task_path, ep_idx)
 
     @cached_property
