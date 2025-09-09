@@ -24,7 +24,7 @@ unitree_g1_multi_camera:
   converter_config_path: converter_config_unitree_g1_multi_camera_auto.yaml
 
 discover_robotics_aitbot_mmk2:
-  module: robocoin_dataset.format_convertors.tolerobot.lerobot_format_convertor_mmk2
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
   class: LerobotFormatConverterMmk2
   converter_config_path: converter_config_discover_robotics_aitbot_mmk2.yaml
 

@@ -36,8 +36,8 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         output_path: str,
         converter_config: dict,
         repo_id: str,
-        device_model: str | None = None,
-        converter_log_dir: Path | None = None,
+        device_model: str,
+        logger: logging.Logger | None = None,
         video_backend: str = "pyav",
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
@@ -55,7 +55,7 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
             converter_config=converter_config,
             repo_id=repo_id,
             device_model=device_model,
-            converter_log_dir=converter_log_dir,
+            logger=logger,
             video_backend=video_backend,
             image_writer_processes=image_writer_processes,
             image_writer_threads=image_writer_threads,
@@ -89,16 +89,47 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         
         camera_files = camera_groups[camera_idx]
         
-        if frame_idx >= len(camera_files):
-            raise ValueError(f"Frame index {frame_idx} out of range for camera {camera_idx}. Available frames: {len(camera_files)}")
+        # 查找与frame_idx匹配的图像文件，支持稀疏采样
+        target_image_path = None
+        for image_path in camera_files:
+            # 从文件名提取帧号，例如：000379_color_0.jpg -> 379
+            filename = image_path.stem  # 去掉扩展名
+            frame_num_str = filename.split('_')[0]  # 取第一部分
+            try:
+                file_frame_idx = int(frame_num_str)
+                if file_frame_idx == frame_idx:
+                    target_image_path = image_path
+                    break
+            except ValueError:
+                continue
         
-        image_path = camera_files[frame_idx]
+        if target_image_path is None:
+            # 如果找不到精确匹配的帧，使用最近的帧或最后一帧
+            if camera_files:
+                # 找到最接近的帧
+                closest_file = None
+                min_distance = float('inf')
+                for image_path in camera_files:
+                    filename = image_path.stem
+                    frame_num_str = filename.split('_')[0]
+                    try:
+                        file_frame_idx = int(frame_num_str)
+                        distance = abs(file_frame_idx - frame_idx)
+                        if distance < min_distance:
+                            min_distance = distance
+                            closest_file = image_path
+                    except ValueError:
+                        continue
+                target_image_path = closest_file
+            
+            if target_image_path is None:
+                raise ValueError(f"No suitable image found for frame {frame_idx} in camera {camera_idx}")
         
-        if not image_path.exists():
-            raise ValueError(f"Image file not found: {image_path}")
+        if not target_image_path.exists():
+            raise ValueError(f"Image file not found: {target_image_path}")
         
         # 读取并返回图像
-        img = Image.open(image_path)
+        img = Image.open(target_image_path)
         return np.array(img)
 
     # @override
@@ -131,7 +162,7 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         
         # 提取指定范围的数据
         if isinstance(data, list):
-            return np.array(data[from_idx:to_idx])
+            return np.array(data[from_idx:to_idx], dtype=np.float32)
         else:
             raise ValueError(f"Expected list data for path '{json_path}', got {type(data)}")
 
@@ -165,7 +196,7 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         
         # 提取指定范围的数据
         if isinstance(data, list):
-            return np.array(data[from_idx:to_idx])
+            return np.array(data[from_idx:to_idx], dtype=np.float32)
         else:
             raise ValueError(f"Expected list data for path '{json_path}', got {type(data)}")
 

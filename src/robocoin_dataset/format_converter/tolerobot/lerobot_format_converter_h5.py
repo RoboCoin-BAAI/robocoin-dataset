@@ -95,7 +95,6 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
         ep_idx: int,
         frame_idx: int,
         args_dict: dict,
-        names_num: int,
         sub_actions_buffer: any = None,
     ) -> np.ndarray:
         h5_path = args_dict["h5_path"]
