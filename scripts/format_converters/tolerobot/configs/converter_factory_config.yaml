@@ -51,4 +51,4 @@ single_arm_ur5:
 visionpro:
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
   class: LerobotFormatConverterHdf5
-  converter_config_path: visionpro.yaml
+  converter_config_path: converter_config_visionpro.yaml
