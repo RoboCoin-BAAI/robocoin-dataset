@@ -1,189 +1,251 @@
-### jpg+bson
+### MMK2机器人配置 - JPG+BSON格式
 ### fps by manual
 fps: 30
+
 features:
   observation:
     images:
-
-    ### values by manual
-    - cam_name: cam_high_rgb
+    
+    # 头部相机 (camera_2)
+    - cam_name: head_camera
       args:
-
-        ### key and values by manual
-        h5_path: observations/images/cam_high
-
-
-      ### values by function
-      # dtype: video
-      # shape: [480, 640, 3]
-      # names: [height, width, channels]
-      # lerobot_feature: observations.images.cam_high : by _gen_lerobot_features()
+        camera_dir: camera_2
+    
+    # 左手相机 (camera_0) 
+    - cam_name: left_wrist_camera
+      args:
+        camera_dir: camera_0
         
-
-    ### values by manual
-    - cam_name: cam_left_wrist_rgb
+    # 右手相机 (camera_1)
+    - cam_name: right_wrist_camera
       args:
-
-        ### keys and values by manual
-        h5_path: observations/images/cam_left_wrist
-
-      ### values by function
-      # dtype: video
-      # shape: [480, 640, 3]
-      # names: [height, width, channels]
-      # lerobot_feature: observations.images.cam_left_wrist : by _gen_lerobot_features()
-
-    ### values by manual
-    - cam_name: cam_right_wrist_rgb
-      args:
-        ### keys and values by manual
-        h5_path: observations/images/cam_right_wrist
-
-      ### values by function
-      # dtype: video
-      # shape: [480, 640, 3]
-      # names: [height, width, channels]
-      # lerobot_feature: observations.images.cam_right_wrist : by _gen_lerobot_features()
-
+        camera_dir: camera_1
 
     state:
-      ### values by function
-      # lerobot_feature: observation.state : by _gen_lerobot_features()
-      # dtype: float32 
-      # shape: [16]
-
-      ## sub_states should be concatenated together here : by _gen_state_names(), such as:
-      # names: 
-      # - right_joint_1_rad
-      # - ...
-      # - right_joint_7_rad
-      # - ...
-
-
-      ### values by manual
+      # MMK2状态包含：左臂6关节 + 右臂6关节 + 左手末端1关节 + 右手末端1关节 + 头部2关节 + 脊柱1关节 + 双手24关节 = 42维
       sub_state:
-      - names: 
-        - right_joint_1_rad
-        - right_joint_2_rad
-        - right_joint_3_rad
-        - right_joint_4_rad
-        - right_joint_5_rad
-        - right_joint_6_rad
-        - right_joint_7_rad
-
-        args:
-          ### keys and values by manual
-          h5_path: observations/qpos
-          range_from: 0
-          range_to: 7
-        
-        ### values by manual
-        # convert_func: degree2rad
       
-      ### values by manual
+      # 左臂关节状态 (6关节)
       - names: 
-        - left_gripper_open_rad
+        - left_arm_joint_1
+        - left_arm_joint_2
+        - left_arm_joint_3
+        - left_arm_joint_4
+        - left_arm_joint_5
+        - left_arm_joint_6
         args:
-          ### keys and values by manual
-          h5_path: observations/qpos
-          range_from: 10
-          range_to: 11
-
-        ### values by manual
-        # convert_func: degree2rad
-
-      ### values by manual
-      - names: 
-        - left_joint_1_rad
-        - left_joint_2_rad
-        - left_joint_3_rad
-        - left_joint_4_rad
-        - left_joint_5_rad
-        - left_joint_6_rad
-        - left_joint_7_rad
-
+          bson_file: episode_0(8).bson
+          data_path: /observation/left_arm/joint_state
+          field: pos
+          range_from: 0
+          range_to: 6
+      
+      # 右臂关节状态 (6关节)  
+      - names:
+        - right_arm_joint_1
+        - right_arm_joint_2
+        - right_arm_joint_3
+        - right_arm_joint_4
+        - right_arm_joint_5
+        - right_arm_joint_6
         args:
-          ### keys and values by manual
-          h5_path: observations/qpos
-          range_from: 50
-          range_to: 57
-
-        ### values by manual
-        # convert_func: degree2rad
-
-      ### values by manual
-      - names: 
-        - right_gripper_open_rad
+          bson_file: episode_0(8).bson
+          data_path: /observation/right_arm/joint_state
+          field: pos
+          range_from: 0
+          range_to: 6
+      
+      # 左臂末端执行器 (1关节)
+      - names:
+        - left_arm_eef
         args:
-          ### keys and values by manual
-          h5_path: observations/qpos
-          range_from: 60
-          range_to: 61
-
-        ### values by manual
-        # convert_func: degree2rad
+          bson_file: episode_0(8).bson
+          data_path: /observation/left_arm_eef/joint_state
+          field: pos
+          range_from: 0
+          range_to: 1
+          
+      # 右臂末端执行器 (1关节)
+      - names:
+        - right_arm_eef
+        args:
+          bson_file: episode_0(8).bson
+          data_path: /observation/right_arm_eef/joint_state
+          field: pos
+          range_from: 0
+          range_to: 1
+      
+      # 头部关节 (2关节)
+      - names:
+        - head_joint_1
+        - head_joint_2
+        args:
+          bson_file: episode_0(8).bson
+          data_path: /observation/head/joint_state
+          field: pos
+          range_from: 0
+          range_to: 2
+          
+      # 脊柱关节 (1关节)
+      - names:
+        - spine_joint
+        args:
+          bson_file: episode_0(8).bson
+          data_path: /observation/spine/joint_state
+          field: pos
+          range_from: 0
+          range_to: 1
+      
+      # 左手关节 (12关节)
+      - names:
+        - left_hand_joint_1
+        - left_hand_joint_2
+        - left_hand_joint_3
+        - left_hand_joint_4
+        - left_hand_joint_5
+        - left_hand_joint_6
+        - left_hand_joint_7
+        - left_hand_joint_8
+        - left_hand_joint_9
+        - left_hand_joint_10
+        - left_hand_joint_11
+        - left_hand_joint_12
+        args:
+          bson_file: xhand_control_data(7).bson
+          data_path: observation.left_hand
+          range_from: 0
+          range_to: 12
+          
+      # 右手关节 (12关节)  
+      - names:
+        - right_hand_joint_1
+        - right_hand_joint_2
+        - right_hand_joint_3
+        - right_hand_joint_4
+        - right_hand_joint_5
+        - right_hand_joint_6
+        - right_hand_joint_7
+        - right_hand_joint_8
+        - right_hand_joint_9
+        - right_hand_joint_10
+        - right_hand_joint_11
+        - right_hand_joint_12
+        args:
+          bson_file: xhand_control_data(7).bson
+          data_path: observation.right_hand
+          range_from: 0
+          range_to: 12
 
   action:
-    ### values by function
-    # lerobot_feature: observation.action: by _gen_lerobot_features()
-    # dtype: float32 
-    # shape: [16]
-
-    ## sub_actions should be concatenated together here, : by _gen_acton_names(), such as:
-    # names:
-    # - right_joint_1_rad
-    # - ...
-    # - right_joint_7_rad
-    # - ...
-
-    ### values by manual
-    timeline_offset: 1
+    # MMK2动作包含：左臂5关节 + 右臂5关节 + 左手末端1关节 + 右手末端1关节 + 头部2关节 + 脊柱1关节 + 双手24关节 = 40维
     sub_action:
-    - names: 
-      - right_joint_1_rad
-      - right_joint_2_rad
-      - right_joint_3_rad
-      - right_joint_4_rad
-      - right_joint_5_rad
-      - right_joint_6_rad
-      - right_joint_7_rad
-
-      args:
-        ### keys and values by manual
-        h5_path: observations/qpos
-        range_from: 0
-        range_to: 7
     
-    ### values by manual
-    - names: 
-      - left_gripper_open_rad
+    # 左臂动作 (5关节)
+    - names:
+      - left_arm_action_1
+      - left_arm_action_2  
+      - left_arm_action_3
+      - left_arm_action_4
+      - left_arm_action_5
       args:
-        ### keys and values by manual
-        h5_path: observations/qpos
-        range_from: 10
-        range_to: 11
-
-    ### values by manual
-    - names: 
-      - left_joint_1_rad
-      - left_joint_2_rad
-      - left_joint_3_rad
-      - left_joint_4_rad
-      - left_joint_5_rad
-      - left_joint_6_rad
-      - left_joint_7_rad
+        bson_file: episode_0(8).bson
+        data_path: /action/left_arm/joint_state
+        field: pos
+        range_from: 0
+        range_to: 5
+        
+    # 右臂动作 (5关节)
+    - names:
+      - right_arm_action_1
+      - right_arm_action_2
+      - right_arm_action_3
+      - right_arm_action_4
+      - right_arm_action_5
       args:
-        ### keys and values by manual
-        h5_path: observations/qpos
-        range_from: 50
-        range_to: 57
-
-    ### values by manual
-    - names: 
-      - right_gripper_open_rad
+        bson_file: episode_0(8).bson
+        data_path: /action/right_arm/joint_state
+        field: pos
+        range_from: 0
+        range_to: 5
+        
+    # 左臂末端执行器动作 (1关节)
+    - names:
+      - left_arm_eef_action
       args:
-        ### keys and values by manual
-        h5_path: observations/qpos
-        range_from: 60
-        range_to: 61
+        bson_file: episode_0(8).bson
+        data_path: /action/left_arm_eef/joint_state
+        field: pos
+        range_from: 0
+        range_to: 1
+        
+    # 右臂末端执行器动作 (1关节)
+    - names:
+      - right_arm_eef_action
+      args:
+        bson_file: episode_0(8).bson
+        data_path: /action/right_arm_eef/joint_state
+        field: pos
+        range_from: 0
+        range_to: 1
+        
+    # 头部动作 (2关节)
+    - names:
+      - head_action_1
+      - head_action_2
+      args:
+        bson_file: episode_0(8).bson
+        data_path: /action/head/joint_state
+        field: pos
+        range_from: 0
+        range_to: 2
+        
+    # 脊柱动作 (1关节)
+    - names:
+      - spine_action
+      args:
+        bson_file: episode_0(8).bson
+        data_path: /action/spine/joint_state
+        field: pos
+        range_from: 0
+        range_to: 1
+        
+    # 左手动作 (12关节)
+    - names:
+      - left_hand_action_1
+      - left_hand_action_2
+      - left_hand_action_3
+      - left_hand_action_4
+      - left_hand_action_5
+      - left_hand_action_6
+      - left_hand_action_7
+      - left_hand_action_8
+      - left_hand_action_9
+      - left_hand_action_10
+      - left_hand_action_11
+      - left_hand_action_12
+      args:
+        bson_file: xhand_control_data(7).bson
+        data_path: action.left_hand
+        range_from: 0
+        range_to: 12
+        
+    # 右手动作 (12关节)
+    - names:
+      - right_hand_action_1
+      - right_hand_action_2
+      - right_hand_action_3
+      - right_hand_action_4
+      - right_hand_action_5
+      - right_hand_action_6
+      - right_hand_action_7
+      - right_hand_action_8
+      - right_hand_action_9
+      - right_hand_action_10
+      - right_hand_action_11
+      - right_hand_action_12
+      args:
+        bson_file: xhand_control_data(7).bson
+        data_path: action.right_hand
+        range_from: 0
+        range_to: 12
     
