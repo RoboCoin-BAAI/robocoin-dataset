@@ -36,7 +36,6 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     SUB_STATE_KEY,
 )
 from robocoin_dataset.format_converter.utils.spatial_data_convertor import spatial_covertor_funcs
-from robocoin_dataset.utils.logger import setup_logger
 
 
 class LerobotFormatConverter:
@@ -52,7 +51,7 @@ class LerobotFormatConverter:
         converter_config: dict,
         repo_id: str,
         device_model: str | None = None,
-        converter_log_dir: Path | None = None,
+        logger: logging.Logger | None = None,
         video_backend: str = "pyav",
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
@@ -77,9 +76,9 @@ class LerobotFormatConverter:
 
         self.repo_id = repo_id
 
-        self.logger = setup_logger(
-            name="lerobot_format_convertor", log_dir=converter_log_dir, level=logging.INFO
-        )
+        if not logger:
+            raise ValueError("Logger must be provided.")
+        self.logger = logger
         self.logger.info(f"Using dataset path: {self.dataset_path}")
         self.device_model = device_model
 
@@ -616,7 +615,7 @@ class LerobotFormatConverterFactory:
         video_backend: str = "pyav",
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
-        converter_log_dir: str | None = None,
+        logger: logging.Logger | None = None,
     ) -> LerobotFormatConverter:
         if not dataset_path.exists():
             raise FileNotFoundError(f"Dataset path {dataset_path} does not exist.")
@@ -629,7 +628,7 @@ class LerobotFormatConverterFactory:
             converter_config=converter_config,
             repo_id=repo_id,
             device_model=device_model,
-            converter_log_dir=converter_log_dir,
+            logger=logger,
             video_backend=video_backend,
             image_writer_processes=image_writer_processes,
             image_writer_threads=image_writer_threads,

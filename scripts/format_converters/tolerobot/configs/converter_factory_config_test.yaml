@@ -1,0 +1,4 @@
+realman_rmc_aidal: 
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5_test
+  class: LerobotFormatConverterHdf5Test
+  converter_config_path: converter_config_realman_rmc_aidal.yaml

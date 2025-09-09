@@ -1,5 +1,4 @@
 import logging
-import time
 from pathlib import Path
 
 from tqdm import tqdm
@@ -13,6 +12,7 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     CONVERTER_CLASS_NAME,
     CONVERTER_CONFIG,
     CONVERTER_LOG_DIR,
+    CONVERTER_LOG_NAME,
     CONVERTER_MODULE_PATH,
     IMAGE_WRITER_PROCESSES,
     IMAGE_WRITER_THREADS,
@@ -26,6 +26,7 @@ from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import
 from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5 import (
     LerobotFormatConverterHdf5,
 )
+from robocoin_dataset.utils.logger import setup_logger
 
 
 class LeFormatConverterTaskClient(TaskClient):
@@ -62,9 +63,13 @@ class LeFormatConverterTaskClient(TaskClient):
             image_writer_proecesses = task_content.get(IMAGE_WRITER_PROCESSES, 4)
             image_writer_threads = task_content.get(IMAGE_WRITER_THREADS, 4)
             converter_log_dir = task_content.get(CONVERTER_LOG_DIR)
-            print(f"converter_log_dir: {converter_log_dir}")
+            converter_log_name = task_content.get(CONVERTER_LOG_NAME)
 
-            time.sleep(1)
+            logger = setup_logger(
+                converter_log_name,
+                converter_log_dir,
+                logging.INFO,
+            )
 
             converter: LerobotFormatConverterHdf5 = LerobotFormatConverterFactory.create_converter(
                 dataset_path=dataset_path,
@@ -74,12 +79,13 @@ class LeFormatConverterTaskClient(TaskClient):
                 converter_module_path=module_path,
                 converter_class_name=class_name,
                 repo_id=repo_id,
-                converter_log_dir=str(converter_log_dir),
                 video_backend=video_backend,
                 image_writer_processes=image_writer_proecesses,
                 image_writer_threads=image_writer_threads,
+                logger=logger,
             )
 
+            self.logger.info(f"converter_log_dir: {converter_log_dir}")
             total_episodes = converter.get_episodes_num()
             for task_content, task_ep_idx, ep_idx in tqdm(
                 converter.convert(),

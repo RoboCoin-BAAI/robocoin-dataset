@@ -129,11 +129,11 @@ if __name__ == "__main__":
 
 
 """_summary_
-python scripts/format_converters/tolerobot/multi_client.py \
-    --host=172.16.18.160 \
+python scripts/format_converters/tolerobot/multi_client_test.py \
+    --host=127.0.0.1 \
     --port=8765 \
     --timeout=1.0 \
     --heartbeat-interval=10.0 \
-    --log-path=./outputs/leformat_converter/log \
-    --num-clients=4
+    --log-path=./outputs/leformat_converter/client_log \
+    --num-clients=2
 """
