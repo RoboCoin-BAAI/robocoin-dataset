@@ -439,7 +439,6 @@ class LerobotFormatConverter:
                 ep_idx=ep_idx,
                 frame_idx=frame_idx,
                 args_dict=args_dict,
-                names_num=names_num,
                 sub_actions_buffer=actions_buffer,
             )
 
