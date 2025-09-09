@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
 """_summary_
 python scripts/format_converters/tolerobot/multi_client.py \
-    --host=127.0.0.1 \
+    --host=172.16.18.160 \
     --port=8765 \
     --timeout=1.0 \
     --heartbeat-interval=10.0 \
