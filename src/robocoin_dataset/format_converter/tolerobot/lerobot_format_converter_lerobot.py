@@ -13,13 +13,11 @@ from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import
 
 class LerobotFormatConverterLerobot(LerobotFormatConverter):
     """
-    Converter for LeRobot format data to our standard format.
-    This is a generic converter that can handle any LeRobot format dataset.
+    Converter for LeRobot format datasets to our standard format.
     Handles:
-    1. Loading parquet data from LeRobot format
-    2. Restructuring data according to our configuration
-    3. Converting units if needed
-    4. Moving video files to our standard structure
+    1. Reading parquet data from LeRobot datasets
+    2. Extracting and converting various data types (states, actions, images)
+    3. Restructuring data according to our configuration mapping
     """
 
     def __init__(
