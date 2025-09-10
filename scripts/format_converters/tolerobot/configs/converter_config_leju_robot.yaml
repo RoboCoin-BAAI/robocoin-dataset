@@ -1,0 +1,105 @@
+### fps by manual
+fps: 30
+features:
+  observation:
+    images:
+      # Leju robot cameras
+      - cam_name: head_cam_h
+        args:
+          image_key: head_cam_h
+      - cam_name: wrist_cam_r
+        args:
+          image_key: wrist_cam_r
+      - cam_name: wrist_cam_l
+        args:
+          image_key: wrist_cam_l
+
+    state:
+      ### values by function
+      # lerobot_feature: observation.state : by _gen_lerobot_features()
+      # dtype: float32 
+      # shape: [26]  # 实际Leju数据的state维度
+
+      ## sub_states should be concatenated together here : by _gen_state_names()
+      
+      ### values by manual
+      sub_state:
+      # 直接使用Leju数据中现有的observation.state（26维）
+      - names: 
+        - leju_observation_state_0
+        - leju_observation_state_1
+        - leju_observation_state_2
+        - leju_observation_state_3
+        - leju_observation_state_4
+        - leju_observation_state_5
+        - leju_observation_state_6
+        - leju_observation_state_7
+        - leju_observation_state_8
+        - leju_observation_state_9
+        - leju_observation_state_10
+        - leju_observation_state_11
+        - leju_observation_state_12
+        - leju_observation_state_13
+        - leju_observation_state_14
+        - leju_observation_state_15
+        - leju_observation_state_16
+        - leju_observation_state_17
+        - leju_observation_state_18
+        - leju_observation_state_19
+        - leju_observation_state_20
+        - leju_observation_state_21
+        - leju_observation_state_22
+        - leju_observation_state_23
+        - leju_observation_state_24
+        - leju_observation_state_25
+
+        args:
+          ### keys and values by manual
+          json_path: observation.state
+          range_from: 0
+          range_to: 26
+
+  action:
+    ### values by function
+    # lerobot_feature: action : by _gen_lerobot_features()
+    # dtype: float32
+    # shape: [26]  # 实际Leju数据的action维度
+
+    ## sub_actions should be concatenated together here : by _gen_action_names()
+
+    ### values by manual
+    sub_action:
+    # 直接使用Leju数据中现有的action（26维）
+    - names: 
+      - leju_action_0
+      - leju_action_1
+      - leju_action_2
+      - leju_action_3
+      - leju_action_4
+      - leju_action_5
+      - leju_action_6
+      - leju_action_7
+      - leju_action_8
+      - leju_action_9
+      - leju_action_10
+      - leju_action_11
+      - leju_action_12
+      - leju_action_13
+      - leju_action_14
+      - leju_action_15
+      - leju_action_16
+      - leju_action_17
+      - leju_action_18
+      - leju_action_19
+      - leju_action_20
+      - leju_action_21
+      - leju_action_22
+      - leju_action_23
+      - leju_action_24
+      - leju_action_25
+
+      args:
+        ### keys and values by manual
+        json_path: action
+        range_from: 0
+        range_to: 26

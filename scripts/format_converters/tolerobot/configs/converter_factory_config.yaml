@@ -52,3 +52,8 @@ visionpro:
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
   class: LerobotFormatConverterHdf5
   converter_config_path: converter_config_visionpro.yaml
+
+leju_robot:
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_leju
+  class: LerobotFormatConverterLeju
+  converter_config_path: converter_config_leju_robot.yaml
