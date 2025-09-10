@@ -25,6 +25,8 @@ TASK_ID = "task_id"
 TASK_RESULT_STATUS = "task_result_status"
 TASK_RESULT_MSG = "task_result_msg"
 
+TASK_RESULT_CONTENT = "task_result_content"
+
 ERROR_MSG = "error_msg"
 
 # task result status

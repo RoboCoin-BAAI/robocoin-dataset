@@ -49,7 +49,7 @@ class LeFormatConverterTaskClient(TaskClient):
         """客户端可自定义任务请求参数"""
         return {}
 
-    def _sync_process_task(self, task_content: dict) -> None:
+    def _sync_process_task(self, task_content: dict) -> dict:
         try:
             dataset_path = Path(task_content.get(DATASET_PATH))
             device_model = task_content.get(DEVICE_MODEL)
@@ -96,6 +96,7 @@ class LeFormatConverterTaskClient(TaskClient):
                 self.logger.info(
                     f"Converted episode {task_ep_idx} of task {task_content}, total ep_idx is:{ep_idx}"
                 )
+            return {}
 
         except Exception as e:
             raise RuntimeError(f"convert dataset {dataset_path} failed") from e

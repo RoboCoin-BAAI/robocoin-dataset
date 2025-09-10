@@ -28,7 +28,9 @@ from .constant import (
     TASK_CONTENT,
     TASK_FAILED,
     TASK_ID,
+    TASK_REQUEST_CONTENT,
     TASK_RESULT,
+    TASK_RESULT_CONTENT,
     TASK_RESULT_MSG,
     TASK_RESULT_STATUS,
     TASK_SUCCESS,
@@ -214,7 +216,7 @@ class TaskClient:
         raise NotImplementedError
 
     @abstractmethod
-    def _sync_process_task(self, task: dict) -> None:
+    def _sync_process_task(self, task: dict) -> dict:
         raise NotImplementedError
 
     async def request_task(self) -> dict | None:
@@ -286,15 +288,16 @@ class TaskClient:
         loop = asyncio.get_event_loop()
         task_id = task_data.get(TASK_ID)
         try:
-            await loop.run_in_executor(None, self._sync_process_task, task_data)
-            return {
-                TASK_RESULT_STATUS: TASK_SUCCESS,
-            }
+            task_result_content = await loop.run_in_executor(
+                None, self._sync_process_task, task_data
+            )
+            return {TASK_RESULT_STATUS: TASK_SUCCESS, TASK_REQUEST_CONTENT: task_result_content}
         except Exception as e:
             self.logger.error(f"Task {task_id} execution error: {e}")
             return {
                 TASK_RESULT_STATUS: TASK_FAILED,
                 TASK_RESULT_MSG: f"Task {task_id} failed. {traceback.format_exc()}",
+                TASK_RESULT_CONTENT: {},
             }
 
     async def run_until_no_task(self) -> None:
