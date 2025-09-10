@@ -87,37 +87,18 @@ class LerobotFormatConverter:
         except Exception as e:
             raise ValueError(f"Invalid features description: {e}") from e
 
-        # Check if this is a Leju converter, which has different initialization
-        is_leju_converter = hasattr(self, 'leju_data_path')
-        
-        if is_leju_converter:
-            # For Leju converter, create minimal task structure
-            self.tasks = ["leju_manipulation_task"]
-            self.path_task_dict: dict[Path, str] = {self.dataset_path: "leju_manipulation_task"}
-            self.task_episodes_num: dict[Path, int] = {}
-            # Use Leju-specific episode count method
-            if hasattr(self, 'leju_parquet_files'):
-                self.task_episodes_num[self.dataset_path] = len(self.leju_parquet_files)
-            else:
-                self.task_episodes_num[self.dataset_path] = 0
-        else:
-            # Standard converter initialization
-            self.tasks = self._get_tasks()
-            self.path_task_dict: dict[Path, str] = self._get_dataset_task_paths()
-            self.task_episodes_num: dict[Path, int] = {}
-            for task_path in self.path_task_dict.keys():
-                self.task_episodes_num[task_path] = self._get_task_episodes_num(task_path)
+        # Standard converter initialization
+        self.tasks = self._get_tasks()
+        self.path_task_dict: dict[Path, str] = self._get_dataset_task_paths()
+        self.task_episodes_num: dict[Path, int] = {}
+        for task_path in self.path_task_dict.keys():
+            self.task_episodes_num[task_path] = self._get_task_episodes_num(task_path)
 
         self.fps = self.converter_config[FPS]
 
         self._gen_image_configs()
         self._gen_action_configs()
         self._gen_state_configs()
-
-        if not is_leju_converter and not (self.dataset_path / LOCAL_DATASET_INFO_FILE).exists():
-            raise ValueError(
-                f"Dataset info file {LOCAL_DATASET_INFO_FILE} not found in {self.dataset_path}."
-            )
 
         self.video_backend = video_backend
         self.image_writer_processes = image_writer_processes
@@ -592,95 +573,9 @@ class LerobotFormatConverter:
 
         pass
 
-    def convert_leju(self) -> Iterable[tuple[str, int, int]]:
-        """
-        Special conversion method for Leju robot data format.
-        Leju data doesn't follow the standard task/episode directory structure,
-        so it needs its own conversion logic.
-        """
-        dataset = self._create_lerobot_dataset()
-        
-        # For Leju, we'll simulate the task structure since it doesn't have traditional tasks
-        # We'll treat all episodes as belonging to a single task
-        task_name = "leju_manipulation_task"
-        
-        # Get the number of episodes from the Leju converter implementation
-        if hasattr(self, 'leju_episodes') and self.leju_episodes:
-            total_episodes = len(self.leju_episodes)
-        else:
-            # Fallback: try to count episodes from data structure
-            total_episodes = self._get_leju_episodes_count()
-        
-        ep_idx = 0
-        for leju_ep_idx in range(total_episodes):
-            try:
-                # Prepare episode buffers for Leju format
-                images_buffer, states_buffer, actions_buffer = self._prepare_leju_episode_buffers(leju_ep_idx)
-                
-                # Get the number of frames in this episode
-                frames_num = self._get_leju_episode_frames_num(leju_ep_idx)
-                
-                for frame_idx in range(frames_num):
-                    try:
-                        # Get Leju frame data
-                        lerobot_datas = self._get_leju_frame_data(
-                            ep_idx=leju_ep_idx,
-                            frame_idx=frame_idx,
-                            images_buffer=images_buffer,
-                            states_buffer=states_buffer,
-                            actions_buffer=actions_buffer,
-                        )
-                        
-                        dataset.add_frame(frame=lerobot_datas, task=task_name)
-                        
-                    except Exception as e:
-                        if self.logger:
-                            self.logger.error(f"Error in Leju episode {leju_ep_idx} frame {frame_idx}: {e}")
-                        raise e
 
-                dataset.save_episode()
-                yield (task_name, leju_ep_idx, ep_idx)
-                ep_idx += 1
-                
-            except Exception as e:
-                if self.logger:
-                    self.logger.error(f"Error processing Leju episode {leju_ep_idx}: {e}")
-                raise e
 
-    def _get_leju_episodes_count(self) -> int:
-        """
-        Get the number of episodes in Leju dataset.
-        This should be implemented by the Leju converter subclass.
-        """
-        raise NotImplementedError("Leju converter must implement _get_leju_episodes_count")
 
-    def _prepare_leju_episode_buffers(self, ep_idx: int) -> tuple[any, any, any]:
-        """
-        Prepare buffers for a Leju episode.
-        This should be implemented by the Leju converter subclass.
-        """
-        raise NotImplementedError("Leju converter must implement _prepare_leju_episode_buffers")
-
-    def _get_leju_episode_frames_num(self, ep_idx: int) -> int:
-        """
-        Get the number of frames in a Leju episode.
-        This should be implemented by the Leju converter subclass.
-        """
-        raise NotImplementedError("Leju converter must implement _get_leju_episode_frames_num")
-
-    def _get_leju_frame_data(
-        self,
-        ep_idx: int,
-        frame_idx: int,
-        images_buffer: any = None,
-        states_buffer: any = None,
-        actions_buffer: any = None,
-    ) -> dict[str, np.ndarray]:
-        """
-        Get frame data for Leju format.
-        This should be implemented by the Leju converter subclass.
-        """
-        raise NotImplementedError("Leju converter must implement _get_leju_frame_data")
 
     def convert(self) -> Iterable[tuple[str, int, int]]:
         dataset = self._create_lerobot_dataset()

@@ -74,14 +74,8 @@ def convert2lerobot(
 
     total_episodes = converter.get_episodes_num()
     
-    # Check if this is a Leju converter and use the appropriate method
-    if device_model == "leju_robot" and hasattr(converter, 'convert_leju'):
-        conversion_iterator = converter.convert_leju()
-    else:
-        conversion_iterator = converter.convert()
-    
     for task, task_ep_idx, ep_idx in tqdm(
-        conversion_iterator,
+        converter.convert(),
         total=total_episodes,
         desc="Converting Dataset",
         unit="episode",
