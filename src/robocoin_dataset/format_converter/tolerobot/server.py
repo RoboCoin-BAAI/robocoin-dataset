@@ -195,4 +195,6 @@ class LeFormatConverterTaskServer(TaskServer):
                     leformat_path=leformat_path,
                     update_message=task_status_msg,
                 )
-                self.logger.info(f"upsert {ds_uuid} convert status to {convert_status}")
+                self.logger.info(
+                    f"Upsert {ds_uuid} convert status to {convert_status}, update_message: {task_status_msg}"
+                )

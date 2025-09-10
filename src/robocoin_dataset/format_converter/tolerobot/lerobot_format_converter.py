@@ -305,12 +305,15 @@ class LerobotFormatConverter:
                 files = Path(current_path).glob(LOCAL_TASK_INFO_FILE_NAME)
                 has_task_file = False
                 for file in files:
-                    with file.open("r") as f:
-                        task_info_dict = yaml.safe_load(f)
-                        task_index = task_info_dict[TASK_INDEX_KEY]
-                        task = self.tasks[task_index]
-                        task_paths_dict[file.parent] = task
-                        has_task_file = True
+                    try:
+                        with file.open("r") as f:
+                            task_info_dict = yaml.safe_load(f)
+                            task_index = task_info_dict[TASK_INDEX_KEY]
+                            task = self.tasks[task_index]
+                            task_paths_dict[file.parent] = task
+                            has_task_file = True
+                    except Exception as e:  # noqa: PERF203
+                        raise {f"Found task index error from {file}"} from e
 
                 if not has_task_file:
                     sub_dirs = [item for item in Path(current_path).glob("*") if item.is_dir()]
@@ -383,16 +386,19 @@ class LerobotFormatConverter:
     ) -> dict[str, np.ndarray]:
         images = {}
         for image_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
-            lerobot_feature = image_config[LEROBOT_FEATURE_KEY]
-            args_dict = image_config[ARGS_KEY]
-            image = self._get_frame_image(
-                task_path=task_path,
-                ep_idx=ep_idx,
-                frame_idx=frame_idx,
-                args_dict=args_dict,
-                images_buffer=images_buffer,
-            )
-            images[lerobot_feature] = image
+            try:
+                lerobot_feature = image_config[LEROBOT_FEATURE_KEY]
+                args_dict = image_config[ARGS_KEY]
+                image = self._get_frame_image(
+                    task_path=task_path,
+                    ep_idx=ep_idx,
+                    frame_idx=frame_idx,
+                    args_dict=args_dict,
+                    images_buffer=images_buffer,
+                )
+                images[lerobot_feature] = image
+            except Exception as e:  # noqa: PERF203
+                raise Exception(f"Failed to get frame images for {lerobot_feature} failed") from e
 
         return images
 
@@ -577,25 +583,37 @@ class LerobotFormatConverter:
         ep_idx = 0
         for task_path, task in self.path_task_dict.items():
             for task_ep_idx in range(self._get_task_episodes_num(task_path)):
-                images_buffer, states_buffer, actions_buffer = self._prepare_episode_buffers(
-                    task_path, task_ep_idx
-                )
-                for frame_data in self._gen_episode_frames(
-                    task_path, task_ep_idx, images_buffer, states_buffer, actions_buffer
-                ):
-                    lerobot_datas = self._get_lerobot_datas(
-                        task_path=task_path,
-                        ep_idx=task_ep_idx,
-                        frame_idx=frame_data[FRAME_IDX_KEY],
-                        images_buffer=images_buffer,
-                        states_buffer=states_buffer,
-                        actions_buffer=actions_buffer,
+                try:
+                    images_buffer, states_buffer, actions_buffer = self._prepare_episode_buffers(
+                        task_path, task_ep_idx
                     )
-                    dataset.add_frame(frame=lerobot_datas, task=self._get_episode_task(task_ep_idx))
+                    for frame_data in self._gen_episode_frames(
+                        task_path, task_ep_idx, images_buffer, states_buffer, actions_buffer
+                    ):
+                        try:
+                            lerobot_datas = self._get_lerobot_datas(
+                                task_path=task_path,
+                                ep_idx=task_ep_idx,
+                                frame_idx=frame_data[FRAME_IDX_KEY],
+                                images_buffer=images_buffer,
+                                states_buffer=states_buffer,
+                                actions_buffer=actions_buffer,
+                            )
+                            dataset.add_frame(
+                                frame=lerobot_datas, task=self._get_episode_task(task_ep_idx)
+                            )
+                        except Exception as e:  # noqa: PERF203
+                            raise Exception(
+                                f"Processing frame {frame_data[FRAME_IDX_KEY]} of episode {task_ep_idx} of task_path {str(task_path)} failed"
+                            ) from e
 
-                dataset.save_episode()
-                yield (task, task_ep_idx, ep_idx)
-                ep_idx += 1
+                    dataset.save_episode()
+                    yield (task, task_ep_idx, ep_idx)
+                    ep_idx += 1
+                except Exception as e:  # noqa: PERF203
+                    raise Exception(
+                        f"Processing episode {task_ep_idx} of task_path {str(task_path)} failed"
+                    ) from e
 
     def get_episodes_num(self) -> int:
         return sum(self._get_task_episodes_num(task) for task in self.path_task_dict.keys())

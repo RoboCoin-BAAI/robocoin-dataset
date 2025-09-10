@@ -1,5 +1,6 @@
 import argparse
 import logging
+import traceback
 from multiprocessing import cpu_count
 from pathlib import Path
 
@@ -68,7 +69,7 @@ def convert2lerobot(
         video_backend=video_backend,
         image_writer_processes=image_writer_processes,
         image_writer_threads=image_writer_threads,
-        converter_log_dir=converter_log_dir,
+        logger=logger,
     )
 
     total_episodes = converter.get_episodes_num()
@@ -137,18 +138,21 @@ def main() -> None:
         help="Backend for video processing (default: pyav)",
     )
     args = argparser.parse_args()
-    convert2lerobot(
-        device_model=args.device_model,
-        dataset_path=args.dataset_path,
-        output_path=args.output_path,
-        factory_config_path=args.factory_config_path,
-        repo_id=args.repo_id,
-        log_dir=args.log_dir,
-        video_backend=args.video_backend,
-        image_writer_processes=args.image_writer_processes,
-        image_writer_threads=args.image_writer_threads,
-        converter_log_dir=args.log_dir,
-    )
+    try:
+        convert2lerobot(
+            device_model=args.device_model,
+            dataset_path=args.dataset_path,
+            output_path=args.output_path,
+            factory_config_path=args.factory_config_path,
+            repo_id=args.repo_id,
+            log_dir=args.log_dir,
+            video_backend=args.video_backend,
+            image_writer_processes=args.image_writer_processes,
+            image_writer_threads=args.image_writer_threads,
+            converter_log_dir=args.log_dir,
+        )
+    except Exception:
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
@@ -163,7 +167,19 @@ python scripts/format_converters/tolerobot/convert2lerobot.py \
 --factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config.yaml \
 --repo_id robocoin/realman_rmc_aidal_stir_coffee \
 --log_dir ./outputs/robocoin/logs \
---image_writer_processes 4 \
+--image_writer_processes 10 \
 --image_writer_threads 4 \
 --video_backend pyav
+
+python scripts/format_converters/tolerobot/convert2lerobot.py \
+--dataset_path /mnt/nas/11realman_rmc_aidal/pour_bowl_repeatedly \
+--output_path ./outputs/lerobot_converter/pour_bowl_repeatedly \
+--device_model realman_rmc_aidal \
+--factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config.yaml \
+--repo_id robocoin/realman_rmc_aidal_stir_coffee \
+--log_dir ./outputs/robocoin/logs \
+--image_writer_processes 10 \
+--image_writer_threads 4 \
+--video_backend pyav
+
 """

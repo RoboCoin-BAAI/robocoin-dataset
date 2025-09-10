@@ -98,4 +98,4 @@ class LeFormatConverterTaskClient(TaskClient):
                 )
 
         except Exception as e:
-            raise RuntimeError(f"convert dataset {dataset_path} failed: {e}")
+            raise RuntimeError(f"convert dataset {dataset_path} failed") from e

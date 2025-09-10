@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import socket
+import traceback
 from abc import abstractmethod
 
 from websockets.exceptions import ConnectionClosed
@@ -293,7 +294,7 @@ class TaskClient:
             self.logger.error(f"Task {task_id} execution error: {e}")
             return {
                 TASK_RESULT_STATUS: TASK_FAILED,
-                TASK_RESULT_MSG: f"Task {task_id} failed due to {e}",
+                TASK_RESULT_MSG: f"Task {task_id} failed. {traceback.format_exc()}",
             }
 
     async def run_until_no_task(self) -> None:

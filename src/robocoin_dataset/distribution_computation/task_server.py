@@ -119,11 +119,6 @@ class TaskServer:
         if not info:
             return
 
-        # await asyncio.to_thread(
-        #                 self.handle_task_result,
-        #                 task_content=task_content,
-        #                 task_result_content=task_result_content,
-        #             )
         task_content = await asyncio.to_thread(self.generate_task_content)
         if not task_content:
             # Send NO_TASK
@@ -296,7 +291,7 @@ class TaskServer:
             for task in pending:
                 try:
                     await task
-                except asyncio.CancelledError:
+                except asyncio.CancelledError:  # noqa: PERF203
                     pass  # Expected when tasks are cancelled
 
         except Exception as e:
