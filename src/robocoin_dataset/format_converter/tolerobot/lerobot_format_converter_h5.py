@@ -43,9 +43,6 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
     ) -> None:
         self.h5_buffer: H5Buffer = H5Buffer()
         
-        # Auto-detect cameras before calling super().__init__
-        self._auto_detect_and_update_camera_config(converter_config, Path(dataset_path), logger)
-        
         super().__init__(
             dataset_path=dataset_path,
             output_path=output_path,
@@ -76,10 +73,10 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
         if isinstance(image_data, np.ndarray):
             # 直接存储的numpy图像数组（如VisionPro格式）
             return image_data
-        else:
-            # JPEG字节流（如ALOHA格式）
-            img = Image.open(io.BytesIO(image_data))
-            return np.array(img)
+        
+        # JPEG字节流（如ALOHA格式）
+        img = Image.open(io.BytesIO(image_data))
+        return np.array(img)
 
     # @override
     def _get_frame_sub_states(
@@ -167,84 +164,3 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
             self.h5_buffer.ep_idx = ep_idx
 
         return self.h5_buffer.h5_data
-
-    def _auto_detect_and_update_camera_config(self, converter_config: dict, dataset_path: Path, logger: logging.Logger | None = None) -> None:
-        """
-        Auto-detect available cameras in HDF5 files and update the converter config accordingly.
-        """
-        # Find the first HDF5 file to inspect
-        h5_files = list(dataset_path.rglob("*.h5")) + list(dataset_path.rglob("*.hdf5"))
-        if not h5_files:
-            if logger:
-                logger.warning("No HDF5 files found for camera auto-detection")
-            return
-        
-        sample_h5_file = h5_files[0]
-        if logger:
-            logger.info(f"Auto-detecting cameras from sample file: {sample_h5_file}")
-        
-        try:
-            with h5py.File(sample_h5_file, 'r') as h5_file:
-                available_cameras = []
-                
-                # 首先检查标准ALOHA格式: observations/images
-                if 'observations' in h5_file and 'images' in h5_file['observations']:
-                    available_cameras = list(h5_file['observations/images'].keys())
-                    if logger:
-                        logger.info(f"Detected ALOHA format cameras: {available_cameras}")
-                else:
-                    # 检查VisionPro格式：根目录直接包含图像数据集
-                    for key in h5_file.keys():
-                        dataset = h5_file[key]
-                        if (isinstance(dataset, h5py.Dataset) and 
-                            len(dataset.shape) == 4 and  # (frames, height, width, channels)
-                            dataset.dtype in [np.uint8, np.float32]):
-                            available_cameras.append(key)
-                    
-                    if logger:
-                        logger.info(f"Detected VisionPro format cameras: {available_cameras}")
-                        if not available_cameras:
-                            logger.warning("No image datasets found in HDF5 file")
-                            return
-                
-                if not available_cameras:
-                    if logger:
-                        logger.warning("No cameras detected in HDF5 file")
-                    return
-                
-                # Update the config to only include cameras that actually exist
-                if FEATURES_KEY in converter_config and OBSERVATION_KEY in converter_config[FEATURES_KEY]:
-                    if 'images' in converter_config[FEATURES_KEY][OBSERVATION_KEY]:
-                        original_cameras = converter_config[FEATURES_KEY][OBSERVATION_KEY]['images']
-                        updated_cameras = []
-                        
-                        for camera_config in original_cameras:
-                            if ARGS_KEY in camera_config and 'h5_path' in camera_config[ARGS_KEY]:
-                                h5_path = camera_config[ARGS_KEY]['h5_path']
-                                
-                                # Extract camera name from h5_path 
-                                if h5_path.startswith('observations/images/'):
-                                    # ALOHA format: "observations/images/cam_high" -> "cam_high"
-                                    camera_name = h5_path.split('/')[-1]
-                                else:
-                                    # VisionPro format: direct path like "img_front"
-                                    camera_name = h5_path
-                                
-                                if camera_name in available_cameras:
-                                    updated_cameras.append(camera_config)
-                                    if logger:
-                                        logger.info(f"Keeping camera config: {camera_config.get('cam_name', camera_name)}")
-                                else:
-                                    if logger:
-                                        logger.warning(f"Removing camera config for non-existent camera: {camera_config.get('cam_name', camera_name)} (path: {h5_path})")
-                        
-                        # Update the config
-                        converter_config[FEATURES_KEY][OBSERVATION_KEY]['images'] = updated_cameras
-                        
-                        if logger:
-                            logger.info(f"Updated camera config to include {len(updated_cameras)} cameras")
-                
-        except Exception as e:
-            if logger:
-                logger.error(f"Error during camera auto-detection: {e}")
-            # Don't raise the error, just continue with original config
