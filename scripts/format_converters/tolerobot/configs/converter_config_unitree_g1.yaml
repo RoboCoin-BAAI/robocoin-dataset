@@ -5,19 +5,19 @@ features:
     images:
 
     ### values by manual
-    - cam_name: color_0
+    - cam_name: color_head
       args:
 
         ### key and values by manual
-        image_key: color_0
+        image_key: color_head
 
 
       ### values by function
       # dtype: video
       # shape: [480, 640, 3]
       # names: [height, width, channels]
-      # lerobot_feature: observations.images.color_0 : by _gen_lerobot_features()
-        
+      # lerobot_feature: observations.images.color_head : by _gen_lerobot_features()
+
 
     state:
       ### values by function
