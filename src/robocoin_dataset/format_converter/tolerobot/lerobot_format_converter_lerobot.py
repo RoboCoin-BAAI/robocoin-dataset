@@ -57,6 +57,53 @@ class LerobotFormatConverterLerobot(LerobotFormatConverter):
         if self.logger:
             self.logger.info(f"Loaded {len(self.episodes)} episodes and {len(self.tasks_metadata)} tasks from LeRobot dataset")
 
+    def _prevalidate_files(self) -> None:
+        """Validate that the LeRobot dataset has required structure and files"""
+        dataset_path = Path(self.dataset_path)
+        
+        # Check if dataset directory exists
+        if not dataset_path.exists():
+            raise FileNotFoundError(f"Dataset path {dataset_path} does not exist")
+        
+        # Check for required directories
+        required_dirs = ["data", "meta", "videos"]
+        missing_dirs = []
+        for dir_name in required_dirs:
+            dir_path = dataset_path / dir_name
+            if not dir_path.exists():
+                missing_dirs.append(str(dir_path))
+        
+        if missing_dirs:
+            if self.logger:
+                self.logger.warning(f"Missing directories in LeRobot dataset: {missing_dirs}")
+        
+        # Check for data files
+        data_dir = dataset_path / "data" / "chunk-000"
+        if data_dir.exists():
+            parquet_files = list(data_dir.glob("*.parquet"))
+            if not parquet_files:
+                if self.logger:
+                    self.logger.warning(f"No parquet files found in {data_dir}")
+        else:
+            if self.logger:
+                self.logger.warning(f"Data directory {data_dir} does not exist")
+        
+        # Check for metadata files
+        meta_dir = dataset_path / "meta"
+        if meta_dir.exists():
+            required_meta_files = ["episodes.jsonl", "tasks.jsonl"]
+            for meta_file in required_meta_files:
+                meta_file_path = meta_dir / meta_file
+                if not meta_file_path.exists():
+                    if self.logger:
+                        self.logger.warning(f"Missing metadata file: {meta_file_path}")
+        
+        # Check for videos directory
+        videos_dir = dataset_path / "videos"
+        if videos_dir.exists() and self.logger:
+            video_chunks = list(videos_dir.glob("chunk-*"))
+            self.logger.info(f"Found {len(video_chunks)} video chunks in {videos_dir}")
+
     def _load_metadata(self) -> None:
         """Load LeRobot dataset metadata"""
         
