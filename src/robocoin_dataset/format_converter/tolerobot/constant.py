@@ -69,3 +69,12 @@ IMAGE_WRITER_THREADS = "image_writer_threads"
 CONVERTER_LOG_DIR = "converter_log_dir"
 
 CONVERTER_LOG_NAME = "converter_log_name"
+
+# Acceptable files
+LOCAL_DATASET_INFO_FILE = "local_dataset_info.json"
+LOCAL_TASK_INFO_FILE = "local_task_info.json"
+DESCRIPTION_TXT = "description.txt"
+
+# Acceptable file extensions
+H5_SUFFIX = ".h5"
+HDF5_SUFFIX = ".hdf5"

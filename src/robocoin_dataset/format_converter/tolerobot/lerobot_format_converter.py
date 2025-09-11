@@ -104,6 +104,12 @@ class LerobotFormatConverter:
         self.image_writer_processes = image_writer_processes
         self.image_writer_threads = image_writer_threads
 
+        self._prevalidate_files()
+
+    @abstractmethod
+    def _prevalidate_files(self) -> None:
+        raise NotImplementedError
+
     @abstractmethod
     def _get_frame_image(
         self,
@@ -113,7 +119,7 @@ class LerobotFormatConverter:
         args_dict: dict,
         images_buffer: any = None,
     ) -> np.ndarray:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _get_frame_sub_states(
@@ -124,7 +130,7 @@ class LerobotFormatConverter:
         args_dict: dict,
         sub_states_buffer: any = None,
     ) -> np.ndarray:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _get_frame_sub_actions(
@@ -135,15 +141,15 @@ class LerobotFormatConverter:
         args_dict: dict,
         sub_actions_buffer: any = None,
     ) -> np.ndarray:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _get_episode_frames_num(self, task_path: Path, ep_idx: int) -> int:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _get_task_episodes_num(self, task_path: Path) -> int:
-        pass
+        raise NotImplementedError
 
     def _prepare_episode_images_buffer(self, task_path: Path, ep_idx: int) -> any:
         return None
@@ -507,9 +513,6 @@ class LerobotFormatConverter:
             LEROBOT_FEATURE_KEY
         ]
         state_feature = {}
-        # state_feature[DTYPE_KEY] = self.convertor_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
-        #     DTYPE_KEY
-        # ]
         state_feature[DTYPE_KEY] = FLOAT32
         state_feature[SHAPE_KEY] = self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][
             SHAPE_KEY
@@ -573,10 +576,6 @@ class LerobotFormatConverter:
 
         pass
 
-
-
-
-
     def convert(self) -> Iterable[tuple[str, int, int]]:
         dataset = self._create_lerobot_dataset()
         ep_idx = 0
@@ -598,8 +597,10 @@ class LerobotFormatConverter:
                                 states_buffer=states_buffer,
                                 actions_buffer=actions_buffer,
                             )
+
                             dataset.add_frame(
-                                frame=lerobot_datas, task=self._get_episode_task(task_ep_idx)
+                                frame=lerobot_datas,
+                                task=task,
                             )
                         except Exception as e:  # noqa: PERF203
                             raise Exception(

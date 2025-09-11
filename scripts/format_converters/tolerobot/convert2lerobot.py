@@ -73,7 +73,7 @@ def convert2lerobot(
     )
 
     total_episodes = converter.get_episodes_num()
-    
+
     for task, task_ep_idx, ep_idx in tqdm(
         converter.convert(),
         total=total_episodes,
@@ -162,8 +162,8 @@ if __name__ == "__main__":
 """_summary_
 
 python scripts/format_converters/tolerobot/convert2lerobot.py \
---dataset_path /home/lxc/Downloads/stir_coffee/stir_coffee_2 \
---output_path ./outputs/lerobot_converter_test/stir_coffee_2 \
+--dataset_path /home/lxc/Downloads/stir_coffee/stir_coffee_1 \
+--output_path ./outputs/lerobot_converter_test/stir_coffee_1 \
 --device_model realman_rmc_aidal \
 --factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config.yaml \
 --repo_id robocoin/realman_rmc_aidal_stir_coffee \

@@ -11,7 +11,12 @@ from PIL import Image
 
 from robocoin_dataset.format_converter.tolerobot.constant import (
     ARGS_KEY,
+    DESCRIPTION_TXT,
     FEATURES_KEY,
+    H5_SUFFIX,
+    HDF5_SUFFIX,
+    LOCAL_DATASET_INFO_FILE,
+    LOCAL_TASK_INFO_FILE,
     OBSERVATION_KEY,
     STATE_KEY,
     SUB_STATE_KEY,
@@ -28,6 +33,46 @@ class H5Buffer:
     ep_idx: int | None = None
 
 
+ALLOWED_RULES = {
+    "exact_names": {
+        LOCAL_TASK_INFO_FILE,
+        LOCAL_DATASET_INFO_FILE,
+        DESCRIPTION_TXT,
+    },  # 允许的完整文件名
+    "suffixes": {H5_SUFFIX, HDF5_SUFFIX},  # 允许的后缀
+}
+
+
+def is_allowed_file(file_path: Path) -> bool:
+    filename = file_path.name
+    suffix = file_path.suffix
+
+    return filename in ALLOWED_RULES["exact_names"] or suffix in ALLOWED_RULES["suffixes"]
+
+
+def find_unexpected_files(directory: Path, include_hidden: bool = False) -> list[str]:
+    directory = Path(directory)
+
+    if not directory.exists():
+        raise FileNotFoundError(f"目录不存在: {directory}")
+    if not directory.is_dir():
+        raise NotADirectoryError(f"路径不是目录: {directory}")
+
+    unexpected_files: list[str] = []
+
+    # 🔍 递归遍历所有文件
+    for file_path in directory.rglob("*"):
+        if file_path.is_file():
+            # 跳过隐藏文件（可选）
+            if not include_hidden and file_path.name.startswith("."):
+                continue
+
+            if not is_allowed_file(file_path):
+                unexpected_files.append(str(file_path))
+
+    return unexpected_files
+
+
 class LerobotFormatConverterHdf5(LerobotFormatConverter):
     def __init__(
         self,
@@ -42,7 +87,8 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
         image_writer_threads: int = 4,
     ) -> None:
         self.h5_buffer: H5Buffer = H5Buffer()
-        
+        self._image_is_iobytes = True
+
         super().__init__(
             dataset_path=dataset_path,
             output_path=output_path,
@@ -54,6 +100,21 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
             image_writer_processes=image_writer_processes,
             image_writer_threads=image_writer_threads,
         )
+
+    def _prevalidate_files(self) -> None:
+        unexpected_files: list[Path] = []
+        for path in self.path_task_dict.keys():
+            if not path.exists():
+                raise FileNotFoundError(f"{path} does not exist")
+            if path.is_file():
+                raise ValueError(f"{path} is a file")
+
+            unexpected_files.extend(find_unexpected_files(path))
+
+        if unexpected_files:
+            err_msg = "Found unexpected files in dataset directory:"
+            err_msg += "\n".join(f"{path}" for path in unexpected_files)
+            raise Exception(err_msg)
 
     def _get_frame_image(
         self,
@@ -68,15 +129,14 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
 
         h5_path = args_dict["h5_path"]
         image_data = images_buffer[h5_path][frame_idx]
-        
-        # 检查数据类型：如果是numpy数组直接返回，如果是字节流则解码
-        if isinstance(image_data, np.ndarray):
-            # 直接存储的numpy图像数组（如VisionPro格式）
-            return image_data
-        
-        # JPEG字节流（如ALOHA格式）
-        img = Image.open(io.BytesIO(image_data))
-        return np.array(img)
+
+        if self._image_is_iobytes:
+            try:
+                img = Image.open(io.BytesIO(image_data))
+                return np.array(img)
+            except Exception:
+                self._image_is_iobytes = False
+        return image_data
 
     # @override
     def _get_frame_sub_states(
