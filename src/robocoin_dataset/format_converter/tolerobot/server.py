@@ -5,7 +5,12 @@ import yaml
 
 from robocoin_dataset.constant import ROBOCOIN_PLATFORM
 from robocoin_dataset.database.database import DatasetDatabase
-from robocoin_dataset.database.models import DatasetDB, LeFormatConvertDB, TaskStatus
+from robocoin_dataset.database.models import (
+    DatasetDB,
+    DmvAnnotationDB,
+    LeFormatConvertDB,
+    TaskStatus,
+)
 from robocoin_dataset.database.services.leformat_converter import upsert_leformat_convert
 from robocoin_dataset.distribution_computation.constant import (
     DATASET_NAME,
@@ -99,7 +104,7 @@ class LeFormatConverterTaskServer(TaskServer):
         return convertor_config
 
     def _get_converter_module_class_config(
-        self, device_model: str, device_model_version: str | None = None
+        self, device_model: str, device_model_version: str = ""
     ) -> tuple[str, str, dict]:
         if device_model not in self.converter_factory_config:
             raise ValueError(f"Device model {device_model} not found in factory config.")
@@ -113,7 +118,7 @@ class LeFormatConverterTaskServer(TaskServer):
 
         converter_module_path: str | None = None
         for device_model_config in device_model_configs_list:
-            if device_model_version is None:
+            if not device_model_version:
                 if device_model_config[DEVICE_MODEL_VERSION_KEY] == DEFAULT_DEVICE_MODEL_VERSION:
                     converter_module_path = device_model_config["module"]
                     converter_class_name = device_model_config["class"]
@@ -133,7 +138,8 @@ class LeFormatConverterTaskServer(TaskServer):
             raise ValueError(
                 f"Device model {device_model} with version {device_model_version} not found in factory config."
             )
-        converter_config = yaml.safe_load(converter_config_file_path)
+        with open(converter_config_file_path) as f:
+            converter_config = yaml.safe_load(f)
         return converter_module_path, converter_class_name, converter_config
 
     def get_task_category(self) -> str:
@@ -143,21 +149,23 @@ class LeFormatConverterTaskServer(TaskServer):
         with self.db.with_session() as session:
             if not self.specific_device_model:
                 results = (
-                    session.query(DatasetDB)
+                    session.query(DmvAnnotationDB)
+                    .filter(DmvAnnotationDB.annotation_status == TaskStatus.COMPLETED)
                     .filter(
                         ~session.query(LeFormatConvertDB)
-                        .filter(LeFormatConvertDB.dataset_uuid == DatasetDB.dataset_uuid)
+                        .filter(LeFormatConvertDB.dataset_uuid == DmvAnnotationDB.dataset_uuid)
                         .exists()
                     )
                     .all()
                 )
             else:
                 results = (
-                    session.query(DatasetDB)
+                    session.query(DmvAnnotationDB)
+                    .filter(DmvAnnotationDB.annotation_status == TaskStatus.COMPLETED)
                     .filter(
                         ~session.query(LeFormatConvertDB)
-                        .filter(LeFormatConvertDB.dataset_uuid == DatasetDB.dataset_uuid)
-                        .filter(DatasetDB.device_model == self.specific_device_model)
+                        .filter(LeFormatConvertDB.dataset_uuid == DmvAnnotationDB.dataset_uuid)
+                        .filter(DmvAnnotationDB.device_model == self.specific_device_model)
                         .exists()
                     )
                     .all()
@@ -167,12 +175,16 @@ class LeFormatConverterTaskServer(TaskServer):
             return None
 
         for item in results:
-            dataset_path = str(Path(item.yaml_file_path).parent)
+            dataset_item = (
+                session.query(DatasetDB).filter(DatasetDB.dataset_uuid == item.dataset_uuid).first()
+            )
+            dataset_path = str(Path(dataset_item.yaml_file_path).parent)
+            dataset_name = dataset_item.dataset_name
             leformat_path = str(
-                Path(self.convert_root_path) / f"{item.device_model}_{item.dataset_name}"
+                Path(self.convert_root_path) / f"{item.device_model}_{dataset_name}"
             )
 
-            leformat_name = f"{item.device_model.lower()}_{item.dataset_name.lower()}"
+            leformat_name = f"{item.device_model.lower()}_{dataset_name.lower()}"
 
             client_log_path = Path(self.convert_root_path) / "client_logs" / leformat_name
 
@@ -182,15 +194,19 @@ class LeFormatConverterTaskServer(TaskServer):
                 ds_uuid=item.dataset_uuid,
                 convert_status=TaskStatus.PROCESSING,
             )
+            print("before get_conveter_module_class_config")
 
             converter_module_path, converter_class_name, converter_config = (
-                self._get_converter_module_class_config(device_model=item.device_model)
+                self._get_converter_module_class_config(
+                    device_model=item.device_model, device_model_version=item.device_model_version
+                )
             )
 
+            print("after get_conveter_module_class_config")
             repo_id = f"{ROBOCOIN_PLATFORM}/{leformat_name}"
             return {
                 DATASET_UUID: item.dataset_uuid,
-                DATASET_NAME: item.dataset_name,
+                DATASET_NAME: dataset_name,
                 LEFORMAT_PATH: leformat_path,
                 DATASET_PATH: dataset_path,
                 DEVICE_MODEL: item.device_model,

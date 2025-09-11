@@ -136,4 +136,14 @@ python scripts/format_converters/tolerobot/multi_client.py \
     --heartbeat-interval=10.0 \
     --log-path=./outputs/leformat_converter/log \
     --num-clients=4
+
+
+# test
+python scripts/format_converters/tolerobot/multi_client.py \
+    --host=127.0.0.1 \
+    --port=8765 \
+    --timeout=1.0 \
+    --heartbeat-interval=10.0 \
+    --log-path=./outputs/leformat_converter/log \
+    --num-clients=4
 """

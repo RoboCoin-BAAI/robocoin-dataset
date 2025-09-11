@@ -76,6 +76,7 @@ LOCAL_TASK_INFO_FILE = "local_task_info.yaml"
 DATASET_UUID_FILE = "dataset_uuid.yaml"
 DESCRIPTION_TXT_FILE = "description.txt"
 DESCRIBE_TXT_FILE = "describe.txt"
+DEVICE_MODEL_ANNOTATION_FILE = "device_model_annotation.yaml"
 
 # Acceptable file extensions
 H5_SUFFIX = ".h5"

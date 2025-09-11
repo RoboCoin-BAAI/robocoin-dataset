@@ -14,6 +14,7 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     DATASET_UUID_FILE,
     DESCRIBE_TXT_FILE,
     DESCRIPTION_TXT_FILE,
+    DEVICE_MODEL_ANNOTATION_FILE,
     FEATURES_KEY,
     H5_SUFFIX,
     HDF5_SUFFIX,
@@ -42,6 +43,7 @@ ALLOWED_RULES = {
         DATASET_UUID_FILE,
         DESCRIPTION_TXT_FILE,
         DESCRIBE_TXT_FILE,
+        DEVICE_MODEL_ANNOTATION_FILE,
     },  # 允许的完整文件名
     "suffixes": {H5_SUFFIX, HDF5_SUFFIX},  # 允许的后缀
 }

@@ -49,7 +49,6 @@ class DatasetDB(Base):
     end_effector_type = Column(String(100), nullable=False)
     operation_platform_height = Column(Float, nullable=True)
     yaml_file_path = Column(String(255), nullable=True, unique=True)
-    device_model_version = Column(String(100), nullable=True)
 
     # 多对多关系
     scene_types = relationship(
@@ -217,3 +216,22 @@ class SubtaskAnnotationStatusDB(Base):
     annotation_status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
 
     annotatio_file_path = Column(String(255), nullable=False, default="")
+
+
+class DmvAnnotationDB(Base):
+    __tablename__ = "device_model_version_annotation"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # 存储 dataset_uuid（字符串格式）
+    dataset_uuid = Column(
+        String(255), index=True, nullable=False, unique=True
+    )  # 改为 255，与 datasets 表一致
+
+    annotation_status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
+
+    annotatio_file_path = Column(String(255), nullable=True)
+
+    device_model = Column(String(255), nullable=True)
+
+    device_model_version = Column(String(255), nullable=True)
