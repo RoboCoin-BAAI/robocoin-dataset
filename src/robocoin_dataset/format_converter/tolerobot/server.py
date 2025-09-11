@@ -23,6 +23,8 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     CONVERTER_LOG_DIR,
     CONVERTER_LOG_NAME,
     CONVERTER_MODULE_PATH,
+    DEFAULT_DEVICE_MODEL_VERSION,
+    DEVICE_MODEL_VERSION_KEY,
     IMAGE_WRITER_PROCESSES,
     IMAGE_WRITER_THREADS,
     LEFORMAT_PATH,
@@ -43,7 +45,6 @@ class LeFormatConverterTaskServer(TaskServer):
         timeout: float = 15.0,  # 等待 pong 超过15秒则断开
         specific_device_model: str | None = None,
         logger: logging.Logger | None = None,
-        device_model: str | None = None,
         video_backend: str = "pyav",
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
@@ -62,7 +63,6 @@ class LeFormatConverterTaskServer(TaskServer):
         self.convert_root_path = convert_root_path
         self.specific_device_model = specific_device_model
         self.factory_config_dir = Path(converter_factory_config_path).parent
-        self.device_model = device_model
         self.video_backend = video_backend
         self.image_writer_processes = image_writer_processes
         self.image_writer_threads = image_writer_threads
@@ -97,6 +97,44 @@ class LeFormatConverterTaskServer(TaskServer):
         except Exception:
             raise
         return convertor_config
+
+    def _get_converter_module_class_config(
+        self, device_model: str, device_model_version: str | None = None
+    ) -> tuple[str, str, dict]:
+        if device_model not in self.converter_factory_config:
+            raise ValueError(f"Device model {device_model} not found in factory config.")
+
+        device_model_configs_list = self.converter_factory_config[device_model]
+        if device_model_configs_list is None:
+            raise ValueError(f"Device model {device_model} not found in factory config.")
+
+        if not isinstance(device_model_configs_list, list):
+            raise ValueError(f"Device model {device_model} config must be a list.")
+
+        converter_module_path: str | None = None
+        for device_model_config in device_model_configs_list:
+            if device_model_version is None:
+                if device_model_config[DEVICE_MODEL_VERSION_KEY] == DEFAULT_DEVICE_MODEL_VERSION:
+                    converter_module_path = device_model_config["module"]
+                    converter_class_name = device_model_config["class"]
+                    converter_config_file_path = (
+                        self.factory_config_dir / device_model_config["converter_config_path"]
+                    )
+                break
+            if device_model_config[DEVICE_MODEL_VERSION_KEY] == device_model_version:
+                converter_module_path = device_model_config["module"]
+                converter_class_name = device_model_config["class"]
+                converter_config_file_path = (
+                    self.factory_config_dir
+                    / self.converter_factory_config[device_model]["converter_config_path"]
+                )
+                break
+        if converter_module_path is None:
+            raise ValueError(
+                f"Device model {device_model} with version {device_model_version} not found in factory config."
+            )
+        converter_config = yaml.safe_load(converter_config_file_path)
+        return converter_module_path, converter_class_name, converter_config
 
     def get_task_category(self) -> str:
         return "lerobot_format_convert"
@@ -138,22 +176,18 @@ class LeFormatConverterTaskServer(TaskServer):
 
             client_log_path = Path(self.convert_root_path) / "client_logs" / leformat_name
 
-            try:
-                converter_config = self._get_converter_config(item.device_model)
-                repo_id = f"{ROBOCOIN_PLATFORM}/{leformat_name}"
-            except Exception:
-                continue
             # 在同一个 session 或新开一个
             upsert_leformat_convert(
                 session=session,
                 ds_uuid=item.dataset_uuid,
                 convert_status=TaskStatus.PROCESSING,
             )
-            self.logger.info(f"upsert convert status to PROCESSING: {item.dataset_uuid}")
-            converter_module_path = self._get_converter_module_path(item.device_model)
-            converter_class_name = self._get_converter_class_name(item.device_model)
 
-            self.logger.info(f"converter_log_dir: {client_log_path}")
+            converter_module_path, converter_class_name, converter_config = (
+                self._get_converter_module_class_config(device_model=item.device_model)
+            )
+
+            repo_id = f"{ROBOCOIN_PLATFORM}/{leformat_name}"
             return {
                 DATASET_UUID: item.dataset_uuid,
                 DATASET_NAME: item.dataset_name,

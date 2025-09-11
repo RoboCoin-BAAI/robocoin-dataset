@@ -49,6 +49,7 @@ class DatasetDB(Base):
     end_effector_type = Column(String(100), nullable=False)
     operation_platform_height = Column(Float, nullable=True)
     yaml_file_path = Column(String(255), nullable=True, unique=True)
+    device_model_version = Column(String(100), nullable=True)
 
     # 多对多关系
     scene_types = relationship(
