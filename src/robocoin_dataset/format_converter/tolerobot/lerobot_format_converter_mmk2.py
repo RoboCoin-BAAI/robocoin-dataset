@@ -2,7 +2,6 @@ import logging
 import struct
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
 
 import numpy as np
 from natsort import natsorted
@@ -17,14 +16,14 @@ from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import
 class Mmk2Buffer:
     """MMK2数据缓冲区"""
 
-    main_bson_data: Dict[str, List[Dict]] = None
-    hand_bson_data: List[Dict] = None
-    camera_groups: Dict[str, List[Path]] = None
+    main_bson_data: dict[str, list[dict]] = None
+    hand_bson_data: list[dict] = None
+    camera_groups: dict[str, list[Path]] = None
     task_path: Path = None
     ep_idx: int = None
 
 
-def parse_bson_document(data: bytes, offset: int = 0) -> tuple[Dict, int]:
+def parse_bson_document(data: bytes, offset: int = 0) -> tuple[dict, int]:
     """解析单个BSON文档"""
     if offset + 4 > len(data):
         return None, offset
@@ -86,7 +85,7 @@ def parse_bson_document(data: bytes, offset: int = 0) -> tuple[Dict, int]:
                         array_list = []
                         for i in range(len(array_doc)):
                             if str(i) in array_doc:
-                                array_list.append(array_doc[str(i)])
+                                array_list.append(array_doc[str(i)])  # noqa: PERF401
                         result[field_name] = array_list
                     pos += array_size
         elif field_type == 0x08:  # boolean
@@ -281,7 +280,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
             doc, _ = parse_bson_document(content, 0)
             if doc and "data" in doc:
                 # 获取任一数据路径的长度作为帧数
-                for key, value in doc["data"].items():
+                for value in doc["data"].values():
                     if isinstance(value, list):
                         return len(value)
 

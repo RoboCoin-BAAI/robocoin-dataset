@@ -1,23 +1,25 @@
 """
 时间对齐策略实现
 """
-import numpy as np
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Any  # noqa: UP035
+
+import numpy as np
+
 from .alignment_config import AlignmentConfig, AlignmentStrategy
-from .time_sync_analyzer import TimeSyncAnalyzer, SyncQualityReport
+from .time_sync_analyzer import SyncQualityReport, TimeSyncAnalyzer
 
 
 class TimeAligner(ABC):
     """时间对齐器基类"""
     
-    def __init__(self, config: AlignmentConfig, logger=None):
+    def __init__(self, config: AlignmentConfig, logger=None) -> None:  # noqa: ANN001
         self.config = config
         self.logger = logger
         self.analyzer = TimeSyncAnalyzer(logger)
     
     @abstractmethod
-    def align_topics(self, topic_messages: Dict[str, List[Dict]]) -> Dict[str, List[Any]]:
+    def align_topics(self, topic_messages: dict[str, list[dict]]) -> dict[str, list[Any]]:
         """
         对齐topics到统一时间线
         
@@ -29,11 +31,11 @@ class TimeAligner(ABC):
         """
         pass
     
-    def analyze_sync_quality(self, topic_messages: Dict[str, List[Dict]]) -> SyncQualityReport:
+    def analyze_sync_quality(self, topic_messages: dict[str, list[dict]]) -> SyncQualityReport:
         """分析时间同步质量"""
         return self.analyzer.analyze_topic_messages(topic_messages)
     
-    def _select_base_topic(self, topic_messages: Dict[str, List[Dict]]) -> str:
+    def _select_base_topic(self, topic_messages: dict[str, list[dict]]) -> str:
         """选择基准topic"""
         if self.config.base_topic and self.config.base_topic in topic_messages:
             return self.config.base_topic
@@ -46,14 +48,14 @@ class TimeAligner(ABC):
         # 如果没有候选，选择消息数量最少的topic
         return min(topic_messages.keys(), key=lambda k: len(topic_messages[k]))
     
-    def _log_info(self, message: str):
+    def _log_info(self, message: str) -> None:
         """记录信息"""
         if self.logger:
             self.logger.info(message)
         else:
             print(f"[INFO] {message}")
     
-    def _log_warning(self, message: str):
+    def _log_warning(self, message: str) -> None:
         """记录警告"""
         if self.logger:
             self.logger.warning(message)
@@ -64,7 +66,7 @@ class TimeAligner(ABC):
 class EmergencyTimeAligner(TimeAligner):
     """应急时间对齐器 - 截断到最短长度"""
     
-    def align_topics(self, topic_messages: Dict[str, List[Dict]]) -> Dict[str, List[Any]]:
+    def align_topics(self, topic_messages: dict[str, list[dict]]) -> dict[str, list[Any]]:
         """截断所有topic到最短长度"""
         if not topic_messages:
             return {}
@@ -95,7 +97,7 @@ class EmergencyTimeAligner(TimeAligner):
 class InterpolationTimeAligner(TimeAligner):
     """插值时间对齐器 - 基于时间插值对齐"""
     
-    def align_topics(self, topic_messages: Dict[str, List[Dict]]) -> Dict[str, List[Any]]:
+    def align_topics(self, topic_messages: dict[str, list[dict]]) -> dict[str, list[Any]]:
         """使用插值对齐到基准时间线"""
         if not topic_messages:
             return {}
@@ -136,7 +138,7 @@ class InterpolationTimeAligner(TimeAligner):
         
         return aligned_data
     
-    def _align_topic_to_timeline(self, messages: List[Dict], target_timestamps: List[int], topic_name: str) -> Tuple[List[Any], float]:
+    def _align_topic_to_timeline(self, messages: list[dict], target_timestamps: list[int], topic_name: str) -> tuple[list[Any], float]:
         """将单个topic对齐到目标时间线"""
         if not messages:
             return [], 0.0
@@ -179,41 +181,40 @@ class InterpolationTimeAligner(TimeAligner):
 class NearestNeighborTimeAligner(TimeAligner):
     """最近邻时间对齐器 - 选择时间上最近的消息"""
     
-    def align_topics(self, topic_messages: Dict[str, List[Dict]]) -> Dict[str, List[Any]]:
+    def align_topics(self, topic_messages: dict[str, list[dict]]) -> dict[str, list[Any]]:
         """使用最近邻策略对齐"""
         # 实现与插值对齐类似，但使用更严格的时间匹配
         return InterpolationTimeAligner(self.config, self.logger).align_topics(topic_messages)
 
 
-def create_time_aligner(config: AlignmentConfig, logger=None) -> TimeAligner:
+def create_time_aligner(config: AlignmentConfig, logger=None) -> TimeAligner:  # noqa: ANN001
     """工厂函数：根据配置创建时间对齐器"""
     
     if config.strategy == AlignmentStrategy.EMERGENCY:
         return EmergencyTimeAligner(config, logger)
-    elif config.strategy == AlignmentStrategy.INTERPOLATION:
+    if config.strategy == AlignmentStrategy.INTERPOLATION:
         return InterpolationTimeAligner(config, logger)
-    elif config.strategy == AlignmentStrategy.NEAREST_NEIGHBOR:
+    if config.strategy == AlignmentStrategy.NEAREST_NEIGHBOR:
         return NearestNeighborTimeAligner(config, logger)
-    else:
-        raise ValueError(f"Unknown alignment strategy: {config.strategy}")
+    raise ValueError(f"Unknown alignment strategy: {config.strategy}")
 
 
 # 便利函数
-def emergency_align_topics(topic_messages: Dict[str, List[Dict]], logger=None) -> Dict[str, List[Any]]:
+def emergency_align_topics(topic_messages: dict[str, list[dict]], logger=None) -> dict[str, list[Any]]:  # noqa: ANN001
     """快速应急对齐"""
     config = AlignmentConfig.emergency_config()
     aligner = EmergencyTimeAligner(config, logger)
     return aligner.align_topics(topic_messages)
 
 
-def production_align_topics(topic_messages: Dict[str, List[Dict]], logger=None) -> Dict[str, List[Any]]:
+def production_align_topics(topic_messages: dict[str, list[dict]], logger=None) -> dict[str, list[Any]]:  # noqa: ANN001
     """生产环境对齐"""
     config = AlignmentConfig.production_config()
     aligner = InterpolationTimeAligner(config, logger)
     return aligner.align_topics(topic_messages)
 
 
-def galaxea_align_topics(topic_messages: Dict[str, List[Dict]], logger=None) -> Dict[str, List[Any]]:
+def galaxea_align_topics(topic_messages: dict[str, list[dict]], logger=None) -> dict[str, list[Any]]:  # noqa: ANN001
     """Galaxea机器人优化对齐"""
     config = AlignmentConfig.galaxea_config()
     aligner = InterpolationTimeAligner(config, logger)

@@ -2,10 +2,9 @@
 时间同步分析器
 用于分析RosBag数据的时间分布和同步质量
 """
-import numpy as np
-from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
-from collections import defaultdict
+
+import numpy as np
 
 
 @dataclass
@@ -16,7 +15,7 @@ class TopicTimeStats:
     time_range_sec: float
     avg_frequency_hz: float
     std_frequency_hz: float
-    time_gaps_ms: List[float]
+    time_gaps_ms: list[float]
     max_gap_ms: float
     min_gap_ms: float
 
@@ -25,21 +24,21 @@ class TopicTimeStats:
 class SyncQualityReport:
     """时间同步质量报告"""
     overall_quality_score: float  # 0-1之间，1为完美同步
-    topic_stats: Dict[str, TopicTimeStats]
+    topic_stats: dict[str, TopicTimeStats]
     alignment_feasibility: str  # "excellent", "good", "poor", "impossible"
     recommended_strategy: str
-    base_topic_candidates: List[str]
-    potential_issues: List[str]
+    base_topic_candidates: list[str]
+    potential_issues: list[str]
     data_loss_estimate: float  # 预估的数据损失百分比
 
 
 class TimeSyncAnalyzer:
     """时间同步分析器"""
     
-    def __init__(self, logger=None):
+    def __init__(self, logger=None) -> None:  # noqa: ANN001
         self.logger = logger
         
-    def analyze_topic_messages(self, topic_messages: Dict[str, List[Dict]]) -> SyncQualityReport:
+    def analyze_topic_messages(self, topic_messages: dict[str, list[dict]]) -> SyncQualityReport:
         """
         分析topic消息的时间同步质量
         
@@ -86,7 +85,7 @@ class TimeSyncAnalyzer:
             data_loss_estimate=data_loss
         )
     
-    def _analyze_topic_timing(self, topic_name: str, messages: List[Dict]) -> TopicTimeStats:
+    def _analyze_topic_timing(self, topic_name: str, messages: list[dict]) -> TopicTimeStats:
         """分析单个topic的时间统计"""
         timestamps = [msg['timestamp'] for msg in messages]
         
@@ -134,7 +133,7 @@ class TimeSyncAnalyzer:
             min_gap_ms=min(time_gaps_ms) if time_gaps_ms else 0.0
         )
     
-    def _calculate_sync_quality(self, topic_stats: Dict[str, TopicTimeStats]) -> float:
+    def _calculate_sync_quality(self, topic_stats: dict[str, TopicTimeStats]) -> float:
         """计算整体同步质量分数 (0-1)"""
         if not topic_stats:
             return 0.0
@@ -160,7 +159,7 @@ class TimeSyncAnalyzer:
         
         return np.mean(scores) if scores else 0.0
     
-    def _assess_alignment_feasibility(self, topic_stats: Dict[str, TopicTimeStats]) -> str:
+    def _assess_alignment_feasibility(self, topic_stats: dict[str, TopicTimeStats]) -> str:
         """评估对齐可行性"""
         if not topic_stats:
             return "impossible"
@@ -174,25 +173,22 @@ class TimeSyncAnalyzer:
         
         if freq_ratio <= 2:
             return "excellent"
-        elif freq_ratio <= 5:
+        if freq_ratio <= 5:
             return "good" 
-        elif freq_ratio <= 20:
+        if freq_ratio <= 20:
             return "poor"
-        else:
-            return "impossible"
+        return "impossible"
     
-    def _recommend_strategy(self, topic_stats: Dict[str, TopicTimeStats], quality_score: float) -> str:
+    def _recommend_strategy(self, topic_stats: dict[str, TopicTimeStats], quality_score: float) -> str:
         """推荐对齐策略"""
         if quality_score > 0.8:
             return "interpolation"
-        elif quality_score > 0.5:
+        if quality_score > 0.5:
             return "nearest_neighbor"
-        else:
-            return "emergency"
+        return "emergency"
     
-    def _select_base_topic_candidates(self, topic_stats: Dict[str, TopicTimeStats]) -> List[str]:
+    def _select_base_topic_candidates(self, topic_stats: dict[str, TopicTimeStats]) -> list[str]:
         """选择基准topic候选"""
-        candidates = []
         
         # 优先级关键词
         priority_keywords = ['rgb', 'color', 'image', 'camera', 'compressed', 'depth']
@@ -223,7 +219,7 @@ class TimeSyncAnalyzer:
         topic_scores.sort(key=lambda x: x[1], reverse=True)
         return [topic for topic, _ in topic_scores[:3]]
     
-    def _identify_issues(self, topic_stats: Dict[str, TopicTimeStats]) -> List[str]:
+    def _identify_issues(self, topic_stats: dict[str, TopicTimeStats]) -> list[str]:
         """识别潜在问题"""
         issues = []
         
@@ -260,13 +256,13 @@ class TimeSyncAnalyzer:
         gap_issues = []
         for stats in topic_stats.values():
             if stats.time_gaps_ms and stats.max_gap_ms > 1000:  # 1秒以上的间隔
-                gap_issues.append(stats.topic_name)
+                gap_issues.append(stats.topic_name)  # noqa: PERF401
         if gap_issues:
             issues.append(f"Large time gaps in topics: {', '.join(gap_issues[:3])}")
         
         return issues
     
-    def _estimate_data_loss(self, topic_stats: Dict[str, TopicTimeStats]) -> float:
+    def _estimate_data_loss(self, topic_stats: dict[str, TopicTimeStats]) -> float:
         """估算使用应急策略的数据损失百分比"""
         if not topic_stats:
             return 0.0
@@ -279,9 +275,8 @@ class TimeSyncAnalyzer:
             return 0.0
         
         preserved_messages = min_count * len(message_counts)
-        data_loss = (total_messages - preserved_messages) / total_messages
+        return (total_messages - preserved_messages) / total_messages
         
-        return data_loss
     
     def print_analysis_report(self, report: SyncQualityReport) -> None:
         """打印分析报告"""
@@ -289,17 +284,17 @@ class TimeSyncAnalyzer:
         print("🔍 ROS Bag 时间同步质量分析报告")
         print("=" * 80)
         
-        print(f"\n📊 整体评估:")
+        print("\n📊 整体评估:")
         print(f"   同步质量得分: {report.overall_quality_score:.3f} / 1.000")
         print(f"   对齐可行性: {report.alignment_feasibility}")
         print(f"   推荐策略: {report.recommended_strategy}")
         print(f"   预估数据损失: {report.data_loss_estimate:.1%}")
         
-        print(f"\n🎯 推荐基准Topics:")
+        print("\n🎯 推荐基准Topics:")
         for i, topic in enumerate(report.base_topic_candidates, 1):
             print(f"   {i}. {topic}")
         
-        print(f"\n📈 Topic 统计信息:")
+        print("\n📈 Topic 统计信息:")
         for topic, stats in report.topic_stats.items():
             print(f"\n   📌 {topic}")
             print(f"      消息数量: {stats.message_count}")
@@ -310,11 +305,11 @@ class TimeSyncAnalyzer:
                 print(f"      时间间隔: {stats.min_gap_ms:.1f} - {stats.max_gap_ms:.1f} ms")
         
         if report.potential_issues:
-            print(f"\n⚠️  潜在问题:")
+            print("\n⚠️  潜在问题:")
             for issue in report.potential_issues:
                 print(f"   • {issue}")
         
-        print(f"\n💡 建议:")
+        print("\n💡 建议:")
         if report.alignment_feasibility == "excellent":
             print("   • 时间同步质量优秀，可以使用插值对齐获得最佳效果")
         elif report.alignment_feasibility == "good":

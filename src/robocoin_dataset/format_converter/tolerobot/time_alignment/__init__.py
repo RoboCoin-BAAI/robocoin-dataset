@@ -7,17 +7,17 @@ ROS Bag 时间对齐模块
 - 时间同步质量评估
 """
 
+from .alignment_config import AlignmentConfig, AlignmentStrategy
 from .alignment_strategies import (
     EmergencyTimeAligner,
     InterpolationTimeAligner,
     TimeAligner,
     create_time_aligner,
     emergency_align_topics,
-    production_align_topics,
     galaxea_align_topics,
+    production_align_topics,
 )
 from .time_sync_analyzer import TimeSyncAnalyzer
-from .alignment_config import AlignmentConfig, AlignmentStrategy
 
 __all__ = [
     "TimeAligner", 

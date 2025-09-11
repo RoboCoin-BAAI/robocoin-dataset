@@ -336,8 +336,7 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         camera_keys = []
 
         for camera_idx in sorted(camera_groups.keys()):
-            camera_keys.append(f"color_{camera_idx}")
-
+            camera_keys.append(f"color_{camera_idx}")  # noqa: PERF401
         return camera_keys
 
     def _has_auto_camera_detection(self, config: dict) -> bool:
@@ -416,7 +415,7 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         ]
 
         # 递归搜索所有子目录（限制深度避免过深搜索）
-        def find_all_directories(root_path, max_depth=3, current_depth=0):
+        def find_all_directories(root_path, max_depth=3, current_depth=0):  # noqa: ANN001, ANN202
             dirs = []
             if current_depth >= max_depth:
                 return dirs
@@ -487,17 +486,23 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         # 检查包含"data"的文件
         for f in json_files:
             if "data" in f.name.lower():
+                priority_files.append((1, f))  # noqa: PERF401
+        
                 priority_files.append((1, f))
 
         # 检查包含"episode"的文件
         if not priority_files:
             for f in json_files:
                 if "episode" in f.name.lower():
+                    priority_files.append((2, f))  # noqa: PERF401
+        
                     priority_files.append((2, f))
 
         # 按文件名长度排序
         if not priority_files:
             for f in json_files:
+                priority_files.append((len(f.name), f))  # noqa: PERF401
+        
                 priority_files.append((len(f.name), f))
 
         # 选择优先级最高的文件
@@ -515,7 +520,7 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
 
         json_file_path = self.task_episode_jsonfile_paths[task_path][ep_idx]
         try:
-            with open(json_file_path, encoding="utf-8") as json_file:
+            with open(json_file_path, encoding='utf-8') as json_file:
                 json_data = json.load(json_file)
 
                 # 缓存JSON数据

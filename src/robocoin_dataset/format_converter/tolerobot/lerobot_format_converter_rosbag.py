@@ -4,28 +4,20 @@ import logging
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
 
 import numpy as np
 from natsort import natsorted
 from PIL import Image
 from rosbags.highlevel import AnyReader
-from rosbags.typesys import get_types_from_msg, register_types
 
-from robocoin_dataset.format_converter.tolerobot.constant import (
-    ARGS_KEY,
-    FEATURES_KEY,
-    OBSERVATION_KEY,
-    STATE_KEY,
-    SUB_STATE_KEY,
-)
 from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import (
     LerobotFormatConverter,
 )
 from robocoin_dataset.format_converter.tolerobot.time_alignment import (
     AlignmentConfig,
+    TimeSyncAnalyzer,
     create_time_aligner,
-    TimeSyncAnalyzer
 )
 
 
@@ -103,10 +95,8 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             # 图像数据现在是numpy数组了
             if isinstance(image_data, np.ndarray):
                 return image_data
-            else:
-                raise ValueError(f"Expected numpy array, got {type(image_data)}")
-        else:
-            raise ValueError(f"No image data found for topic {topic_name} at frame {frame_idx}")
+            raise ValueError(f"Expected numpy array, got {type(image_data)}")
+        raise ValueError(f"No image data found for topic {topic_name} at frame {frame_idx}")
 
     # @override
     def _get_frame_sub_states(
@@ -125,11 +115,9 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             state_data = sub_states_buffer[topic_name][frame_idx]
             if isinstance(state_data, np.ndarray):
                 return state_data[from_idx:to_idx]
-            else:
-                # 转换为numpy数组再切片
-                return np.array(state_data, dtype=np.float32)[from_idx:to_idx]
-        else:
-            raise ValueError(f"No state data found for topic {topic_name} at frame {frame_idx}")
+            # 转换为numpy数组再切片
+            return np.array(state_data, dtype=np.float32)[from_idx:to_idx]
+        raise ValueError(f"No state data found for topic {topic_name} at frame {frame_idx}")
 
     # @override
     def _get_frame_sub_actions(
@@ -148,11 +136,9 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             action_data = sub_actions_buffer[topic_name][frame_idx]
             if isinstance(action_data, np.ndarray):
                 return action_data[from_idx:to_idx]
-            else:
-                # 转换为numpy数组再切片
-                return np.array(action_data, dtype=np.float32)[from_idx:to_idx]
-        else:
-            raise ValueError(f"No action data found for topic {topic_name} at frame {frame_idx}")
+            # 转换为numpy数组再切片
+            return np.array(action_data, dtype=np.float32)[from_idx:to_idx]
+        raise ValueError(f"No action data found for topic {topic_name} at frame {frame_idx}")
 
     # @override
     def _get_episode_frames_num(self, task_path: Path, ep_idx: int) -> int:
@@ -220,9 +206,9 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
         for json_path in possible_json_paths:
             if json_path.exists():
                 try:
-                    with open(json_path, 'r', encoding='utf-8') as f:
+                    with open(json_path, encoding='utf-8') as f:
                         return json.load(f)
-                except (json.JSONDecodeError, IOError) as e:
+                except (OSError, json.JSONDecodeError) as e:
                     if self.logger:
                         self.logger.warning(f"Failed to read metadata from {json_path}: {e}")
         
@@ -263,7 +249,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
         print(f"Topics: {list(processed_data.keys())}")
         return processed_data
     
-    def _read_raw_topic_messages(self, rosbag_file_path: Path) -> Dict[str, List[Dict]]:
+    def _read_raw_topic_messages(self, rosbag_file_path: Path) -> dict[str, list[dict]]:
         """读取rosbag文件的原始消息，按topic组织"""
         topic_messages = {}
         
@@ -282,7 +268,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
         
         return topic_messages
     
-    def _process_aligned_messages(self, messages: List[Any], topic_name: str) -> List[Any]:
+    def _process_aligned_messages(self, messages: list[Any], topic_name: str) -> list[Any]:
         """处理已对齐的消息列表，转换为最终格式"""
         if not messages:
             return []
@@ -294,15 +280,15 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             return [self._convert_ros_image(msg) for msg in messages]
         
         # 处理压缩图像消息 - sensor_msgs/CompressedImage
-        elif hasattr(first_msg, 'data') and hasattr(first_msg, 'format'):
+        if hasattr(first_msg, 'data') and hasattr(first_msg, 'format'):
             return [self._convert_compressed_image(msg) for msg in messages]
             
         # 处理关节状态消息 - sensor_msgs/JointState
-        elif hasattr(first_msg, 'name') and hasattr(first_msg, 'position'):
+        if hasattr(first_msg, 'name') and hasattr(first_msg, 'position'):
             return [np.array(msg.position, dtype=np.float32) for msg in messages]
             
         # 处理IMU消息 - sensor_msgs/Imu
-        elif hasattr(first_msg, 'linear_acceleration') and hasattr(first_msg, 'angular_velocity'):
+        if hasattr(first_msg, 'linear_acceleration') and hasattr(first_msg, 'angular_velocity'):
             imu_data = []
             for msg in messages:
                 linear_acc = [msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]
@@ -311,7 +297,7 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             return imu_data
             
         # 处理Twist消息 - geometry_msgs/TwistStamped
-        elif hasattr(first_msg, 'twist') and hasattr(first_msg.twist, 'linear'):
+        if hasattr(first_msg, 'twist') and hasattr(first_msg.twist, 'linear'):
             twist_data = []
             for msg in messages:
                 twist_msg = msg.twist if hasattr(msg, 'twist') else msg
@@ -321,22 +307,21 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             return twist_data
             
         # 处理数值数组消息 - std_msgs/Float64MultiArray等
-        elif hasattr(first_msg, 'data') and isinstance(first_msg.data, (list, tuple)):
+        if hasattr(first_msg, 'data') and isinstance(first_msg.data, (list, tuple)):
             return [np.array(msg.data, dtype=np.float32) for msg in messages]
             
         # 处理几何消息 - geometry_msgs类型
-        elif hasattr(first_msg, 'pose') or hasattr(first_msg, 'position'):
+        if hasattr(first_msg, 'pose') or hasattr(first_msg, 'position'):
             return [self._convert_geometry_msg(msg) for msg in messages]
             
         # 默认处理：尝试转换为numpy数组
-        else:
-            try:
-                return [self._msg_to_array(msg) for msg in messages]
-            except:
-                # 如果无法转换，返回原始消息
-                return messages
+        try:
+            return [self._msg_to_array(msg) for msg in messages]
+        except:  # noqa: E722
+            # 如果无法转换，返回原始消息
+            return messages
     
-    def _convert_ros_image(self, img_msg) -> np.ndarray:
+    def _convert_ros_image(self, img_msg) -> np.ndarray:  # noqa: ANN001
         """转换ROS图像消息为numpy数组"""
         # 将字节数据转换为numpy数组
         image_data = np.frombuffer(img_msg.data, dtype=np.uint8)
@@ -344,21 +329,20 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
         # 根据编码格式重塑数组
         if img_msg.encoding == 'rgb8':
             return image_data.reshape((img_msg.height, img_msg.width, 3))
-        elif img_msg.encoding == 'bgr8':
+        if img_msg.encoding == 'bgr8':
             image_array = image_data.reshape((img_msg.height, img_msg.width, 3))
             return image_array[:, :, [2, 1, 0]]  # BGR to RGB
-        elif img_msg.encoding == 'mono8':
+        if img_msg.encoding == 'mono8':
             return image_data.reshape((img_msg.height, img_msg.width))
-        else:
-            # 默认处理：假设为RGB
-            return image_data.reshape((img_msg.height, img_msg.width, -1))
+        # 默认处理：假设为RGB
+        return image_data.reshape((img_msg.height, img_msg.width, -1))
     
-    def _convert_compressed_image(self, comp_img_msg) -> np.ndarray:
+    def _convert_compressed_image(self, comp_img_msg) -> np.ndarray:  # noqa: ANN001
         """转换ROS压缩图像消息为numpy数组"""  
         image = Image.open(io.BytesIO(comp_img_msg.data))
         return np.array(image)
         
-    def _convert_geometry_msg(self, geom_msg) -> np.ndarray:
+    def _convert_geometry_msg(self, geom_msg) -> np.ndarray:  # noqa: ANN001
         """转换几何消息为numpy数组"""
         if hasattr(geom_msg, 'pose'):
             pose = geom_msg.pose
@@ -368,25 +352,22 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
                 pose.position.x, pose.position.y, pose.position.z,
                 pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w
             ], dtype=np.float32)
-        elif hasattr(geom_msg, 'position'):
+        if hasattr(geom_msg, 'position'):
             pos = geom_msg.position
             return np.array([pos.x, pos.y, pos.z], dtype=np.float32)
-        else:
-            return np.array([], dtype=np.float32)
+        return np.array([], dtype=np.float32)
             
-    def _msg_to_array(self, msg) -> np.ndarray:
+    def _msg_to_array(self, msg) -> np.ndarray:  # noqa: ANN001
         """通用消息转数组函数"""
         if hasattr(msg, 'data'):
             if isinstance(msg.data, (list, tuple)):
                 return np.array(msg.data, dtype=np.float32)
-            else:
-                return np.array([msg.data], dtype=np.float32)
-        else:
-            # 尝试提取所有数值字段
-            values = []
-            for attr_name in dir(msg):
-                if not attr_name.startswith('_'):
-                    attr_value = getattr(msg, attr_name)
-                    if isinstance(attr_value, (int, float)):
-                        values.append(attr_value)
-            return np.array(values, dtype=np.float32) if values else np.array([], dtype=np.float32)
+            return np.array([msg.data], dtype=np.float32)
+        # 尝试提取所有数值字段
+        values = []
+        for attr_name in dir(msg):
+            if not attr_name.startswith('_'):
+                attr_value = getattr(msg, attr_name)
+                if isinstance(attr_value, (int, float)):
+                    values.append(attr_value)
+        return np.array(values, dtype=np.float32) if values else np.array([], dtype=np.float32)
