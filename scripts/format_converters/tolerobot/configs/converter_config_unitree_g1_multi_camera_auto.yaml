@@ -52,11 +52,10 @@ features:
         - left_hand_joint_4_rad
         - left_hand_joint_5_rad
         - left_hand_joint_6_rad
-        - left_hand_joint_7_rad
         args:
           json_path: states.left_hand.qpos
           range_from: 0
-          range_to: 7
+          range_to: 6
 
       - names: 
         - right_hand_joint_1_rad
@@ -65,11 +64,10 @@ features:
         - right_hand_joint_4_rad
         - right_hand_joint_5_rad
         - right_hand_joint_6_rad
-        - right_hand_joint_7_rad
         args:
           json_path: states.right_hand.qpos
           range_from: 0
-          range_to: 7
+          range_to: 6
 
   action:
     ### G1机器人动作配置：28维（4个肢体 × 7个关节）
@@ -87,7 +85,7 @@ features:
         json_path: actions.left_arm.qpos
         range_from: 0
         range_to: 7
-    
+
     - names: 
       - right_arm_joint_1_rad
       - right_arm_joint_2_rad
@@ -108,11 +106,10 @@ features:
       - left_hand_joint_4_rad
       - left_hand_joint_5_rad
       - left_hand_joint_6_rad
-      - left_hand_joint_7_rad
       args:
         json_path: actions.left_hand.qpos
         range_from: 0
-        range_to: 7
+        range_to: 6
 
     - names: 
       - right_hand_joint_1_rad
@@ -121,8 +118,8 @@ features:
       - right_hand_joint_4_rad
       - right_hand_joint_5_rad
       - right_hand_joint_6_rad
-      - right_hand_joint_7_rad
       args:
         json_path: actions.right_hand.qpos
         range_from: 0
-        range_to: 7
+        range_to: 6
+  

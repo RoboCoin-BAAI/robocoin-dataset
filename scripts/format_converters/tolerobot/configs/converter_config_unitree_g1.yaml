@@ -80,13 +80,12 @@ features:
         - left_hand_joint_4_rad
         - left_hand_joint_5_rad
         - left_hand_joint_6_rad
-        - left_hand_joint_7_rad
 
         args:
           ### keys and values by manual
           json_path: states.left_hand.qpos
           range_from: 0
-          range_to: 7
+          range_to: 6
 
         ### values by manual
         # convert_func: degree2rad
@@ -99,13 +98,12 @@ features:
         - right_hand_joint_4_rad
         - right_hand_joint_5_rad
         - right_hand_joint_6_rad
-        - right_hand_joint_7_rad
 
         args:
           ### keys and values by manual
           json_path: states.right_hand.qpos
           range_from: 0
-          range_to: 7
+          range_to: 6
 
         ### values by manual
         # convert_func: degree2rad
@@ -165,13 +163,12 @@ features:
       - left_hand_joint_4_rad
       - left_hand_joint_5_rad
       - left_hand_joint_6_rad
-      - left_hand_joint_7_rad
 
       args:
         ### keys and values by manual
         json_path: actions.left_hand.qpos
         range_from: 0
-        range_to: 7
+        range_to: 6
 
     ### values by manual
     - names: 
@@ -181,10 +178,9 @@ features:
       - right_hand_joint_4_rad
       - right_hand_joint_5_rad
       - right_hand_joint_6_rad
-      - right_hand_joint_7_rad
 
       args:
         ### keys and values by manual
         json_path: actions.right_hand.qpos
         range_from: 0
-        range_to: 7
+        range_to: 6
