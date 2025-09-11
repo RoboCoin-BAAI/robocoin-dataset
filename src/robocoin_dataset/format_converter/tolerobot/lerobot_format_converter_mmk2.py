@@ -138,6 +138,35 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
             image_writer_threads=image_writer_threads,
         )
 
+    def _prevalidate_files(self) -> None:
+        """Validate MMK2 dataset files and structure."""
+        for task_path in self.path_task_dict.keys():
+            if not task_path.exists():
+                raise FileNotFoundError(f"Task path does not exist: {task_path}")
+            if not task_path.is_dir():
+                raise ValueError(f"Task path is not a directory: {task_path}")
+            
+            # Check for required episode directories
+            episode_dirs = [d for d in task_path.iterdir() if d.is_dir() and d.name.startswith('episode_')]
+            if not episode_dirs:
+                self.logger.warning(f"No episode directories found in {task_path}")
+            
+            # Validate each episode directory structure
+            for episode_dir in episode_dirs:
+                # Check for required subdirectories (observations, actions, etc.)
+                required_subdirs = ['observations']
+                for subdir in required_subdirs:
+                    subdir_path = episode_dir / subdir
+                    if not subdir_path.exists():
+                        self.logger.warning(f"Missing required subdirectory: {subdir_path}")
+                
+                # Check for image files in observations
+                obs_dir = episode_dir / 'observations'
+                if obs_dir.exists():
+                    image_files = list(obs_dir.glob("*.jpg")) + list(obs_dir.glob("*.png")) + list(obs_dir.glob("*.jpeg"))
+                    if not image_files:
+                        self.logger.warning(f"No image files found in {obs_dir}")
+
     # @override
     def _get_frame_image(
         self,
