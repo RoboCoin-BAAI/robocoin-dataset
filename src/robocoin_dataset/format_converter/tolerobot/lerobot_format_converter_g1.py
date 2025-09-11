@@ -36,11 +36,6 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
     ) -> None:
         self.g1_buffer: G1Buffer = G1Buffer()
 
-        # G1多相机自动检测
-        if self._has_auto_camera_detection(converter_config):
-            print("G1: 启用多相机自动检测")
-            converter_config = self._auto_configure_cameras(converter_config, dataset_path)
-
         super().__init__(
             dataset_path=dataset_path,
             output_path=output_path,
@@ -326,77 +321,6 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
 
         # 默认返回相机0
         return 0
-
-    def _detect_cameras_from_images(self, jpg_files: list[Path]) -> list[str]:
-        """
-        从图像文件自动检测相机配置
-        返回相机key列表：["color_0", "color_1", "color_2", ...]
-        """
-        camera_groups = self._group_images_by_camera_g1(jpg_files)
-        camera_keys = []
-
-        for camera_idx in sorted(camera_groups.keys()):
-            camera_keys.append(f"color_{camera_idx}")  # noqa: PERF401
-        return camera_keys
-
-    def _has_auto_camera_detection(self, config: dict) -> bool:
-        """检查配置中是否启用了多相机自动检测"""
-        return "camera_detection" in config and config["camera_detection"].get("auto_detect", False)
-
-    def _auto_configure_cameras(self, config: dict, dataset_path: str) -> dict:
-        """
-        自动检测并配置多相机
-        扫描数据集，检测相机数量并自动生成相机配置
-        """
-        print("正在扫描数据集以检测相机配置...")
-
-        # 获取第一个任务的第一个episode来检测相机
-        dataset_path_obj = Path(dataset_path)
-        sample_images = []
-
-        # 寻找样本图像文件
-        for jpg_file in dataset_path_obj.rglob("*.jpg"):
-            sample_images.append(jpg_file)
-            if len(sample_images) >= 20:  # 取前20个文件作为样本
-                break
-
-        if not sample_images:
-            print("未找到图像文件，使用默认单相机配置")
-            return self._create_default_single_camera_config(config)
-
-        # 检测相机
-        detected_cameras = self._detect_cameras_from_images(sample_images)
-
-        print(f"检测到 {len(detected_cameras)} 个相机: {detected_cameras}")
-
-        # 生成相机配置
-        return self._generate_multi_camera_config(config, detected_cameras)
-
-    def _create_default_single_camera_config(self, config: dict) -> dict:
-        """创建默认单相机配置"""
-        config = config.copy()
-        config["features"]["observation"]["images"] = [
-            {"cam_name": "color_0", "args": {"image_key": "color_0"}}
-        ]
-        return config
-
-    def _generate_multi_camera_config(self, config: dict, camera_keys: list[str]) -> dict:
-        """根据检测到的相机生成配置"""
-        config = config.copy()
-
-        # 生成相机图像配置
-        images_config = []
-        for camera_key in camera_keys:
-            camera_config = {"cam_name": camera_key, "args": {"image_key": camera_key}}
-            images_config.append(camera_config)
-
-        config["features"]["observation"]["images"] = images_config
-
-        print(f"生成了 {len(images_config)} 个相机的配置:")
-        for i, cam_config in enumerate(images_config):
-            print(f"  相机 {i}: {cam_config['cam_name']}")
-
-        return config
 
     def _find_episode_directories_g1(self, task_path: Path) -> list[Path]:
         """

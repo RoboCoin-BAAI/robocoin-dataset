@@ -1,23 +1,45 @@
-# Unitree G1 Multi-Camera Auto-Detection Configuration
-# 自动检测多相机配置，支持1-4个相机的自动识别
-
 ### fps by manual
 fps: 30
-
-# 相机自动检测配置
-camera_detection:
-  auto_detect: true              # 启用自动检测
-  file_pattern: "*.jpg"         # 图像文件模式
-  camera_naming: "color_{idx}"  # 相机命名格式，{idx}会被替换为相机索引
-  max_cameras: 4                # 最大支持相机数量
-
 features:
   observation:
-    # 图像配置将在运行时自动生成
-    images: []  # 运行时自动填充：color_0, color_1, color_2, color_3等
-    
+    images:
+
+    ### values by manual
+    - cam_name: color_head_up
+      args:
+
+        ### key and values by manual
+        image_key: color_0
+
+    - cam_name: color_head_down
+      args:
+
+        ### key and values by manual
+        image_key: color_1
+
+
+      ### values by function
+      # dtype: video
+      # shape: [480, 640, 3]
+      # names: [height, width, channels]
+      # lerobot_feature: observations.images.color_head : by _gen_lerobot_features()
+
+
     state:
-      ### G1机器人状态配置：28维（4个肢体 × 7个关节）
+      ### values by function
+      # lerobot_feature: observation.state : by _gen_lerobot_features()
+      # dtype: float32 
+      # shape: [28]
+
+      ## sub_states should be concatenated together here : by _gen_state_names(), such as:
+      # names: 
+      # - left_arm_joint_1_rad
+      # - ...
+      # - left_arm_joint_7_rad
+      # - ...
+
+
+      ### values by manual
       sub_state:
       - names: 
         - left_arm_joint_1_rad
@@ -27,11 +49,17 @@ features:
         - left_arm_joint_5_rad
         - left_arm_joint_6_rad
         - left_arm_joint_7_rad
+
         args:
+          ### keys and values by manual
           json_path: states.left_arm.qpos
           range_from: 0
           range_to: 7
+        
+        ### values by manual
+        # convert_func: degree2rad
       
+      ### values by manual
       - names: 
         - right_arm_joint_1_rad
         - right_arm_joint_2_rad
@@ -40,11 +68,17 @@ features:
         - right_arm_joint_5_rad
         - right_arm_joint_6_rad
         - right_arm_joint_7_rad
+
         args:
+          ### keys and values by manual
           json_path: states.right_arm.qpos
           range_from: 0
           range_to: 7
 
+        ### values by manual
+        # convert_func: degree2rad
+
+      ### values by manual
       - names: 
         - left_hand_joint_1_rad
         - left_hand_joint_2_rad
@@ -52,11 +86,17 @@ features:
         - left_hand_joint_4_rad
         - left_hand_joint_5_rad
         - left_hand_joint_6_rad
+
         args:
+          ### keys and values by manual
           json_path: states.left_hand.qpos
           range_from: 0
           range_to: 6
 
+        ### values by manual
+        # convert_func: degree2rad
+
+      ### values by manual
       - names: 
         - right_hand_joint_1_rad
         - right_hand_joint_2_rad
@@ -64,13 +104,30 @@ features:
         - right_hand_joint_4_rad
         - right_hand_joint_5_rad
         - right_hand_joint_6_rad
+
         args:
+          ### keys and values by manual
           json_path: states.right_hand.qpos
           range_from: 0
           range_to: 6
 
+        ### values by manual
+        # convert_func: degree2rad
+
   action:
-    ### G1机器人动作配置：28维（4个肢体 × 7个关节）
+    ### values by function
+    # lerobot_feature: action: by _gen_lerobot_features()
+    # dtype: float32 
+    # shape: [28]
+
+    ## sub_actions should be concatenated together here, : by _gen_acton_names(), such as:
+    # names:
+    # - left_arm_joint_1_rad
+    # - ...
+    # - left_arm_joint_7_rad
+    # - ...
+
+    ### values by manual
     timeline_offset: 1
     sub_action:
     - names: 
@@ -81,11 +138,14 @@ features:
       - left_arm_joint_5_rad
       - left_arm_joint_6_rad
       - left_arm_joint_7_rad
+
       args:
+        ### keys and values by manual
         json_path: actions.left_arm.qpos
         range_from: 0
         range_to: 7
-
+    
+    ### values by manual
     - names: 
       - right_arm_joint_1_rad
       - right_arm_joint_2_rad
@@ -94,11 +154,14 @@ features:
       - right_arm_joint_5_rad
       - right_arm_joint_6_rad
       - right_arm_joint_7_rad
+
       args:
+        ### keys and values by manual
         json_path: actions.right_arm.qpos
         range_from: 0
         range_to: 7
 
+    ### values by manual
     - names: 
       - left_hand_joint_1_rad
       - left_hand_joint_2_rad
@@ -106,11 +169,14 @@ features:
       - left_hand_joint_4_rad
       - left_hand_joint_5_rad
       - left_hand_joint_6_rad
+
       args:
+        ### keys and values by manual
         json_path: actions.left_hand.qpos
         range_from: 0
         range_to: 6
 
+    ### values by manual
     - names: 
       - right_hand_joint_1_rad
       - right_hand_joint_2_rad
@@ -118,8 +184,9 @@ features:
       - right_hand_joint_4_rad
       - right_hand_joint_5_rad
       - right_hand_joint_6_rad
+
       args:
+        ### keys and values by manual
         json_path: actions.right_hand.qpos
         range_from: 0
         range_to: 6
-  

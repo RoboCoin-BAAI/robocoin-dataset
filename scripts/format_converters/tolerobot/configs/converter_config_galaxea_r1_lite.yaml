@@ -93,7 +93,7 @@ features:
           range_to: 1
         # messages: sensor_msgs/msg/JointState
 
-      ### torso state - multiple joints (调整为2个关节而不是3个)
+      ### torso state - multiple joints 2 joint
       - names: 
         - torso_joint_1
         - torso_joint_2
@@ -103,7 +103,7 @@ features:
           range_to: 2
         # messages: sensor_msgs/msg/JointState
 
-      ### chassis state - wheels or mobile base (调整为3个轮子而不是4个)
+      ### chassis state - wheels or mobile base (3 chassis) 
       - names: 
         - chassis_wheel_1
         - chassis_wheel_2
@@ -147,7 +147,7 @@ features:
     timeline_offset: 1
     sub_action:
 
-    ### left arm target joint state (减少到6个关节以匹配实际数据)
+    ### left arm target joint state (6 joints)
     - names: 
       - left_arm_target_joint_1
       - left_arm_target_joint_2
@@ -155,71 +155,68 @@ features:
       - left_arm_target_joint_4
       - left_arm_target_joint_5
       - left_arm_target_joint_6
-      # - left_arm_target_joint_7
       args:
         topic_name: /motion_target/target_joint_state_arm_left
         range_from: 0
         range_to: 6
       # messages: sensor_msgs/msg/JointState
 
-    ### right arm target joint state (删除，只使用左臂目标)
-    # - names: 
-    #   - right_arm_target_joint_1
-    #   - right_arm_target_joint_2
-    #   - right_arm_target_joint_3
-    #   - right_arm_target_joint_4
-    #   - right_arm_target_joint_5
-    #   - right_arm_target_joint_6
-    #   - right_arm_target_joint_7
-    #   args:
-    #     topic_name: /motion_target/target_joint_state_arm_right
-    #     range_from: 0
-    #     range_to: 7
-    #   # messages: sensor_msgs/msg/JointState
+    ### right arm target joint state (6 joints)
+    - names: 
+      - right_arm_target_joint_1
+      - right_arm_target_joint_2
+      - right_arm_target_joint_3
+      - right_arm_target_joint_4
+      - right_arm_target_joint_5
+      - right_arm_target_joint_6
+      args:
+        topic_name: /motion_target/target_joint_state_arm_right
+        range_from: 0
+        range_to: 6
+      # messages: sensor_msgs/msg/JointState
 
-    ### left gripper target position (删除，使action维度降至7)
-    # - names: 
-    #   - left_gripper_target_position
-    #   args:
-    #     topic_name: /motion_target/target_position_gripper_left
-    #     range_from: 0
-    #     range_to: 1
-    #   # messages: sensor_msgs/msg/JointState
+    ### left gripper target position (1 joint)
+    - names: 
+      - left_gripper_target_position
+      args:
+        topic_name: /motion_target/target_position_gripper_left
+        range_from: 0
+        range_to: 1
+      # messages: sensor_msgs/msg/JointState
 
-    ### right gripper target position (删除，不包含右手抓目标位置)
-    # - names: 
-    #   - right_gripper_target_position
-    #   args:
-    #     topic_name: /motion_target/target_position_gripper_right
-    #     range_from: 0
-    #     range_to: 1
-    #   # messages: sensor_msgs/msg/JointState
+    ### right gripper target position (1 joint)
+    - names: 
+      - right_gripper_target_position
+      args:
+        topic_name: /motion_target/target_position_gripper_right
+        range_from: 0
+        range_to: 1
+      # messages: sensor_msgs/msg/JointState
 
-    ### torso target velocity (删除，不包含躯干目标速度)
-    # - names:
-    #   - torso_target_vel_x
-    #   args:
-    #     topic_name: /motion_target/target_speed_torso
-    #     range_from: 0
-    #     range_to: 1
-    #   # messages: geometry_msgs/msg/TwistStamped
+    ### chassis target velocity (6 dimensions: 3 linear + 3 angular)
+    - names:
+      - chassis_target_vel_linear_x
+      - chassis_target_vel_linear_y
+      - chassis_target_vel_linear_z
+      - chassis_target_vel_angular_x
+      - chassis_target_vel_angular_y
+      - chassis_target_vel_angular_z
+      args:
+        topic_name: /motion_target/target_speed_chassis
+        range_from: 0
+        range_to: 6
+      # messages: geometry_msgs/msg/TwistStamped
 
-    ### chassis target velocity (删除，不包含底盘目标速度)
-    # - names:
-    #   - chassis_target_vel_x
-    #   - chassis_target_vel_y
-    #   args:
-    #     topic_name: /motion_target/target_speed_chassis
-    #     range_from: 0
-    #     range_to: 2
-    #   # messages: geometry_msgs/msg/TwistStamped
-
-    ### torso target velocity (删除，不包含躯干目标速度)  
-    # - names:
-    #   - torso_target_vel_x
-    #   - torso_target_vel_y
-    #   args:
-    #     topic_name: /motion_target/target_speed_torso
-    #     range_from: 0
-    #     range_to: 2
-    #   # messages: geometry_msgs/msg/TwistStamped
+    ### torso target velocity (6 dimensions: 3 linear + 3 angular)
+    - names:
+      - torso_target_vel_linear_x
+      - torso_target_vel_linear_y
+      - torso_target_vel_linear_z
+      - torso_target_vel_angular_x
+      - torso_target_vel_angular_y
+      - torso_target_vel_angular_z
+      args:
+        topic_name: /motion_target/target_speed_torso
+        range_from: 0
+        range_to: 6
+      # messages: geometry_msgs/msg/TwistStamped

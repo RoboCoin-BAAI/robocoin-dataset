@@ -6,56 +6,108 @@ realman_rmc_aidal:
   converter_config_path: converter_config_realman_rmc_aidal.yaml
 
 agilex_cobot_magic_aloha:
+- version: default_version
+  verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
   class: LerobotFormatConverterHdf5
   converter_config_path: converter_config_agilex_cobot_magic_aloha.yaml
 
 galaxea_r1_lite:
+- version: default_version
+  verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_rosbag
   class: LerobotFormatConverterRosbag
   converter_config_path: converter_config_galaxea_r1_lite.yaml
 
 unitree_g1:
+- version: default_version
+  verison_description: two arms and two hands, one rgb cameras with high
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_g1
   class: LerobotFormatConverterG1
   converter_config_path: converter_config_unitree_g1.yaml
 
-unitree_g1_multi_camera:
+- version: twocam_version
+  verison_description: two arms and two hands, two rgb cameras with high_up and high_down
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_g1
   class: LerobotFormatConverterG1
-  converter_config_path: converter_config_unitree_g1_multi_camera_auto.yaml
+  converter_config_path: converter_config_unitree_g1.yaml
+
+- version: threecam_version
+  verison_description: two arms and two hands, three rgb cameras with high, left wrist, right wrist
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_g1
+  class: LerobotFormatConverterG1
+  converter_config_path: converter_config_unitree_g1_threecam.yaml
 
 discover_robotics_aitbot_mmk2:
+- version: default_version
+  verison_description: two arms and two hands, three rgb cameras with high, left wrist, right wrist ，one head  one spine
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
   class: LerobotFormatConverterMmk2
   converter_config_path: converter_config_discover_robotics_aitbot_mmk2.yaml
 
 agiex_pika_sense_single:
+- version: default_version
+  verison_description: one arm and one gripper, one rgb camera with high 
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
   class: LerobotFormatConverterHdf5
   converter_config_path: converter_config_agiex_pika_sense_single.yaml
 
-agilex_cobot_decoupled_magic:
-  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
-  class: LerobotFormatConverterHdf5
-  converter_config_path: converter_config_agilex_cobot_decoupled_magic.yaml
-
-agilex_pika_sense:
-  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_pika
-  class: LerobotFormatConverterPika
-  converter_config_path: converter_config_agilex_pika_sense.yaml
-
-single_arm_ur5:
-  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_ur5
-  class: LerobotFormatConverterUr5
-  converter_config_path: converter_config_single_arm_ur5.yaml
-
 visionpro:
+- version: default_version
+  verison_description: one head and two hands, one rgb camera with high
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
   class: LerobotFormatConverterHdf5
   converter_config_path: converter_config_visionpro.yaml
 
 leju_robot:
+- verison: default_version
+  verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_lerobot
   class: LerobotFormatConverterLerobot
   converter_config_path: converter_config_leju_robot.yaml
+
+agilex_cobot_decoupled_magic:
+- version: default_version
+  verison_description: two arms and two grippers, four rgb cameras with high, left wrist, right wrist
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
+  class: LerobotFormatConverterHdf5
+  converter_config_path: converter_config_agilex_cobot_decoupled_magic.yaml
+
+- version: realsense_version
+  verison_description: two arms and two grippers, four rgb cameras with high, left wrist, right wrist, realsense
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
+  class: LerobotFormatConverterHdf5
+  converter_config_path: converter_config_agilex_cobot_decoupled_magic_realsense.yaml
+
+- version: depthhead_version
+  verison_description: two arms and two grippers, four rgb cameras with high, left wrist, right wrist, depthhead
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
+  class: LerobotFormatConverterHdf5
+  converter_config_path: converter_config_agilex_cobot_decoupled_magic_depthhead.yaml
+
+- version: headdown_version
+  verison_description: two arms and two grippers, four rgb cameras with high, left wrist, right wrist, cam_center_down
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
+  class: LerobotFormatConverterHdf5
+  converter_config_path: converter_config_agilex_cobot_decoupled_magic_headdown.yaml
+
+- version: magicrgb_headdown_version
+  verison_description: two arms and two grippers, four rgb cameras with high, left wrist, right wrist, cam_center_down
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
+  class: LerobotFormatConverterHdf5
+  converter_config_path: converter_config_agilex_cobot_decoupled_magicrgb_headdown.yaml
+
+agilex_pika_sense:
+- version: default_version
+  verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_pika
+  class: LerobotFormatConverterPika
+  converter_config_path: converter_config_agilex_pika_sense.yaml
+
+single_arm_ur5:
+- version: default_version
+  verison_description: one arm and one gripper, one rgb camera with high
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_ur5
+  class: LerobotFormatConverterUr5
+  converter_config_path: converter_config_single_arm_ur5.yaml
+
