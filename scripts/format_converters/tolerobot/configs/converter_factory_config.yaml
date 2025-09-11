@@ -60,7 +60,7 @@ visionpro:
   converter_config_path: converter_config_visionpro.yaml
 
 leju_robot:
-- verison: default_version
+- version: default_version
   verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_lerobot
   class: LerobotFormatConverterLerobot
