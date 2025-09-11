@@ -48,6 +48,31 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
             image_writer_threads=image_writer_threads,
         )
 
+    def _prevalidate_files(self) -> None:
+        """Validate G1 dataset files and structure."""
+        for task_path in self.path_task_dict.keys():
+            if not task_path.exists():
+                raise FileNotFoundError(f"Task path does not exist: {task_path}")
+            if not task_path.is_dir():
+                raise ValueError(f"Task path is not a directory: {task_path}")
+            
+            # Check for required JSON files and image directories
+            episode_dirs = [d for d in task_path.iterdir() if d.is_dir() and d.name.startswith('episode_')]
+            if not episode_dirs:
+                self.logger.warning(f"No episode directories found in {task_path}")
+            
+            # Validate each episode directory
+            for episode_dir in episode_dirs:
+                # Check for JSON files
+                json_files = list(episode_dir.glob("*.json"))
+                if not json_files:
+                    self.logger.warning(f"No JSON files found in {episode_dir}")
+                
+                # Check for image files
+                image_files = list(episode_dir.glob("*.jpg")) + list(episode_dir.glob("*.png"))
+                if not image_files:
+                    self.logger.warning(f"No image files found in {episode_dir}")
+
     # @override
     def _get_frame_image(
         self,
