@@ -24,7 +24,7 @@ Base = declarative_base()
 # =====================
 
 
-class ConvertStatus(str, PyEnum):
+class TaskStatus(str, PyEnum):
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -156,7 +156,7 @@ class LeFormatConvertDB(Base):
     # ✅ 使用 dataset_uuid 作为关联字段
     dataset_uuid = Column(String(255), index=True, nullable=False)
 
-    convert_status = Column(Enum(ConvertStatus), default=ConvertStatus.PENDING, nullable=False)
+    convert_status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
     convert_path = Column(String(255), nullable=True)  # 移除 unique=True，允许多个不同路径
 
     updated_at = Column(
@@ -186,3 +186,33 @@ class EpisodeFrameDB(Base):
 
     episode_index = Column(Integer, index=True, nullable=False)
     frames_num = Column(Integer, nullable=False)
+
+
+# class SubtaskAnnotationDB(Base):
+#     __tablename__ = "subtask_annotations"
+
+#     id = Column(Integer, primary_key=True, index=True)
+
+#     # 存储 dataset_uuid（字符串格式）
+#     dataset_uuid = Column(String(255), index=True, nullable=False)  # 改为 255，与 datasets 表一致
+
+#     episode_index = Column(Integer, index=True, nullable=False, unique=True)
+#     frame_start_index = Column(Integer, index=True, nullable=False)
+#     frame_end_index = Column(Integer, index=True, nullable=False)
+#     subtask_annotation = Column(String(255), nullable=False)
+#     convert_status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
+
+
+class SubtaskAnnotationStatusDB(Base):
+    __tablename__ = "subtask_annotation_status"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # 存储 dataset_uuid（字符串格式）
+    dataset_uuid = Column(
+        String(255), index=True, nullable=False, unique=True
+    )  # 改为 255，与 datasets 表一致
+
+    annotation_status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
+
+    annotatio_file_path = Column(String(255), nullable=False, default="")

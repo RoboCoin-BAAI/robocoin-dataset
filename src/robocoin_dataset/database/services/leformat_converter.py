@@ -2,13 +2,13 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from robocoin_dataset.database.models import ConvertStatus, LeFormatConvertDB
+from robocoin_dataset.database.models import LeFormatConvertDB, TaskStatus
 
 
 def upsert_leformat_convert(
     session: Session,
     ds_uuid: str,
-    convert_status: ConvertStatus,
+    convert_status: TaskStatus,
     update_message: str | None = None,
     leformat_path: str | None = None,
 ) -> None:

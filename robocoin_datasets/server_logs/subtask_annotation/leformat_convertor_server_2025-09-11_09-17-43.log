@@ -1,0 +1,5 @@
+2025-09-11 09:17:43 | INFO     | leformat_convertor_server | The log system has been started, log file: /home/lxc/work/robocoin-dataset/robocoin_datasets/server_logs/subtask_annotation/leformat_convertor_server_2025-09-11_09-17-43.log
+2025-09-11 09:17:43 | INFO     | leformat_convertor_server | Task server started successfully: ws://0.0.0.0:8765
+2025-09-11 09:17:45 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_0 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:17:45 | ERROR    | leformat_convertor_server | Failed to process message: upsert_subtask_annotation_status() got an unexpected keyword argument 'subtask_annotation_file_path'
+2025-09-11 09:18:00 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_0

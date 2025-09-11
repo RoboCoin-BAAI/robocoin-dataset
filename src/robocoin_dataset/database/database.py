@@ -1,3 +1,4 @@
+import threading
 from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
@@ -15,6 +16,7 @@ class DatasetDatabase:
         self.session_local = None
         self._initialize()
         self._create_tables()
+        self._db_lock = threading.Lock()
 
     def _initialize(self) -> None:
         self.db_file = Path(self.db_file).expanduser().absolute()
@@ -37,12 +39,16 @@ class DatasetDatabase:
         安全的上下文管理器，确保 session 正确关闭。
         推荐在同步代码中使用。
         """
-        gen = self.get_session()
-        session = next(gen)
-        try:
-            yield session
-        finally:
-            gen.close()  # ✅ 触发 get_session 中的 finally
+        with self._db_lock:
+            gen = self.get_session()
+            session = next(gen)
+            try:
+                yield session
+            except Exception:
+                session.rollback()
+                raise
+            finally:
+                gen.close()  # ✅ 触发 get_session 中的 finally
 
     def _create_tables(self) -> None:
         Base.metadata.create_all(bind=self.engine)

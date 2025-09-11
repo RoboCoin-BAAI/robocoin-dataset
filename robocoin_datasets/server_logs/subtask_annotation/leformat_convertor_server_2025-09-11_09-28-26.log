@@ -1,0 +1,170 @@
+2025-09-11 09:28:26 | INFO     | leformat_convertor_server | The log system has been started, log file: /home/lxc/work/robocoin-dataset/robocoin_datasets/server_logs/subtask_annotation/leformat_convertor_server_2025-09-11_09-28-26.log
+2025-09-11 09:28:26 | INFO     | leformat_convertor_server | Task server started successfully: ws://0.0.0.0:8765
+2025-09-11 09:28:39 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_0 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:28:39 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_0
+2025-09-11 09:28:39 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_0 | Task ID: subtask_annotation_0
+2025-09-11 09:28:39 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:28:39 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_0
+2025-09-11 09:28:39 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_0 | Task ID: subtask_annotation_1
+2025-09-11 09:28:39 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:28:39 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_0
+2025-09-11 09:28:54 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_0
+2025-09-11 09:30:00 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_1 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:30:00 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_1
+2025-09-11 09:30:01 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_1 | Task ID: subtask_annotation_2
+2025-09-11 09:30:01 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:30:01 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_1
+2025-09-11 09:30:02 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_1 | Task ID: subtask_annotation_3
+2025-09-11 09:30:02 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:30:02 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_1
+2025-09-11 09:30:17 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_1
+2025-09-11 09:32:04 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_2 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:32:04 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_2
+2025-09-11 09:32:05 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_2 | Task ID: subtask_annotation_4
+2025-09-11 09:32:05 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:32:05 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_2
+2025-09-11 09:32:06 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_2 | Task ID: subtask_annotation_5
+2025-09-11 09:32:06 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:32:06 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_2
+2025-09-11 09:32:21 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_2
+2025-09-11 09:34:23 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_3 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:34:23 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_3
+2025-09-11 09:34:34 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_3 | Task ID: subtask_annotation_6
+2025-09-11 09:34:34 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:34:34 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_3
+2025-09-11 09:34:45 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_3 | Task ID: subtask_annotation_7
+2025-09-11 09:34:45 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:34:45 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_3
+2025-09-11 09:35:00 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_3
+2025-09-11 09:37:06 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_4 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:37:06 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_4
+2025-09-11 09:37:15 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_4 | Task ID: subtask_annotation_8
+2025-09-11 09:37:15 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:37:15 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_4
+2025-09-11 09:37:23 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_4 | Task ID: subtask_annotation_9
+2025-09-11 09:37:23 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:37:23 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_4
+2025-09-11 09:37:38 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_4
+2025-09-11 09:42:47 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_5 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:42:47 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_5
+2025-09-11 09:43:01 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_5
+2025-09-11 09:43:02 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_6 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:43:02 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_6
+2025-09-11 09:43:15 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_6 | Task ID: subtask_annotation_10
+2025-09-11 09:43:15 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:43:15 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_6
+2025-09-11 09:43:23 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_6 | Task ID: subtask_annotation_11
+2025-09-11 09:43:23 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:43:23 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_6
+2025-09-11 09:43:38 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_6
+2025-09-11 09:46:43 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_7 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:46:43 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_7
+2025-09-11 09:46:43 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_7 | Task ID: subtask_annotation_12
+2025-09-11 09:46:43 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:46:43 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_7
+2025-09-11 09:46:43 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_7 | Task ID: subtask_annotation_13
+2025-09-11 09:46:43 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:46:43 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_7
+2025-09-11 09:46:58 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_7
+2025-09-11 09:49:00 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_8 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:49:00 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_8
+2025-09-11 09:49:00 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_8 | Task ID: subtask_annotation_14
+2025-09-11 09:49:00 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:49:00 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_8
+2025-09-11 09:49:00 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_8 | Task ID: subtask_annotation_15
+2025-09-11 09:49:00 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:49:00 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_8
+2025-09-11 09:49:16 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_8
+2025-09-11 09:51:28 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_9 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:51:28 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_9
+2025-09-11 09:51:34 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_9 | Task ID: subtask_annotation_16
+2025-09-11 09:51:34 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:51:34 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_9
+2025-09-11 09:51:43 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_9 | Task ID: subtask_annotation_17
+2025-09-11 09:51:43 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:51:43 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_9
+2025-09-11 09:51:58 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_9
+2025-09-11 09:55:17 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_10 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:55:17 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_10
+2025-09-11 09:55:29 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_10 | Task ID: subtask_annotation_18
+2025-09-11 09:55:29 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:55:29 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_10
+2025-09-11 09:55:38 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_10 | Task ID: subtask_annotation_19
+2025-09-11 09:55:38 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 09:55:38 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_10
+2025-09-11 09:55:53 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_10
+2025-09-11 10:39:32 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_11 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 10:39:32 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_11
+2025-09-11 10:39:41 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_11 | Task ID: subtask_annotation_20
+2025-09-11 10:39:41 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 10:39:41 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_11
+2025-09-11 10:39:43 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_11
+2025-09-11 10:52:28 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_12 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 10:52:28 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_12
+2025-09-11 10:52:38 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_12 | Task ID: subtask_annotation_22
+2025-09-11 10:52:38 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 10:52:38 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_12
+2025-09-11 10:52:48 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_12 | Task ID: subtask_annotation_23
+2025-09-11 10:52:48 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 10:52:48 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_12
+2025-09-11 10:53:03 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_12
+2025-09-11 11:17:38 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_13 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:17:38 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_13
+2025-09-11 11:17:47 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_13
+2025-09-11 11:17:48 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_14 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:17:48 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_14
+2025-09-11 11:17:59 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_14 | Task ID: subtask_annotation_24
+2025-09-11 11:17:59 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:17:59 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_14
+2025-09-11 11:17:59 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_14
+2025-09-11 11:22:31 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_15 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:22:31 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_15
+2025-09-11 11:22:31 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_15 | Task ID: subtask_annotation_26
+2025-09-11 11:22:31 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:22:31 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_15
+2025-09-11 11:22:31 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_15 | Task ID: subtask_annotation_27
+2025-09-11 11:22:31 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:22:31 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_15
+2025-09-11 11:22:46 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_15
+2025-09-11 11:24:17 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_16 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:24:17 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_16
+2025-09-11 11:24:17 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_16 | Task ID: subtask_annotation_28
+2025-09-11 11:24:17 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:24:17 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_16
+2025-09-11 11:24:17 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_16 | Task ID: subtask_annotation_29
+2025-09-11 11:24:17 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:24:17 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_16
+2025-09-11 11:24:32 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_16
+2025-09-11 11:25:35 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_17 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:25:35 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_17
+2025-09-11 11:25:44 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_17 | Task ID: subtask_annotation_30
+2025-09-11 11:25:44 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:25:44 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_17
+2025-09-11 11:25:54 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_17 | Task ID: subtask_annotation_31
+2025-09-11 11:25:54 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:25:54 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_17
+2025-09-11 11:26:09 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_17
+2025-09-11 11:29:16 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_18 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:29:16 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_18
+2025-09-11 11:29:25 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_18 | Task ID: subtask_annotation_32
+2025-09-11 11:29:25 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:29:25 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_18
+2025-09-11 11:29:36 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_18 | Task ID: subtask_annotation_33
+2025-09-11 11:29:36 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:29:36 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_18
+2025-09-11 11:29:51 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_18
+2025-09-11 11:31:12 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_19 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:31:12 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_19
+2025-09-11 11:31:21 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_19 | Task ID: subtask_annotation_34
+2025-09-11 11:31:21 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:31:21 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_19
+2025-09-11 11:31:36 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_19
+2025-09-11 11:38:41 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_20 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 11:38:41 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_20
+2025-09-11 11:38:51 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_20 | Task ID: subtask_annotation_35
+2025-09-11 11:38:51 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:38:51 | INFO     | leformat_convertor_server | Assigned task task_id to client subtask_annotation_20
+2025-09-11 11:39:03 | INFO     | leformat_convertor_server | Received task result | Client ID: subtask_annotation_20 | Task ID: subtask_annotation_36
+2025-09-11 11:39:03 | ERROR    | leformat_convertor_server | Error handling task result: 
+2025-09-11 11:39:03 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_20
+2025-09-11 11:39:18 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_20

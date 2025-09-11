@@ -276,7 +276,7 @@ class LerobotFormatConverter:
     def _get_tasks(self) -> list[str]:
         dataset_info_file_path = self.dataset_path / LOCAL_DATASET_INFO_FILE
         if not dataset_info_file_path.exists():
-            raise ValueError(f"Dataset info file {dataset_info_file_path} not found in.")
+            raise ValueError(f"Dataset info file {dataset_info_file_path} not found.")
         with open(dataset_info_file_path) as file:
             ds_info_dict = yaml.safe_load(file)
             if not ds_info_dict:
@@ -640,10 +640,9 @@ class LerobotFormatConverterFactory:
         # Create logger from converter_log_dir if provided and logger is None
         if logger is None and converter_log_dir is not None:
             from robocoin_dataset.utils.logger import setup_logger
+
             logger = setup_logger(
-                name="lerobot_format_converter", 
-                log_dir=converter_log_dir, 
-                level=logging.INFO
+                name="lerobot_format_converter", log_dir=converter_log_dir, level=logging.INFO
             )
 
         module = importlib.import_module(converter_module_path)

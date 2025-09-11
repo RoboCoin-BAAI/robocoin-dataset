@@ -1,0 +1,5 @@
+2025-09-11 09:12:33 | INFO     | leformat_convertor_server | The log system has been started, log file: /home/lxc/work/robocoin-dataset/robocoin_datasets/server_logs/subtask_annotation/leformat_convertor_server_2025-09-11_09-12-33.log
+2025-09-11 09:12:33 | INFO     | leformat_convertor_server | Task server started successfully: ws://0.0.0.0:8765
+2025-09-11 09:12:35 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_0 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:12:35 | INFO     | leformat_convertor_server | No task available for client subtask_annotation_0
+2025-09-11 09:12:50 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_0

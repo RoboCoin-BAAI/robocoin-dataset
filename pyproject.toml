@@ -28,6 +28,7 @@ dependencies = [
   "natsort",
   "sqlalchemy",
   "websockets",
+  "dashscope",
 ] # project dependencies
 
 # scripts path

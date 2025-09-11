@@ -1,0 +1,5 @@
+2025-09-11 09:13:51 | INFO     | leformat_convertor_server | The log system has been started, log file: /home/lxc/work/robocoin-dataset/robocoin_datasets/server_logs/subtask_annotation/leformat_convertor_server_2025-09-11_09-13-51.log
+2025-09-11 09:13:51 | INFO     | leformat_convertor_server | Task server started successfully: ws://0.0.0.0:8765
+2025-09-11 09:13:53 | INFO     | leformat_convertor_server | Client registered successfully | ID: subtask_annotation_0 | IP: 172.16.13.93 | Current connections: 1
+2025-09-11 09:13:53 | ERROR    | leformat_convertor_server | Failed to process message: upsert_subtask_annotation_status() got an unexpected keyword argument 'db_instance'
+2025-09-11 09:14:08 | INFO     | leformat_convertor_server | Client disconnected | ID: subtask_annotation_0

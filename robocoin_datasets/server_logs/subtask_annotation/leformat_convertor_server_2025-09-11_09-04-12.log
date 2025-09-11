@@ -1,0 +1,2 @@
+2025-09-11 09:04:12 | INFO     | leformat_convertor_server | The log system has been started, log file: /home/lxc/work/robocoin-dataset/robocoin_datasets/server_logs/subtask_annotation/leformat_convertor_server_2025-09-11_09-04-12.log
+2025-09-11 09:04:12 | INFO     | leformat_convertor_server | Task server started successfully: ws://0.0.0.0:8765
