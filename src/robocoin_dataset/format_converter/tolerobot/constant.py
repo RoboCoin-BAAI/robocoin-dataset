@@ -71,10 +71,15 @@ CONVERTER_LOG_DIR = "converter_log_dir"
 CONVERTER_LOG_NAME = "converter_log_name"
 
 # Acceptable files
-LOCAL_DATASET_INFO_FILE = "local_dataset_info.json"
-LOCAL_TASK_INFO_FILE = "local_task_info.json"
-DESCRIPTION_TXT = "description.txt"
+LOCAL_DATASET_INFO_FILE = "local_dataset_info.yaml"
+LOCAL_TASK_INFO_FILE = "local_task_info.yaml"
+DATASET_UUID_FILE = "dataset_uuid.yaml"
+DESCRIPTION_TXT_FILE = "description.txt"
+DESCRIBE_TXT_FILE = "describe.txt"
 
 # Acceptable file extensions
 H5_SUFFIX = ".h5"
 HDF5_SUFFIX = ".hdf5"
+
+DEVICE_MODEL_VERSION_KEY = "version"
+DEFAULT_DEVICE_MODEL_VERSION = "default_version"

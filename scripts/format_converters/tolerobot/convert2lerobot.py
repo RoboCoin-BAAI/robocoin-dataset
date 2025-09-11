@@ -7,6 +7,10 @@ from pathlib import Path
 import yaml
 from tqdm import tqdm
 
+from robocoin_dataset.format_converter.tolerobot.constant import (
+    DEFAULT_DEVICE_MODEL_VERSION,
+    DEVICE_MODEL_VERSION_KEY,
+)
 from robocoin_dataset.format_converter.tolerobot.lerobot_format_converter import (
     LerobotFormatConverter,
     LerobotFormatConverterFactory,
@@ -25,6 +29,7 @@ def convert2lerobot(
     image_writer_processes: int = 4,
     image_writer_threads: int = 4,
     converter_log_dir: Path | None = None,
+    device_model_version: str | None = None,
 ) -> LerobotFormatConverter:
     """
     Convert dataset to lerobot format.
@@ -39,15 +44,35 @@ def convert2lerobot(
 
     with open(factory_config_path) as f:
         factory_config = yaml.safe_load(f)
-        converter_module_path = factory_config[device_model]["module"]
-        converter_class_name = factory_config[device_model]["class"]
+        device_model_configs_list = factory_config[device_model]
+        if device_model_configs_list is None:
+            raise ValueError(f"Device model {device_model} not found in factory config.")
 
-    if device_model not in factory_config:
-        raise ValueError(f"Device model {device_model} not found in factory config.")
+        if not isinstance(device_model_configs_list, list):
+            raise ValueError(f"Device model {device_model} config must be a list.")
 
-    converter_config_path = (
-        factory_config_path.parent / factory_config[device_model]["converter_config_path"]
-    )
+        converter_module_path: str | None = None
+        for device_model_config in device_model_configs_list:
+            if device_model_version is None:
+                if device_model_config[DEVICE_MODEL_VERSION_KEY] == DEFAULT_DEVICE_MODEL_VERSION:
+                    converter_module_path = device_model_config["module"]
+                    converter_class_name = device_model_config["class"]
+                    converter_config_path = (
+                        factory_config_path.parent / device_model_config["converter_config_path"]
+                    )
+                break
+            if device_model_config[DEVICE_MODEL_VERSION_KEY] == device_model_version:
+                converter_module_path = device_model_config["module"]
+                converter_class_name = device_model_config["class"]
+                converter_config_path = (
+                    factory_config_path.parent
+                    / factory_config[device_model]["converter_config_path"]
+                )
+                break
+        if converter_module_path is None:
+            raise ValueError(
+                f"Device model {device_model} with version {device_model_version} not found in factory config."
+            )
 
     with open(converter_config_path) as f:
         converter_config = yaml.safe_load(f)
@@ -138,7 +163,19 @@ def main() -> None:
         default="pyav",
         help="Backend for video processing (default: pyav)",
     )
+
+    argparser.add_argument(
+        "--device_model_version",
+        type=str,
+        default="none",
+        help="Device model version (default: none)",
+    )
+
     args = argparser.parse_args()
+    device_model_version = None
+    if args.device_model_version != "none":
+        device_model_version = args.device_model_version
+
     try:
         convert2lerobot(
             device_model=args.device_model,
@@ -151,6 +188,7 @@ def main() -> None:
             image_writer_processes=args.image_writer_processes,
             image_writer_threads=args.image_writer_threads,
             converter_log_dir=args.log_dir,
+            device_model_version=device_model_version,
         )
     except Exception:
         traceback.print_exc()
@@ -165,7 +203,7 @@ python scripts/format_converters/tolerobot/convert2lerobot.py \
 --dataset_path /home/lxc/Downloads/stir_coffee/stir_coffee_1 \
 --output_path ./outputs/lerobot_converter_test/stir_coffee_1 \
 --device_model realman_rmc_aidal \
---factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config.yaml \
+--factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config_test.yaml \
 --repo_id robocoin/realman_rmc_aidal_stir_coffee \
 --log_dir ./outputs/robocoin/logs \
 --image_writer_processes 10 \
@@ -176,7 +214,7 @@ python scripts/format_converters/tolerobot/convert2lerobot.py \
 --dataset_path /mnt/nas/11realman_rmc_aidal/pour_bowl_repeatedly \
 --output_path ./outputs/lerobot_converter/pour_bowl_repeatedly \
 --device_model realman_rmc_aidal \
---factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config.yaml \
+--factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config_test.yaml \
 --repo_id robocoin/realman_rmc_aidal_stir_coffee \
 --log_dir ./outputs/robocoin/logs \
 --image_writer_processes 10 \

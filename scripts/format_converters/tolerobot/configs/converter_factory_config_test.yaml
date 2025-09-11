@@ -1,4 +1,12 @@
 realman_rmc_aidal: 
-  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5_test
-  class: LerobotFormatConverterHdf5Test
+- version: default_version
+  verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
+  class: LerobotFormatConverterHdf5
+  converter_config_path: converter_config_realman_rmc_aidal.yaml
+
+- version: test_version
+  verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
+  class: LerobotFormatConverterHdf5
   converter_config_path: converter_config_realman_rmc_aidal.yaml
