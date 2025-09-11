@@ -46,8 +46,12 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
         
         # 配置时间对齐策略
         if alignment_config is None:
-            # 默认使用应急策略以保证兼容性
-            alignment_config = AlignmentConfig.emergency_config()
+            # 根据设备模型选择合适的对齐配置
+            if device_model and "galaxea" in device_model.lower():
+                alignment_config = AlignmentConfig.galaxea_config()
+            else:
+                # 默认使用应急策略以保证兼容性
+                alignment_config = AlignmentConfig.emergency_config()
         self.alignment_config = alignment_config
         
         # 初始化时间对齐组件（使用临时logger，如果没有提供的话）
@@ -71,6 +75,25 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
         if self.logger != temp_logger:
             self.time_aligner = create_time_aligner(alignment_config, self.logger)
             self.sync_analyzer = TimeSyncAnalyzer(self.logger)
+
+    def _prevalidate_files(self) -> None:
+        """验证ROS bag数据集文件结构"""
+        for path in self.path_task_dict.keys():
+            if not path.exists():
+                raise FileNotFoundError(f"{path} does not exist")
+            if path.is_file():
+                raise ValueError(f"{path} is a file, expected directory")
+
+            # 检查是否有.bag文件
+            bag_files = list(path.glob("*.bag"))
+            if not bag_files:
+                raise ValueError(f"No .bag files found in {path}")
+            
+            # 验证bag文件可读性
+            for bag_file in bag_files:
+                if not bag_file.is_file():
+                    raise ValueError(f"Bag file {bag_file} is not a valid file")
+                # 可以添加更多ROS bag特定的验证
 
     # @override
     def _get_frame_image(
