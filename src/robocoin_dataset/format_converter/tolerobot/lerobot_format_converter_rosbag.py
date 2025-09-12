@@ -89,11 +89,207 @@ class LerobotFormatConverterRosbag(LerobotFormatConverter):
             if not bag_files:
                 raise ValueError(f"No .bag files found in {path}")
             
-            # 验证bag文件可读性
-            for bag_file in bag_files:
+            # 验证每个bag文件
+            for i, bag_file in enumerate(bag_files):
                 if not bag_file.is_file():
                     raise ValueError(f"Bag file {bag_file} is not a valid file")
-                # 可以添加更多ROS bag特定的验证
+                
+                # Enhanced validation: validate each bag file's internal structure
+                self._validate_rosbag_structure(bag_file, i)
+
+    def _validate_rosbag_structure(self, bag_file: Path, ep_idx: int) -> None:
+        """Validate internal ROS bag structure against configuration"""
+        try:
+            if self.logger:
+                self.logger.info(f"Validating ROS bag structure: {bag_file}")
+            
+            # Read bag topics and message types
+            available_topics = {}
+            topic_msg_counts = {}
+            topic_time_ranges = {}
+            
+            with AnyReader([bag_file]) as reader:
+                # Get topic information
+                for connection in reader.connections:
+                    topic_name = connection.topic
+                    msg_type = connection.msgtype
+                    available_topics[topic_name] = msg_type
+                    topic_msg_counts[topic_name] = 0
+                    topic_time_ranges[topic_name] = {'min': None, 'max': None}
+                
+                # Sample messages to validate structure and count messages
+                sample_limit = 100  # Limit sampling for performance
+                sample_count = 0
+                
+                for connection, timestamp, rawdata in reader.messages():
+                    topic_name = connection.topic
+                    topic_msg_counts[topic_name] += 1
+                    
+                    # Update time ranges
+                    if topic_time_ranges[topic_name]['min'] is None or timestamp < topic_time_ranges[topic_name]['min']:
+                        topic_time_ranges[topic_name]['min'] = timestamp
+                    if topic_time_ranges[topic_name]['max'] is None or timestamp > topic_time_ranges[topic_name]['max']:
+                        topic_time_ranges[topic_name]['max'] = timestamp
+                    
+                    # Sample messages for structure validation
+                    if sample_count < sample_limit:
+                        try:
+                            msg = reader.deserialize(rawdata, connection.msgtype)
+                            self._validate_message_structure(msg, topic_name, connection.msgtype)
+                        except Exception as e:
+                            if self.logger:
+                                self.logger.warning(f"Failed to deserialize message from {topic_name}: {e}")
+                        sample_count += 1
+            
+            if self.logger:
+                self.logger.info(f"Available topics ({len(available_topics)}): {sorted(available_topics.keys())}")
+                for topic, msg_type in available_topics.items():
+                    count = topic_msg_counts[topic]
+                    time_range = topic_time_ranges[topic]
+                    duration = (time_range['max'] - time_range['min']) / 1e9 if time_range['min'] and time_range['max'] else 0
+                    self.logger.info(f"  {topic}: {msg_type} ({count} msgs, {duration:.2f}s)")
+            
+            # Validate against configuration
+            self._validate_topics_against_config(available_topics, topic_msg_counts)
+            
+            if self.logger:
+                self.logger.info(f"ROS bag structure validation completed for {bag_file}")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating ROS bag structure: {e}")
+            # Don't raise exception to avoid breaking conversion, just log the issue
+
+    def _validate_topics_against_config(self, available_topics: dict, topic_msg_counts: dict) -> None:
+        """Validate available topics against configuration requirements"""
+        try:
+            # Get expected topics from configuration
+            expected_image_topics = set()
+            expected_state_topics = set()
+            expected_action_topics = set()
+            
+            if hasattr(self, 'converter_config') and self.converter_config:
+                # Extract image topics
+                features = self.converter_config.get('features', {})
+                observation = features.get('observation', {})
+                images = observation.get('images', [])
+                
+                for image_config in images:
+                    if 'args' in image_config and 'topic_name' in image_config['args']:
+                        topic_name = image_config['args']['topic_name']
+                        expected_image_topics.add(topic_name)
+                
+                # Extract state topics
+                state_config = observation.get('state', {})
+                if 'sub_state' in state_config:
+                    for sub_state in state_config['sub_state']:
+                        if 'args' in sub_state and 'topic_name' in sub_state['args']:
+                            topic_name = sub_state['args']['topic_name']
+                            expected_state_topics.add(topic_name)
+                
+                # Extract action topics
+                action_config = features.get('action', {})
+                if 'sub_action' in action_config:
+                    for sub_action in action_config['sub_action']:
+                        if 'args' in sub_action and 'topic_name' in sub_action['args']:
+                            topic_name = sub_action['args']['topic_name']
+                            expected_action_topics.add(topic_name)
+            
+            all_expected_topics = expected_image_topics | expected_state_topics | expected_action_topics
+            available_topic_names = set(available_topics.keys())
+            
+            # Check for missing topics
+            missing_topics = all_expected_topics - available_topic_names
+            if missing_topics:
+                if self.logger:
+                    self.logger.warning(f"Missing expected topics: {sorted(missing_topics)}")
+            
+            # Check for found topics
+            found_topics = all_expected_topics & available_topic_names
+            if self.logger:
+                self.logger.info(f"Validated topics ({len(found_topics)}): {sorted(found_topics)}")
+                
+                # Log topic categories
+                found_image_topics = expected_image_topics & available_topic_names
+                found_state_topics = expected_state_topics & available_topic_names
+                found_action_topics = expected_action_topics & available_topic_names
+                
+                if found_image_topics:
+                    self.logger.info(f"  Image topics ({len(found_image_topics)}): {sorted(found_image_topics)}")
+                if found_state_topics:
+                    self.logger.info(f"  State topics ({len(found_state_topics)}): {sorted(found_state_topics)}")
+                if found_action_topics:
+                    self.logger.info(f"  Action topics ({len(found_action_topics)}): {sorted(found_action_topics)}")
+            
+            # Check message counts for critical topics
+            for topic in found_topics:
+                count = topic_msg_counts.get(topic, 0)
+                if count == 0:
+                    if self.logger:
+                        self.logger.warning(f"Topic {topic} has no messages")
+                elif count < 10:
+                    if self.logger:
+                        self.logger.warning(f"Topic {topic} has very few messages ({count})")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating topics against configuration: {e}")
+
+    def _validate_message_structure(self, msg: object, topic_name: str, msg_type: str) -> None:
+        """Validate individual message structure"""
+        try:
+            # Validate image messages
+            if 'Image' in msg_type:
+                if hasattr(msg, 'data') and hasattr(msg, 'height') and hasattr(msg, 'width'):
+                    if len(msg.data) == 0:
+                        if self.logger:
+                            self.logger.warning(f"Empty image data in topic {topic_name}")
+                    elif msg.height <= 0 or msg.width <= 0:
+                        if self.logger:
+                            self.logger.warning(f"Invalid image dimensions in topic {topic_name}: {msg.width}x{msg.height}")
+                else:
+                    if self.logger:
+                        self.logger.warning(f"Missing image fields in topic {topic_name}")
+            
+            # Validate compressed image messages
+            elif 'CompressedImage' in msg_type:
+                if hasattr(msg, 'data') and hasattr(msg, 'format'):
+                    if len(msg.data) == 0:
+                        if self.logger:
+                            self.logger.warning(f"Empty compressed image data in topic {topic_name}")
+                else:
+                    if self.logger:
+                        self.logger.warning(f"Missing compressed image fields in topic {topic_name}")
+            
+            # Validate joint state messages
+            elif 'JointState' in msg_type:
+                if hasattr(msg, 'name') and hasattr(msg, 'position'):
+                    if len(msg.name) != len(msg.position):
+                        if self.logger:
+                            self.logger.warning(f"Mismatched joint names and positions in topic {topic_name}")
+                    elif len(msg.position) == 0:
+                        if self.logger:
+                            self.logger.warning(f"Empty joint state data in topic {topic_name}")
+                else:
+                    if self.logger:
+                        self.logger.warning(f"Missing joint state fields in topic {topic_name}")
+            
+            # Validate IMU messages
+            elif 'Imu' in msg_type:
+                if not (hasattr(msg, 'linear_acceleration') and hasattr(msg, 'angular_velocity')):
+                    if self.logger:
+                        self.logger.warning(f"Missing IMU fields in topic {topic_name}")
+            
+            # Validate Twist messages
+            elif 'Twist' in msg_type:
+                twist_msg = msg.twist if hasattr(msg, 'twist') else msg
+                if not (hasattr(twist_msg, 'linear') and hasattr(twist_msg, 'angular')):
+                    if self.logger:
+                        self.logger.warning(f"Missing Twist fields in topic {topic_name}")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.warning(f"Error validating message structure for topic {topic_name}: {e}")
 
     # @override
     def _get_frame_image(
