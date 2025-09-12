@@ -18,6 +18,7 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     FEATURES_KEY,
     H5_SUFFIX,
     HDF5_SUFFIX,
+    IMAGE_KEY,
     LOCAL_DATASET_INFO_FILE,
     LOCAL_TASK_INFO_FILE,
     OBSERVATION_KEY,
@@ -121,6 +122,91 @@ class LerobotFormatConverterHdf5(LerobotFormatConverter):
             err_msg = "Found unexpected files in dataset directory:"
             err_msg += "\n".join(f"{path}" for path in unexpected_files)
             raise Exception(err_msg)
+        
+        # 验证HDF5文件内部结构
+        self._validate_h5_structure()
+
+    def _validate_h5_structure(self) -> None:
+        """验证HDF5文件内部结构是否与配置的版本相符"""
+        if self.logger:
+            self.logger.info("Validating HDF5 internal structure...")
+        
+        # 收集所有需要验证的路径
+        required_paths = set()
+        
+        # 从图像配置中收集路径
+        for image_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][IMAGE_KEY]:
+            if ARGS_KEY in image_config and "h5_path" in image_config[ARGS_KEY]:
+                required_paths.add(image_config[ARGS_KEY]["h5_path"])
+        
+        # 从状态配置中收集路径
+        for state_config in self.converter_config[FEATURES_KEY][OBSERVATION_KEY][STATE_KEY][SUB_STATE_KEY]:
+            if ARGS_KEY in state_config and "h5_path" in state_config[ARGS_KEY]:
+                required_paths.add(state_config[ARGS_KEY]["h5_path"])
+        
+        # 从动作配置中收集路径
+        if "sub_actions" in self.converter_config[FEATURES_KEY]["action"]:
+            for action_config in self.converter_config[FEATURES_KEY]["action"]["sub_actions"]:
+                if ARGS_KEY in action_config and "h5_path" in action_config[ARGS_KEY]:
+                    required_paths.add(action_config[ARGS_KEY]["h5_path"])
+        
+        if not required_paths:
+            if self.logger:
+                self.logger.warning("No h5_path found in configuration, skipping H5 structure validation")
+            return
+        
+        # 验证每个任务路径下的H5文件
+        validation_errors = []
+        for task_path in self.path_task_dict.keys():
+            h5_files = self.task_episode_h5file_paths.get(task_path, [])
+            
+            if not h5_files:
+                validation_errors.append(f"No H5 files found in task path: {task_path}")
+                continue
+            
+            # 验证第一个H5文件作为样本（假设同一任务下的H5文件结构一致）
+            sample_h5_file = h5_files[0]
+            try:
+                with h5py.File(sample_h5_file, "r") as h5_file:
+                    missing_paths = []
+                    invalid_paths = []
+                    
+                    for required_path in required_paths:
+                        if required_path not in h5_file:
+                            missing_paths.append(required_path)
+                        else:
+                            # 检查是否为有效的数据集
+                            try:
+                                dataset = h5_file[required_path]
+                                if not isinstance(dataset, h5py.Dataset):
+                                    invalid_paths.append(f"{required_path} (not a dataset)")
+                                elif len(dataset.shape) == 0:
+                                    invalid_paths.append(f"{required_path} (empty dataset)")
+                            except Exception as e:
+                                invalid_paths.append(f"{required_path} (error: {e})")
+                    
+                    if missing_paths:
+                        validation_errors.append(
+                            f"Missing required paths in {sample_h5_file}: {missing_paths}"
+                        )
+                    
+                    if invalid_paths:
+                        validation_errors.append(
+                            f"Invalid datasets in {sample_h5_file}: {invalid_paths}"
+                        )
+                    
+                    if self.logger and not missing_paths and not invalid_paths:
+                        self.logger.info(f"H5 structure validation passed for task: {task_path}")
+                        
+            except Exception as e:
+                validation_errors.append(f"Error reading H5 file {sample_h5_file}: {e}")
+        
+        if validation_errors:
+            error_msg = "H5 structure validation failed:\n" + "\n".join(validation_errors)
+            raise ValueError(error_msg)
+        
+        if self.logger:
+            self.logger.info("H5 structure validation completed successfully")
 
     def _get_frame_image(
         self,
