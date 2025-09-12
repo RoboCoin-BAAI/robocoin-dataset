@@ -84,6 +84,9 @@ class LerobotFormatConverterLerobot(LerobotFormatConverter):
             if not parquet_files:
                 if self.logger:
                     self.logger.warning(f"No parquet files found in {data_dir}")
+            else:
+                # Enhanced validation: check parquet structure against configuration
+                self._validate_lerobot_structure(parquet_files[0])
         else:
             if self.logger:
                 self.logger.warning(f"Data directory {data_dir} does not exist")
@@ -103,6 +106,86 @@ class LerobotFormatConverterLerobot(LerobotFormatConverter):
         if videos_dir.exists() and self.logger:
             video_chunks = list(videos_dir.glob("chunk-*"))
             self.logger.info(f"Found {len(video_chunks)} video chunks in {videos_dir}")
+
+    def _validate_lerobot_structure(self, parquet_file: Path) -> None:
+        """Validate internal LeRobot parquet structure against configuration"""
+        try:
+            import pandas as pd
+            
+            if self.logger:
+                self.logger.info(f"Validating LeRobot parquet structure: {parquet_file}")
+            
+            # Read a small sample to check column structure
+            df = pd.read_parquet(parquet_file, engine='pyarrow')
+            available_columns = set(df.columns)
+            
+            if self.logger:
+                self.logger.info(f"Available parquet columns: {sorted(available_columns)}")
+            
+            # Get expected fields from configuration
+            expected_state_fields = set()
+            expected_action_fields = set()
+            expected_image_fields = set()
+            
+            # Extract expected state fields from configuration
+            if hasattr(self, 'converter_config') and self.converter_config:
+                state_config = self.converter_config.get('state', {})
+                if 'sub_state' in state_config:
+                    for sub_state in state_config['sub_state']:
+                        if 'names' in sub_state:
+                            expected_state_fields.update(sub_state['names'])
+                
+                # Extract expected action fields from configuration
+                action_config = self.converter_config.get('action', {})
+                if 'sub_action' in action_config:
+                    for sub_action in action_config['sub_action']:
+                        if 'names' in sub_action:
+                            expected_action_fields.update(sub_action['names'])
+                
+                # Extract expected image fields from configuration
+                image_config = self.converter_config.get('image', {})
+                if 'sub_image' in image_config:
+                    for sub_image in image_config['sub_image']:
+                        if 'names' in sub_image:
+                            expected_image_fields.update(sub_image['names'])
+            
+            # Validate state fields
+            missing_state_fields = expected_state_fields - available_columns
+            if missing_state_fields:
+                if self.logger:
+                    self.logger.warning(f"Missing state fields in parquet: {sorted(missing_state_fields)}")
+            
+            # Validate action fields
+            missing_action_fields = expected_action_fields - available_columns
+            if missing_action_fields:
+                if self.logger:
+                    self.logger.warning(f"Missing action fields in parquet: {sorted(missing_action_fields)}")
+            
+            # Validate image fields (these may be stored differently)
+            missing_image_fields = expected_image_fields - available_columns
+            if missing_image_fields:
+                if self.logger:
+                    self.logger.info(f"Image fields not found in parquet (may be in video files): {sorted(missing_image_fields)}")
+            
+            # Check for common LeRobot standard columns
+            standard_columns = {'timestamp', 'episode_index', 'frame_index'}
+            missing_standard = standard_columns - available_columns
+            if missing_standard:
+                if self.logger:
+                    self.logger.warning(f"Missing standard LeRobot columns: {sorted(missing_standard)}")
+            
+            # Log successful validation
+            if self.logger:
+                found_state_fields = expected_state_fields & available_columns
+                found_action_fields = expected_action_fields & available_columns
+                self.logger.info(f"Validated state fields ({len(found_state_fields)}): {sorted(found_state_fields)}")
+                self.logger.info(f"Validated action fields ({len(found_action_fields)}): {sorted(found_action_fields)}")
+                self.logger.info(f"LeRobot structure validation completed for {parquet_file}")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating LeRobot structure: {e}")
+            # Don't raise exception to avoid breaking conversion, just log the issue
 
     def _load_metadata(self) -> None:
         """Load LeRobot dataset metadata"""
