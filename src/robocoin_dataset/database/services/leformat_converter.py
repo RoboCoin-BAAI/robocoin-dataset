@@ -42,7 +42,7 @@ def upsert_leformat_convert(
             item.convert_status = convert_status
             item.updated_at = datetime.now()
             if update_message is not None:
-                item.update_message = update_message
+                item.err_message = update_message
             if leformat_path is not None:
                 item.convert_path = leformat_path
 

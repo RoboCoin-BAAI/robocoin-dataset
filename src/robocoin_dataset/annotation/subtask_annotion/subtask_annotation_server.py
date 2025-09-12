@@ -2,15 +2,16 @@ import logging
 import threading
 from pathlib import Path
 
-from robocoin_dataset.annotation.constant import (
+from robocoin_dataset.annotation.subtask_annotion.constant import (
     DS_API_KEY,
-    SUBTASK_ANNOTATION_FILE_NAME,
-    SUBTASK_ANNOTATION_FILE_PATH,
+    SUBTASK_ANNOTATION_SOURCE_FILE_NAME,
+    SUBTASK_ANNOTATION_SOURCE_FILE_PATH,
+    SUBTASK_ANNOTATION_TARGET_FILE_PATH,
 )
 from robocoin_dataset.database.database import DatasetDatabase
 from robocoin_dataset.database.models import (
     LeFormatConvertDB,
-    SubtaskAnnotationStatusDB,
+    SubtaskAnnotationDB,
     TaskStatus,
 )
 from robocoin_dataset.database.services.subtask_annotation import (
@@ -18,6 +19,10 @@ from robocoin_dataset.database.services.subtask_annotation import (
 )
 from robocoin_dataset.distribution_computation.constant import (
     DATASET_UUID,
+    ERR_MSG,
+    TASK_RESULT_CONTENT,
+    TASK_RESULT_STATUS,
+    TASK_SUCCESS,
 )
 from robocoin_dataset.distribution_computation.task_server import TaskServer
 
@@ -49,22 +54,18 @@ class SubtaskAnnotationTaskServer(TaskServer):
         return "subtask_annotation"
 
     def generate_task_content(self) -> dict | None:
-        print("generate_task_content")
         with self._db_lock:
             with self.db.with_session() as session:
                 results = (
                     session.query(LeFormatConvertDB)
                     .filter(LeFormatConvertDB.convert_status == TaskStatus.COMPLETED)
                     .filter(
-                        ~session.query(SubtaskAnnotationStatusDB)
-                        .filter(
-                            LeFormatConvertDB.dataset_uuid == SubtaskAnnotationStatusDB.dataset_uuid
-                        )
+                        ~session.query(SubtaskAnnotationDB)
+                        .filter(LeFormatConvertDB.dataset_uuid == SubtaskAnnotationDB.dataset_uuid)
                         .exists()
                     )
                     .all()
                 )
-            print(f"{len(results)} results found")
 
             if not results:
                 return None
@@ -79,20 +80,46 @@ class SubtaskAnnotationTaskServer(TaskServer):
 
                 leformat_path = leformat_item.convert_path
 
-                subtask_annotation_file_path = str(
-                    Path(leformat_path) / SUBTASK_ANNOTATION_FILE_NAME
+                subtask_annotation_source_file_path = str(
+                    Path(leformat_path) / SUBTASK_ANNOTATION_SOURCE_FILE_NAME
                 )
 
                 upsert_subtask_annotation_status(
                     ds_uuid=item.dataset_uuid,
                     session=session,
-                    subtask_annotation_file_path=subtask_annotation_file_path,
                 )
 
                 return {
                     DATASET_UUID: item.dataset_uuid,
-                    SUBTASK_ANNOTATION_FILE_PATH: subtask_annotation_file_path,
+                    SUBTASK_ANNOTATION_SOURCE_FILE_PATH: subtask_annotation_source_file_path,
                     DS_API_KEY: self.ds_api_key,
                 }
 
         return None
+
+    def handle_task_result(self, task_content: dict, task_result_content: dict) -> None:
+        print(task_content)
+        print(task_result_content)
+        ds_uuid = task_content.get(DATASET_UUID)
+
+        task_status = task_result_content.get(TASK_RESULT_STATUS)
+        err_msg = task_result_content.get(ERR_MSG)
+        subtask_annotation_target_file_path = task_result_content[TASK_RESULT_CONTENT][
+            SUBTASK_ANNOTATION_TARGET_FILE_PATH
+        ]
+
+        print(subtask_annotation_target_file_path)
+
+        task_status = TaskStatus.COMPLETED if task_status == TASK_SUCCESS else TaskStatus.FAILED
+
+        with self.db.with_session() as session:
+            upsert_subtask_annotation_status(
+                session=session,
+                ds_uuid=ds_uuid,
+                subtask_annotation_file_path=subtask_annotation_target_file_path,
+                subtask_annotation_status=task_status,
+                err_msg=err_msg,
+            )
+            self.logger.info(
+                f"Upsert {ds_uuid} subtask annotation status to {task_status}, update_message: {err_msg}"
+            )

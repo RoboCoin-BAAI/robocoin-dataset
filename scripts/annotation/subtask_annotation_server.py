@@ -1,20 +1,11 @@
-# class SubTaskAnnotationTaskServer(TaskServer):
-#     def __init__(
-#         self,
-#         db_file: Path,
-#         ds_api_key: str,
-#         host: str = "0.0.0.0",
-#         port: int = 8765,
-#         heartbeat_interval: float = 30.0,  # 服务端每30秒发一次 ping
-#         timeout: float = 15.0,  # 等待 pong 超过15秒则断开
-#         logger: logging.Logger | None = None,
-#     ) -> None:
 import argparse
 import asyncio
 import logging
 from pathlib import Path
 
-from robocoin_dataset.annotation.subtask_annotation_server import SubtaskAnnotationTaskServer
+from robocoin_dataset.annotation.subtask_annotion.subtask_annotation_server import (
+    SubtaskAnnotationTaskServer,
+)
 from robocoin_dataset.utils.logger import setup_logger
 
 
@@ -91,10 +82,26 @@ if __name__ == "__main__":
 python scripts/annotation/subtask_annotation_server.py \
     --db-file=db/datasets.db \
     --host=0.0.0.0 \
-    --port=8765 \
+    --port=8755 \
     --timeout=1.0 \
-    --heartbeat-interval=100000.0 \
+    --heartbeat-interval=100.0 \
     --log-path=./robocoin_datasets/server_logs/subtask_annotation/ \
     --ds-api-key=sk-a3c8736391cf43809957329f28cac287 
+
+# test
+python scripts/annotation/subtask_annotation_server.py \
+    --db-file=db/datasets.db \
+    --host=0.0.0.0 \
+    --port=8755 \
+    --timeout=1.0 \
+    --heartbeat-interval=100.0 \
+    --log-path=./robocoin_datasets/server_logs/subtask_annotation/ \
+    --ds-api-key=sk-a3c8736391cf43809957329f28cac287 
+    
+    
+17e499db-67f9-4c81-bbd3-937989902c26
+/mnt/nas/robocoin_datasets/realman_rmc_aidal_food_storage
+2025-09-11 19:40:46.704760
+COMPLETED
 
 """

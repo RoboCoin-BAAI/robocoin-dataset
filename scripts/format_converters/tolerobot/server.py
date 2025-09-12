@@ -120,7 +120,7 @@ if __name__ == "__main__":
 """ usage:
 python scripts/format_converters/tolerobot/server.py \
     --db-file=db/datasets.db \
-    --host=0.0.0.0 \
+    --host=172.16.18.160 \
     --port=8765 \
     --timeout=1.0 \
     --converter-factory-config-path=scripts/format_converters/tolerobot/configs/converter_factory_config.yaml \

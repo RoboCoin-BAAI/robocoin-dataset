@@ -18,12 +18,11 @@ MSG_CONTENT = "msg_content"
 
 CLIENT_ID = "client_id"
 CLIENT_IP = "client_ip"
-TASK_REQUEST_CONTENT = "task_request_content"
 TASK_CATEGORY = "task_category"
 TASK_CONTENT = "task_content"
 TASK_ID = "task_id"
 TASK_RESULT_STATUS = "task_result_status"
-TASK_RESULT_MSG = "task_result_msg"
+ERR_MSG = "task_err_msg"
 
 TASK_RESULT_CONTENT = "task_result_content"
 

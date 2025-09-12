@@ -17,7 +17,7 @@ from robocoin_dataset.distribution_computation.constant import (
     DATASET_PATH,
     DATASET_UUID,
     DEVICE_MODEL,
-    TASK_RESULT_MSG,
+    ERR_MSG,
     TASK_RESULT_STATUS,
     TASK_SUCCESS,
 )
@@ -227,7 +227,7 @@ class LeFormatConverterTaskServer(TaskServer):
         leformat_path = task_content.get(LEFORMAT_PATH, "")
 
         task_status = task_result_content.get(TASK_RESULT_STATUS)
-        task_status_msg = task_result_content.get(TASK_RESULT_MSG)
+        task_status_msg = task_result_content.get(ERR_MSG)
 
         convert_status = TaskStatus.COMPLETED if task_status == TASK_SUCCESS else TaskStatus.FAILED
 

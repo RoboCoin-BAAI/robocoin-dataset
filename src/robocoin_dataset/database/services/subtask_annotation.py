@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from robocoin_dataset.database.models import (
-    SubtaskAnnotationStatusDB,
+    SubtaskAnnotationDB,
     TaskStatus,
 )
 
@@ -39,6 +39,7 @@ def upsert_subtask_annotation_status(
     ds_uuid: str,
     subtask_annotation_file_path: str = "",
     subtask_annotation_status: TaskStatus = TaskStatus.PROCESSING,
+    err_msg: str = "",
 ) -> None:
     """
     Upsert a subtask annotation by episode_index using DatasetDatabase.with_session.
@@ -55,18 +56,19 @@ def upsert_subtask_annotation_status(
     try:
         # 查询是否存在
         item = (
-            session.query(SubtaskAnnotationStatusDB)
-            .filter(SubtaskAnnotationStatusDB.dataset_uuid == ds_uuid)
+            session.query(SubtaskAnnotationDB)
+            .filter(SubtaskAnnotationDB.dataset_uuid == ds_uuid)
             .first()
         )
 
         if item is None:
             # 创建新记录
-            item = SubtaskAnnotationStatusDB(
+            item = SubtaskAnnotationDB(
                 dataset_uuid=ds_uuid,
             )
         item.annotation_status = subtask_annotation_status
         item.annotatio_file_path = subtask_annotation_file_path
+        item.err_message = err_msg
 
         session.add(item)
         session.commit()

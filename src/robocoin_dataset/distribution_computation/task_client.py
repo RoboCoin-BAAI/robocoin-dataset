@@ -11,6 +11,7 @@ from websockets.legacy.client import connect
 from .constant import (
     CLIENT_ID,
     CLIENT_IP,
+    ERR_MSG,
     ERROR,
     ERROR_MSG,
     MSG_CONTENT,
@@ -26,10 +27,8 @@ from .constant import (
     TASK_CONTENT,
     TASK_FAILED,
     TASK_ID,
-    TASK_REQUEST_CONTENT,
     TASK_RESULT,
     TASK_RESULT_CONTENT,
-    TASK_RESULT_MSG,
     TASK_RESULT_STATUS,
     TASK_SUCCESS,
 )
@@ -313,13 +312,13 @@ class TaskClient:
             task_result_content = await loop.run_in_executor(
                 None, self._sync_process_task, task_data
             )
-            return {TASK_RESULT_STATUS: TASK_SUCCESS, TASK_REQUEST_CONTENT: task_result_content}
+            return {TASK_RESULT_STATUS: TASK_SUCCESS, TASK_RESULT_CONTENT: task_result_content}
         except Exception:
             if self.logger:
                 self.logger.error(f"Task {task_id} failed. {traceback.format_exc()}")
             return {
                 TASK_RESULT_STATUS: TASK_FAILED,
-                TASK_RESULT_MSG: f"Task {task_id} failed. {traceback.format_exc()}",
+                ERR_MSG: f"Task {task_id} failed. {traceback.format_exc()}",
                 TASK_RESULT_CONTENT: {},
             }
 

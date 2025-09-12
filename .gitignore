@@ -82,3 +82,5 @@ db/
 
 alembic/
 alembic.ini
+
+robocoin_datasets/server_logs/

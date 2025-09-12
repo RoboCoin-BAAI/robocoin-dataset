@@ -167,7 +167,7 @@ class LeFormatConvertDB(Base):
     )
 
     # 📝 新增字段：最后更新信息（可用于记录状态变更详情、错误信息等）
-    update_message = Column(
+    err_message = Column(
         Text,  # 使用 Text 类型支持较长内容
         nullable=True,  # 允许为空，初始无信息
     )
@@ -203,8 +203,8 @@ class EpisodeFrameDB(Base):
 #     convert_status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
 
 
-class SubtaskAnnotationStatusDB(Base):
-    __tablename__ = "subtask_annotation_status"
+class SubtaskAnnotationDB(Base):
+    __tablename__ = "subtask_annotation"
 
     id = Column(Integer, primary_key=True, index=True)
 
@@ -215,11 +215,13 @@ class SubtaskAnnotationStatusDB(Base):
 
     annotation_status = Column(Enum(TaskStatus), default=TaskStatus.PENDING, nullable=False)
 
-    annotatio_file_path = Column(String(255), nullable=False, default="")
+    annotatio_file_path = Column(String(255), nullable=True, default="")
+
+    err_message = Column(String(255), nullable=True, default="")
 
 
 class DmvAnnotationDB(Base):
-    __tablename__ = "device_model_version_annotation"
+    __tablename__ = "device_model_annotation"
 
     id = Column(Integer, primary_key=True, index=True)
 

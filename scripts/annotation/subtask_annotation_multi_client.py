@@ -3,7 +3,9 @@ import asyncio
 import logging
 import multiprocessing as mp
 
-from robocoin_dataset.annotation.subtask_annotation_client import SubtaskAnnotationTaskClient
+from robocoin_dataset.annotation.subtask_annotion.subtask_annotation_client import (
+    SubtaskAnnotationTaskClient,
+)
 from robocoin_dataset.utils.logger import setup_logger
 
 
@@ -110,8 +112,6 @@ def main() -> None:
         proc.start()
         processes.append(proc)
 
-    print(f"Started {num_clients} client processes. Waiting for them to finish...")
-
     try:
         for proc in processes:
             proc.join()  # 等待所有进程结束
@@ -128,10 +128,19 @@ if __name__ == "__main__":
     main()
 
 
-"""_summary_
+"""usage
+python scripts/annotation/subtask_annotation_multi_client.py \
+    --host=172.16.18.160 \
+    --port=8765 \
+    --timeout=1.0 \
+    --heartbeat-interval=10.0 \
+    --log-path=./outputs/leformat_converter/log \
+    --num-clients=1
+
+# test
 python scripts/annotation/subtask_annotation_multi_client.py \
     --host=127.0.0.1 \
-    --port=8765 \
+    --port=8755 \
     --timeout=1.0 \
     --heartbeat-interval=10.0 \
     --log-path=./outputs/leformat_converter/log \
