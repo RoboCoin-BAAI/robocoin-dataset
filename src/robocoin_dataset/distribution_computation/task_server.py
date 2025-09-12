@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 from abc import abstractmethod
+import traceback
 
 from websockets.exceptions import ConnectionClosed
 from websockets.legacy.server import WebSocketServerProtocol, serve
@@ -210,7 +211,7 @@ class TaskServer:
             }
             await websocket.send(json.dumps(error_msg))
         except Exception as e:
-            self.logger.error(f"Failed to process message: {e}")
+            self.logger.error(f"Failed to process message: {traceback.format_exc()}")
             error_msg = {
                 MSG_TYPE: ERROR,
                 MSG_CONTENT: {

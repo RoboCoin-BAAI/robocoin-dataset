@@ -17,5 +17,5 @@ if __name__ == "__main__":
     annotate_device_model(db_file_path=args.db_file_path)
 
 """ usage:
-python scripts/annotation/device_model_annotation.py ./db/datasets.db
+python scripts/annotation/device_model_annotation.py /home/adminpc1/Desktop/3/datasets.db
 """

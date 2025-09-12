@@ -128,6 +128,7 @@ class LeFormatConverterTaskServer(TaskServer):
                 break
             if device_model_config[DEVICE_MODEL_VERSION_KEY] == device_model_version:
                 converter_module_path = device_model_config["module"]
+                converter_class_name = device_model_config["class"]
                 converter_config_file_path = (
                     self.factory_config_dir
                     / device_model_config["converter_config_path"]

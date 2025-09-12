@@ -39,6 +39,7 @@ def annotate_device_model(db_file_path: Path) -> None:
         for res in results:
             uuid = res[0]
             item = session.query(DatasetDB).filter(DatasetDB.dataset_uuid == uuid).first()
+            print(f"yaml_file_path: {item.yaml_file_path}")
             dataset_path = Path(item.yaml_file_path).parent
             dmv_annotation_file_path = dataset_path / DEVICE_MODEL_ANNOTATION_FILE_NAME
             status = TaskStatus.FAILED
