@@ -91,12 +91,6 @@ agilex_cobot_decoupled_magic:
   class: LerobotFormatConverterHdf5
   converter_config_path: converter_config_agilex_cobot_decoupled_magic_headdown.yaml
 
-- version: magicrgb_headdown_version
-  verison_description: two arms and two grippers, four rgb cameras with high, left wrist, right wrist, cam_center_down
-  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_h5
-  class: LerobotFormatConverterHdf5
-  converter_config_path: converter_config_agilex_cobot_decoupled_magicrgb_headdown.yaml
-
 agilex_pika_sense:
 - version: default_version
   verison_description: two arms and two grippers, three rgb cameras with high, left wrist, right wrist
