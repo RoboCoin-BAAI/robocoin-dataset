@@ -1,0 +1,347 @@
+### fps by manual
+fps: 30
+features:
+  observation:
+    images:
+
+    ### 高位RGB相机
+    - cam_name: cam_high_rgb
+      args:
+        ### key and values by manual
+        h5_path: observations/images/cam_high
+
+      ### values by function
+      # dtype: video
+      # shape: [480, 640, 3]
+      # names: [height, width, channels]
+      # lerobot_feature: observations.images.cam_high : by _gen_lerobot_features()
+
+    ### 高位Realsense相机 (新增)
+    - cam_name: cam_high_realsense_rgb
+      args:
+        ### key and values by manual
+        h5_path: observations/images/cam_high_realsense
+
+      ### values by function
+      # dtype: video
+      # shape: [480, 640, 3]
+      # names: [height, width, channels]
+      # lerobot_feature: observations.images.cam_high_realsense : by _gen_lerobot_features()
+
+    ### 左手腕RGB相机
+    - cam_name: cam_left_wrist_rgb
+      args:
+        ### keys and values by manual
+        h5_path: observations/images/cam_left_wrist
+
+      ### values by function
+      # dtype: video
+      # shape: [480, 640, 3]
+      # names: [height, width, channels]
+      # lerobot_feature: observations.images.cam_left_wrist : by _gen_lerobot_features()
+
+    ### 右手腕RGB相机
+    - cam_name: cam_right_wrist_rgb
+      args:
+        ### keys and values by manual
+        h5_path: observations/images/cam_right_wrist
+
+      ### values by function
+      # dtype: video
+      # shape: [480, 640, 3]
+      # names: [height, width, channels]
+      # lerobot_feature: observations.images.cam_right_wrist : by _gen_lerobot_features()
+
+    state:
+      ### values by function
+      # lerobot_feature: observation.state : by _gen_lerobot_features()
+      # dtype: float32
+      # shape: [128]  # agilex cobot with realsense extension 状态维度
+
+      ## sub_states should be concatenated together here : by _gen_state_names()
+
+      ### values by manual
+      sub_state:
+      # agilex cobot状态数据 (128维)
+      - names: 
+        - agilex_cobot_realsense_state_0
+        - agilex_cobot_realsense_state_1
+        - agilex_cobot_realsense_state_2
+        - agilex_cobot_realsense_state_3
+        - agilex_cobot_realsense_state_4
+        - agilex_cobot_realsense_state_5
+        - agilex_cobot_realsense_state_6
+        - agilex_cobot_realsense_state_7
+        - agilex_cobot_realsense_state_8
+        - agilex_cobot_realsense_state_9
+        - agilex_cobot_realsense_state_10
+        - agilex_cobot_realsense_state_11
+        - agilex_cobot_realsense_state_12
+        - agilex_cobot_realsense_state_13
+        - agilex_cobot_realsense_state_14
+        - agilex_cobot_realsense_state_15
+        - agilex_cobot_realsense_state_16
+        - agilex_cobot_realsense_state_17
+        - agilex_cobot_realsense_state_18
+        - agilex_cobot_realsense_state_19
+        - agilex_cobot_realsense_state_20
+        - agilex_cobot_realsense_state_21
+        - agilex_cobot_realsense_state_22
+        - agilex_cobot_realsense_state_23
+        - agilex_cobot_realsense_state_24
+        - agilex_cobot_realsense_state_25
+        - agilex_cobot_realsense_state_26
+        - agilex_cobot_realsense_state_27
+        - agilex_cobot_realsense_state_28
+        - agilex_cobot_realsense_state_29
+        - agilex_cobot_realsense_state_30
+        - agilex_cobot_realsense_state_31
+        - agilex_cobot_realsense_state_32
+        - agilex_cobot_realsense_state_33
+        - agilex_cobot_realsense_state_34
+        - agilex_cobot_realsense_state_35
+        - agilex_cobot_realsense_state_36
+        - agilex_cobot_realsense_state_37
+        - agilex_cobot_realsense_state_38
+        - agilex_cobot_realsense_state_39
+        - agilex_cobot_realsense_state_40
+        - agilex_cobot_realsense_state_41
+        - agilex_cobot_realsense_state_42
+        - agilex_cobot_realsense_state_43
+        - agilex_cobot_realsense_state_44
+        - agilex_cobot_realsense_state_45
+        - agilex_cobot_realsense_state_46
+        - agilex_cobot_realsense_state_47
+        - agilex_cobot_realsense_state_48
+        - agilex_cobot_realsense_state_49
+        - agilex_cobot_realsense_state_50
+        - agilex_cobot_realsense_state_51
+        - agilex_cobot_realsense_state_52
+        - agilex_cobot_realsense_state_53
+        - agilex_cobot_realsense_state_54
+        - agilex_cobot_realsense_state_55
+        - agilex_cobot_realsense_state_56
+        - agilex_cobot_realsense_state_57
+        - agilex_cobot_realsense_state_58
+        - agilex_cobot_realsense_state_59
+        - agilex_cobot_realsense_state_60
+        - agilex_cobot_realsense_state_61
+        - agilex_cobot_realsense_state_62
+        - agilex_cobot_realsense_state_63
+        - agilex_cobot_realsense_state_64
+        - agilex_cobot_realsense_state_65
+        - agilex_cobot_realsense_state_66
+        - agilex_cobot_realsense_state_67
+        - agilex_cobot_realsense_state_68
+        - agilex_cobot_realsense_state_69
+        - agilex_cobot_realsense_state_70
+        - agilex_cobot_realsense_state_71
+        - agilex_cobot_realsense_state_72
+        - agilex_cobot_realsense_state_73
+        - agilex_cobot_realsense_state_74
+        - agilex_cobot_realsense_state_75
+        - agilex_cobot_realsense_state_76
+        - agilex_cobot_realsense_state_77
+        - agilex_cobot_realsense_state_78
+        - agilex_cobot_realsense_state_79
+        - agilex_cobot_realsense_state_80
+        - agilex_cobot_realsense_state_81
+        - agilex_cobot_realsense_state_82
+        - agilex_cobot_realsense_state_83
+        - agilex_cobot_realsense_state_84
+        - agilex_cobot_realsense_state_85
+        - agilex_cobot_realsense_state_86
+        - agilex_cobot_realsense_state_87
+        - agilex_cobot_realsense_state_88
+        - agilex_cobot_realsense_state_89
+        - agilex_cobot_realsense_state_90
+        - agilex_cobot_realsense_state_91
+        - agilex_cobot_realsense_state_92
+        - agilex_cobot_realsense_state_93
+        - agilex_cobot_realsense_state_94
+        - agilex_cobot_realsense_state_95
+        - agilex_cobot_realsense_state_96
+        - agilex_cobot_realsense_state_97
+        - agilex_cobot_realsense_state_98
+        - agilex_cobot_realsense_state_99
+        - agilex_cobot_realsense_state_100
+        - agilex_cobot_realsense_state_101
+        - agilex_cobot_realsense_state_102
+        - agilex_cobot_realsense_state_103
+        - agilex_cobot_realsense_state_104
+        - agilex_cobot_realsense_state_105
+        - agilex_cobot_realsense_state_106
+        - agilex_cobot_realsense_state_107
+        - agilex_cobot_realsense_state_108
+        - agilex_cobot_realsense_state_109
+        - agilex_cobot_realsense_state_110
+        - agilex_cobot_realsense_state_111
+        - agilex_cobot_realsense_state_112
+        - agilex_cobot_realsense_state_113
+        - agilex_cobot_realsense_state_114
+        - agilex_cobot_realsense_state_115
+        - agilex_cobot_realsense_state_116
+        - agilex_cobot_realsense_state_117
+        - agilex_cobot_realsense_state_118
+        - agilex_cobot_realsense_state_119
+        - agilex_cobot_realsense_state_120
+        - agilex_cobot_realsense_state_121
+        - agilex_cobot_realsense_state_122
+        - agilex_cobot_realsense_state_123
+        - agilex_cobot_realsense_state_124
+        - agilex_cobot_realsense_state_125
+        - agilex_cobot_realsense_state_126
+        - agilex_cobot_realsense_state_127
+
+        args:
+          ### keys and values by manual
+          h5_path: observations/qpos
+          range_from: 0
+          range_to: 128
+
+  action:
+    ### values by function
+    # lerobot_feature: action : by _gen_lerobot_features()
+    # dtype: float32
+    # shape: [128]  # agilex cobot with realsense extension 动作维度
+
+    ## sub_actions should be concatenated together here : by _gen_action_names()
+
+    ### values by manual
+    sub_action:
+    # agilex cobot动作数据 (128维)
+    - names: 
+      - agilex_cobot_realsense_action_0
+      - agilex_cobot_realsense_action_1
+      - agilex_cobot_realsense_action_2
+      - agilex_cobot_realsense_action_3
+      - agilex_cobot_realsense_action_4
+      - agilex_cobot_realsense_action_5
+      - agilex_cobot_realsense_action_6
+      - agilex_cobot_realsense_action_7
+      - agilex_cobot_realsense_action_8
+      - agilex_cobot_realsense_action_9
+      - agilex_cobot_realsense_action_10
+      - agilex_cobot_realsense_action_11
+      - agilex_cobot_realsense_action_12
+      - agilex_cobot_realsense_action_13
+      - agilex_cobot_realsense_action_14
+      - agilex_cobot_realsense_action_15
+      - agilex_cobot_realsense_action_16
+      - agilex_cobot_realsense_action_17
+      - agilex_cobot_realsense_action_18
+      - agilex_cobot_realsense_action_19
+      - agilex_cobot_realsense_action_20
+      - agilex_cobot_realsense_action_21
+      - agilex_cobot_realsense_action_22
+      - agilex_cobot_realsense_action_23
+      - agilex_cobot_realsense_action_24
+      - agilex_cobot_realsense_action_25
+      - agilex_cobot_realsense_action_26
+      - agilex_cobot_realsense_action_27
+      - agilex_cobot_realsense_action_28
+      - agilex_cobot_realsense_action_29
+      - agilex_cobot_realsense_action_30
+      - agilex_cobot_realsense_action_31
+      - agilex_cobot_realsense_action_32
+      - agilex_cobot_realsense_action_33
+      - agilex_cobot_realsense_action_34
+      - agilex_cobot_realsense_action_35
+      - agilex_cobot_realsense_action_36
+      - agilex_cobot_realsense_action_37
+      - agilex_cobot_realsense_action_38
+      - agilex_cobot_realsense_action_39
+      - agilex_cobot_realsense_action_40
+      - agilex_cobot_realsense_action_41
+      - agilex_cobot_realsense_action_42
+      - agilex_cobot_realsense_action_43
+      - agilex_cobot_realsense_action_44
+      - agilex_cobot_realsense_action_45
+      - agilex_cobot_realsense_action_46
+      - agilex_cobot_realsense_action_47
+      - agilex_cobot_realsense_action_48
+      - agilex_cobot_realsense_action_49
+      - agilex_cobot_realsense_action_50
+      - agilex_cobot_realsense_action_51
+      - agilex_cobot_realsense_action_52
+      - agilex_cobot_realsense_action_53
+      - agilex_cobot_realsense_action_54
+      - agilex_cobot_realsense_action_55
+      - agilex_cobot_realsense_action_56
+      - agilex_cobot_realsense_action_57
+      - agilex_cobot_realsense_action_58
+      - agilex_cobot_realsense_action_59
+      - agilex_cobot_realsense_action_60
+      - agilex_cobot_realsense_action_61
+      - agilex_cobot_realsense_action_62
+      - agilex_cobot_realsense_action_63
+      - agilex_cobot_realsense_action_64
+      - agilex_cobot_realsense_action_65
+      - agilex_cobot_realsense_action_66
+      - agilex_cobot_realsense_action_67
+      - agilex_cobot_realsense_action_68
+      - agilex_cobot_realsense_action_69
+      - agilex_cobot_realsense_action_70
+      - agilex_cobot_realsense_action_71
+      - agilex_cobot_realsense_action_72
+      - agilex_cobot_realsense_action_73
+      - agilex_cobot_realsense_action_74
+      - agilex_cobot_realsense_action_75
+      - agilex_cobot_realsense_action_76
+      - agilex_cobot_realsense_action_77
+      - agilex_cobot_realsense_action_78
+      - agilex_cobot_realsense_action_79
+      - agilex_cobot_realsense_action_80
+      - agilex_cobot_realsense_action_81
+      - agilex_cobot_realsense_action_82
+      - agilex_cobot_realsense_action_83
+      - agilex_cobot_realsense_action_84
+      - agilex_cobot_realsense_action_85
+      - agilex_cobot_realsense_action_86
+      - agilex_cobot_realsense_action_87
+      - agilex_cobot_realsense_action_88
+      - agilex_cobot_realsense_action_89
+      - agilex_cobot_realsense_action_90
+      - agilex_cobot_realsense_action_91
+      - agilex_cobot_realsense_action_92
+      - agilex_cobot_realsense_action_93
+      - agilex_cobot_realsense_action_94
+      - agilex_cobot_realsense_action_95
+      - agilex_cobot_realsense_action_96
+      - agilex_cobot_realsense_action_97
+      - agilex_cobot_realsense_action_98
+      - agilex_cobot_realsense_action_99
+      - agilex_cobot_realsense_action_100
+      - agilex_cobot_realsense_action_101
+      - agilex_cobot_realsense_action_102
+      - agilex_cobot_realsense_action_103
+      - agilex_cobot_realsense_action_104
+      - agilex_cobot_realsense_action_105
+      - agilex_cobot_realsense_action_106
+      - agilex_cobot_realsense_action_107
+      - agilex_cobot_realsense_action_108
+      - agilex_cobot_realsense_action_109
+      - agilex_cobot_realsense_action_110
+      - agilex_cobot_realsense_action_111
+      - agilex_cobot_realsense_action_112
+      - agilex_cobot_realsense_action_113
+      - agilex_cobot_realsense_action_114
+      - agilex_cobot_realsense_action_115
+      - agilex_cobot_realsense_action_116
+      - agilex_cobot_realsense_action_117
+      - agilex_cobot_realsense_action_118
+      - agilex_cobot_realsense_action_119
+      - agilex_cobot_realsense_action_120
+      - agilex_cobot_realsense_action_121
+      - agilex_cobot_realsense_action_122
+      - agilex_cobot_realsense_action_123
+      - agilex_cobot_realsense_action_124
+      - agilex_cobot_realsense_action_125
+      - agilex_cobot_realsense_action_126
+      - agilex_cobot_realsense_action_127
+
+      args:
+        ### keys and values by manual
+        h5_path: action
+        range_from: 0
+        range_to: 128
