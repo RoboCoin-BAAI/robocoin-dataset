@@ -72,6 +72,142 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
                 image_files = list(episode_dir.glob("*.jpg")) + list(episode_dir.glob("*.png"))
                 if not image_files:
                     self.logger.warning(f"No image files found in {episode_dir}")
+        
+        # 验证JSON文件内部结构与配置匹配
+        self._validate_g1_json_structure()
+
+    def _validate_g1_json_structure(self) -> None:
+        """验证G1 JSON文件内部结构是否与YAML配置匹配"""
+        if self.logger:
+            self.logger.info("Validating G1 JSON structure...")
+        
+        # 收集所有需要验证的JSON路径
+        required_json_paths = set()
+        
+        # 从状态配置中收集JSON路径
+        if "observation" in self.converter_config.get("features", {}):
+            observation_config = self.converter_config["features"]["observation"]
+            if "state" in observation_config and "sub_state" in observation_config["state"]:
+                for state_config in observation_config["state"]["sub_state"]:
+                    if "args" in state_config and "json_path" in state_config["args"]:
+                        required_json_paths.add(state_config["args"]["json_path"])
+        
+        # 从动作配置中收集JSON路径
+        if "action" in self.converter_config.get("features", {}):
+            action_config = self.converter_config["features"]["action"]
+            if "sub_action" in action_config:
+                for action_config_item in action_config["sub_action"]:
+                    if "args" in action_config_item and "json_path" in action_config_item["args"]:
+                        required_json_paths.add(action_config_item["args"]["json_path"])
+        
+        # 收集所有需要验证的图像键
+        required_image_keys = set()
+        if "observation" in self.converter_config.get("features", {}):
+            observation_config = self.converter_config["features"]["observation"]
+            if "images" in observation_config:
+                for image_config in observation_config["images"]:
+                    if "args" in image_config and "image_key" in image_config["args"]:
+                        required_image_keys.add(image_config["args"]["image_key"])
+        
+        if not required_json_paths and not required_image_keys:
+            if self.logger:
+                self.logger.warning("No json_path or image_key found in configuration, skipping G1 structure validation")
+            return
+        
+        # 验证每个任务路径下的JSON文件
+        validation_errors = []
+        for task_path in self.path_task_dict.keys():
+            json_files = self.task_episode_jsonfile_paths.get(task_path, [])
+            
+            if not json_files:
+                validation_errors.append(f"No JSON files found in task path: {task_path}")
+                continue
+            
+            # 验证第一个JSON文件作为样本（假设同一任务下的JSON文件结构一致）
+            sample_json_file = json_files[0]
+            try:
+                with open(sample_json_file, encoding='utf-8') as f:
+                    json_data = json.load(f)
+                
+                # 验证JSON数据基本结构
+                if "data" not in json_data:
+                    validation_errors.append(f"Missing 'data' key in {sample_json_file}")
+                    continue
+                
+                if not isinstance(json_data["data"], list) or len(json_data["data"]) == 0:
+                    validation_errors.append(f"'data' should be a non-empty list in {sample_json_file}")
+                    continue
+                
+                # 验证第一帧数据结构
+                first_frame = json_data["data"][0]
+                missing_paths = []
+                invalid_paths = []
+                
+                # 验证JSON路径
+                for required_path in required_json_paths:
+                    try:
+                        # 导航到目标数据
+                        data = first_frame
+                        path_parts = required_path.split(".")
+                        for part in path_parts:
+                            if isinstance(data, dict) and part in data:
+                                data = data[part]
+                            else:
+                                missing_paths.append(required_path)
+                                break
+                        else:
+                            # 检查数据是否为有效的列表/数组
+                            if not isinstance(data, (list, tuple)):
+                                invalid_paths.append(f"{required_path} (not a list/array, got {type(data).__name__})")
+                            elif len(data) == 0:
+                                invalid_paths.append(f"{required_path} (empty array)")
+                    except Exception as e:
+                        invalid_paths.append(f"{required_path} (error: {e})")
+                
+                # 验证图像文件匹配
+                missing_image_keys = []
+                if required_image_keys:
+                    # 检查是否有对应的图像文件
+                    episode_dir = sample_json_file.parent
+                    image_files = list(episode_dir.rglob("*.jpg")) + list(episode_dir.rglob("*.jpeg")) + list(episode_dir.rglob("*.png"))
+                    
+                    # 使用现有的图像分组逻辑
+                    camera_groups = self._group_images_by_camera_g1(image_files)
+                    
+                    for image_key in required_image_keys:
+                        camera_idx = self._extract_camera_index_from_key(image_key)
+                        if camera_idx not in camera_groups:
+                            missing_image_keys.append(f"{image_key} (camera {camera_idx} not found)")
+                        elif len(camera_groups[camera_idx]) == 0:
+                            missing_image_keys.append(f"{image_key} (no images for camera {camera_idx})")
+                
+                if missing_paths:
+                    validation_errors.append(
+                        f"Missing required JSON paths in {sample_json_file}: {missing_paths}"
+                    )
+                
+                if invalid_paths:
+                    validation_errors.append(
+                        f"Invalid JSON data structure in {sample_json_file}: {invalid_paths}"
+                    )
+                
+                if missing_image_keys:
+                    validation_errors.append(
+                        f"Missing required image keys in {task_path}: {missing_image_keys}"
+                    )
+                
+                if self.logger and not missing_paths and not invalid_paths and not missing_image_keys:
+                    self.logger.info(f"G1 JSON structure validation passed for task: {task_path}")
+                        
+            except Exception as e:
+                validation_errors.append(f"Error reading JSON file {sample_json_file}: {e}")
+        
+        if validation_errors:
+            error_msg = "G1 JSON structure validation failed:\n" + "\n".join(validation_errors)
+            raise ValueError(error_msg)
+        
+        if self.logger:
+            self.logger.info("G1 JSON structure validation completed successfully")
 
     # @override
     def _get_frame_image(
