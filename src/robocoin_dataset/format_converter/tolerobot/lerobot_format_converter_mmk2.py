@@ -150,6 +150,10 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
             episode_dirs = [d for d in task_path.iterdir() if d.is_dir() and d.name.startswith('episode_')]
             if not episode_dirs:
                 self.logger.warning(f"No episode directories found in {task_path}")
+            else:
+                # Enhanced validation: validate each episode's internal structure
+                for i, episode_dir in enumerate(episode_dirs):
+                    self._validate_mmk2_episode_structure(episode_dir, i)
             
             # Validate each episode directory structure
             for episode_dir in episode_dirs:
@@ -166,6 +170,199 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                     image_files = list(obs_dir.glob("*.jpg")) + list(obs_dir.glob("*.png")) + list(obs_dir.glob("*.jpeg"))
                     if not image_files:
                         self.logger.warning(f"No image files found in {obs_dir}")
+
+    def _validate_mmk2_episode_structure(self, episode_dir: Path, ep_idx: int) -> None:
+        """Validate internal MMK2 episode structure against configuration"""
+        try:
+            if self.logger:
+                self.logger.info(f"Validating MMK2 episode structure: {episode_dir}")
+            
+            # Validate BSON files structure
+            main_bson_file = episode_dir / "episode_0(8).bson"
+            hand_bson_file = episode_dir / "xhand_control_data(7).bson"
+            
+            # Check required BSON files exist
+            if not main_bson_file.exists():
+                if self.logger:
+                    self.logger.warning(f"Missing main BSON file: {main_bson_file}")
+                return
+            
+            if not hand_bson_file.exists():
+                if self.logger:
+                    self.logger.warning(f"Missing hand BSON file: {hand_bson_file}")
+            
+            # Validate main BSON structure
+            self._validate_main_bson_structure(main_bson_file)
+            
+            # Validate hand BSON structure
+            if hand_bson_file.exists():
+                self._validate_hand_bson_structure(hand_bson_file)
+            
+            # Validate camera directories
+            self._validate_camera_structure(episode_dir)
+            
+            if self.logger:
+                self.logger.info(f"MMK2 episode structure validation completed for {episode_dir}")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating MMK2 episode structure: {e}")
+    
+    def _validate_main_bson_structure(self, bson_file: Path) -> None:
+        """Validate main BSON file structure against configuration"""
+        try:
+            with open(bson_file, "rb") as f:
+                content = f.read()
+            
+            doc, _ = parse_bson_document(content, 0)
+            if not doc or "data" not in doc:
+                if self.logger:
+                    self.logger.warning(f"Invalid main BSON structure in {bson_file}")
+                return
+            
+            available_paths = set(doc["data"].keys())
+            if self.logger:
+                self.logger.info(f"Available main BSON paths: {sorted(available_paths)}")
+            
+            # Get expected paths from configuration
+            expected_paths = set()
+            if hasattr(self, 'converter_config') and self.converter_config:
+                # Check state configuration
+                state_config = self.converter_config.get('features', {}).get('observation', {}).get('state', {})
+                if 'sub_state' in state_config:
+                    for sub_state in state_config['sub_state']:
+                        if 'args' in sub_state and sub_state['args'].get('bson_file') == 'episode_0(8).bson':
+                            data_path = sub_state['args'].get('data_path', '').lstrip('/')
+                            expected_paths.add(data_path)
+                
+                # Check action configuration
+                action_config = self.converter_config.get('features', {}).get('action', {})
+                if 'sub_action' in action_config:
+                    for sub_action in action_config['sub_action']:
+                        if 'args' in sub_action and sub_action['args'].get('bson_file') == 'episode_0(8).bson':
+                            data_path = sub_action['args'].get('data_path', '').lstrip('/')
+                            expected_paths.add(data_path)
+            
+            # Validate expected paths exist
+            missing_paths = expected_paths - available_paths
+            if missing_paths:
+                if self.logger:
+                    self.logger.warning(f"Missing main BSON paths: {sorted(missing_paths)}")
+            
+            found_paths = expected_paths & available_paths
+            if self.logger:
+                self.logger.info(f"Validated main BSON paths ({len(found_paths)}): {sorted(found_paths)}")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating main BSON structure: {e}")
+    
+    def _validate_hand_bson_structure(self, bson_file: Path) -> None:
+        """Validate hand BSON file structure against configuration"""
+        try:
+            with open(bson_file, "rb") as f:
+                content = f.read()
+            
+            doc, _ = parse_bson_document(content, 0)
+            if not doc or "frames" not in doc:
+                if self.logger:
+                    self.logger.warning(f"Invalid hand BSON structure in {bson_file}")
+                return
+            
+            frames = doc["frames"]
+            if not frames:
+                if self.logger:
+                    self.logger.warning(f"No frames found in hand BSON: {bson_file}")
+                return
+            
+            # Check first frame structure
+            first_frame = frames[0]
+            available_paths = set()
+            
+            # Extract available observation paths
+            if "observation" in first_frame:
+                obs_data = first_frame["observation"]
+                if "left_hand" in obs_data:
+                    available_paths.add("observation.left_hand")
+                if "right_hand" in obs_data:
+                    available_paths.add("observation.right_hand")
+            
+            if self.logger:
+                self.logger.info(f"Available hand BSON paths: {sorted(available_paths)}")
+            
+            # Get expected paths from configuration
+            expected_paths = set()
+            if hasattr(self, 'converter_config') and self.converter_config:
+                # Check state configuration for hand data
+                state_config = self.converter_config.get('features', {}).get('observation', {}).get('state', {})
+                if 'sub_state' in state_config:
+                    for sub_state in state_config['sub_state']:
+                        if 'args' in sub_state and sub_state['args'].get('bson_file') == 'xhand_control_data(7).bson':
+                            data_path = sub_state['args'].get('data_path', '')
+                            expected_paths.add(data_path)
+                
+                # Check action configuration for hand data
+                action_config = self.converter_config.get('features', {}).get('action', {})
+                if 'sub_action' in action_config:
+                    for sub_action in action_config['sub_action']:
+                        if 'args' in sub_action and sub_action['args'].get('bson_file') == 'xhand_control_data(7).bson':
+                            data_path = sub_action['args'].get('data_path', '')
+                            expected_paths.add(data_path)
+            
+            # Validate expected paths exist
+            missing_paths = expected_paths - available_paths
+            if missing_paths:
+                if self.logger:
+                    self.logger.warning(f"Missing hand BSON paths: {sorted(missing_paths)}")
+            
+            found_paths = expected_paths & available_paths
+            if self.logger:
+                self.logger.info(f"Validated hand BSON paths ({len(found_paths)}): {sorted(found_paths)}")
+                self.logger.info(f"Hand BSON contains {len(frames)} frames")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating hand BSON structure: {e}")
+    
+    def _validate_camera_structure(self, episode_dir: Path) -> None:
+        """Validate camera directory structure against configuration"""
+        try:
+            # Get expected cameras from configuration
+            expected_cameras = set()
+            if hasattr(self, 'converter_config') and self.converter_config:
+                images_config = self.converter_config.get('features', {}).get('observation', {}).get('images', [])
+                for image_config in images_config:
+                    if 'args' in image_config and 'camera_dir' in image_config['args']:
+                        camera_dir = image_config['args']['camera_dir']
+                        expected_cameras.add(camera_dir)
+            
+            # Check available cameras
+            available_cameras = set()
+            for camera_dir in ['camera_0', 'camera_1', 'camera_2']:
+                camera_path = episode_dir / camera_dir
+                if camera_path.exists():
+                    available_cameras.add(camera_dir)
+                    # Count images
+                    jpg_files = list(camera_path.glob("*.jpg"))
+                    if self.logger:
+                        self.logger.info(f"Camera {camera_dir}: {len(jpg_files)} images")
+            
+            if self.logger:
+                self.logger.info(f"Available cameras: {sorted(available_cameras)}")
+            
+            # Validate expected cameras exist
+            missing_cameras = expected_cameras - available_cameras
+            if missing_cameras:
+                if self.logger:
+                    self.logger.warning(f"Missing camera directories: {sorted(missing_cameras)}")
+            
+            found_cameras = expected_cameras & available_cameras
+            if self.logger:
+                self.logger.info(f"Validated cameras ({len(found_cameras)}): {sorted(found_cameras)}")
+        
+        except Exception as e:
+            if self.logger:
+                self.logger.error(f"Error validating camera structure: {e}")
 
     # @override
     def _get_frame_image(
