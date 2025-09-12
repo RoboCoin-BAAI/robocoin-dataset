@@ -71,6 +71,8 @@ class LeFormatConverterTaskServer(TaskServer):
         self.video_backend = video_backend
         self.image_writer_processes = image_writer_processes
         self.image_writer_threads = image_writer_threads
+        
+        print(f"specific_device_model is {specific_device_model}")
 
         try:
             with open(converter_factory_config_path) as f:
@@ -163,10 +165,10 @@ class LeFormatConverterTaskServer(TaskServer):
                 results = (
                     session.query(DmvAnnotationDB)
                     .filter(DmvAnnotationDB.annotation_status == TaskStatus.COMPLETED)
+                    .filter(DmvAnnotationDB.device_model == self.specific_device_model)
                     .filter(
                         ~session.query(LeFormatConvertDB)
                         .filter(LeFormatConvertDB.dataset_uuid == DmvAnnotationDB.dataset_uuid)
-                        .filter(DmvAnnotationDB.device_model == self.specific_device_model)
                         .exists()
                     )
                     .all()
@@ -177,6 +179,7 @@ class LeFormatConverterTaskServer(TaskServer):
             return None
 
         for item in results:
+            print(f"item.device_model is {item.device_model}")
             dataset_item = (
                 session.query(DatasetDB).filter(DatasetDB.dataset_uuid == item.dataset_uuid).first()
             )
@@ -185,7 +188,7 @@ class LeFormatConverterTaskServer(TaskServer):
             leformat_path = str(
                 Path(self.convert_root_path) / f"{item.device_model}_{dataset_name}"
             )
-
+            
             leformat_name = f"{item.device_model.lower()}_{dataset_name.lower()}"
 
             client_log_path = Path(self.convert_root_path) / "client_logs" / leformat_name
@@ -204,6 +207,7 @@ class LeFormatConverterTaskServer(TaskServer):
             )
 
             repo_id = f"{ROBOCOIN_PLATFORM}/{leformat_name}"
+            print(f"Found Repo of {repo_id}")
             return {
                 DATASET_UUID: item.dataset_uuid,
                 DATASET_NAME: dataset_name,
