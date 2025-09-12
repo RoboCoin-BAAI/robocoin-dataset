@@ -9,7 +9,7 @@ def upsert_leformat_convert(
     session: Session,
     ds_uuid: str,
     convert_status: TaskStatus,
-    update_message: str | None = None,
+    err_message: str | None = None,
     leformat_path: str | None = None,
 ) -> None:
     """
@@ -34,15 +34,15 @@ def upsert_leformat_convert(
                 dataset_uuid=ds_uuid,
                 convert_status=convert_status,
                 convert_path=leformat_path,
-                update_message=update_message,
+                err_message=err_message,
                 updated_at=datetime.now(),
             )
         else:
             # 更新现有记录
             item.convert_status = convert_status
             item.updated_at = datetime.now()
-            if update_message is not None:
-                item.err_message = update_message
+            if err_message is not None:
+                item.err_message = err_message
             if leformat_path is not None:
                 item.convert_path = leformat_path
 

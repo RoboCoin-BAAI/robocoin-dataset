@@ -128,12 +128,12 @@ class LeFormatConverterTaskServer(TaskServer):
                 break
             if device_model_config[DEVICE_MODEL_VERSION_KEY] == device_model_version:
                 converter_module_path = device_model_config["module"]
-                converter_class_name = device_model_config["class"]
                 converter_config_file_path = (
                     self.factory_config_dir
-                    / self.converter_factory_config[device_model]["converter_config_path"]
+                    / device_model_config["converter_config_path"]
                 )
                 break
+        
         if converter_module_path is None:
             raise ValueError(
                 f"Device model {device_model} with version {device_model_version} not found in factory config."
@@ -170,6 +170,7 @@ class LeFormatConverterTaskServer(TaskServer):
                     )
                     .all()
                 )
+        
 
         if not results:
             return None
@@ -194,7 +195,6 @@ class LeFormatConverterTaskServer(TaskServer):
                 ds_uuid=item.dataset_uuid,
                 convert_status=TaskStatus.PROCESSING,
             )
-            print("before get_conveter_module_class_config")
 
             converter_module_path, converter_class_name, converter_config = (
                 self._get_converter_module_class_config(
@@ -202,7 +202,6 @@ class LeFormatConverterTaskServer(TaskServer):
                 )
             )
 
-            print("after get_conveter_module_class_config")
             repo_id = f"{ROBOCOIN_PLATFORM}/{leformat_name}"
             return {
                 DATASET_UUID: item.dataset_uuid,
@@ -237,7 +236,7 @@ class LeFormatConverterTaskServer(TaskServer):
                 ds_uuid=ds_uuid,
                 convert_status=convert_status,
                 leformat_path=leformat_path,
-                update_message=task_status_msg,
+                err_message=task_status_msg,
             )
             self.logger.info(
                 f"Upsert {ds_uuid} convert status to {convert_status}, update_message: {task_status_msg}"
