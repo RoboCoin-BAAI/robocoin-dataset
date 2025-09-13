@@ -16,6 +16,7 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     CONVERTER_MODULE_PATH,
     IMAGE_WRITER_PROCESSES,
     IMAGE_WRITER_THREADS,
+    IS_TEST,
     LEFORMAT_PATH,
     REPO_ID,
     VIDEO_BACKEND,
@@ -64,6 +65,7 @@ class LeFormatConverterTaskClient(TaskClient):
             image_writer_threads = task_content.get(IMAGE_WRITER_THREADS, 4)
             converter_log_dir = task_content.get(CONVERTER_LOG_DIR)
             converter_log_name = task_content.get(CONVERTER_LOG_NAME)
+            is_test = task_content.get(IS_TEST, False)
 
             logger = setup_logger(
                 converter_log_name,
@@ -88,7 +90,7 @@ class LeFormatConverterTaskClient(TaskClient):
             self.logger.info(f"converter_log_dir: {converter_log_dir}")
             total_episodes = converter.get_episodes_num()
             for task_content, task_ep_idx, ep_idx in tqdm(
-                converter.convert(),
+                converter.convert(is_test),
                 total=total_episodes,
                 desc="Converting Dataset",
                 unit="episode",

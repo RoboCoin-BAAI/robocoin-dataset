@@ -576,8 +576,9 @@ class LerobotFormatConverter:
 
         pass
 
-    def convert(self) -> Iterable[tuple[str, int, int]]:
-        dataset = self._create_lerobot_dataset()
+    def convert(self, is_test: bool = False) -> Iterable[tuple[str, int, int]]:
+        if not is_test:
+            dataset = self._create_lerobot_dataset()
         ep_idx = 0
         for task_path, task in self.path_task_dict.items():
             for task_ep_idx in range(self._get_task_episodes_num(task_path)):
@@ -598,16 +599,18 @@ class LerobotFormatConverter:
                                 actions_buffer=actions_buffer,
                             )
 
-                            dataset.add_frame(
-                                frame=lerobot_datas,
-                                task=task,
-                            )
+                            if not is_test:
+                                dataset.add_frame(
+                                    frame=lerobot_datas,
+                                    task=task,
+                                )
                         except Exception as e:  # noqa: PERF203
                             raise Exception(
                                 f"Processing frame {frame_data[FRAME_IDX_KEY]} of episode {task_ep_idx} of task_path {str(task_path)} failed"
                             ) from e
 
-                    dataset.save_episode()
+                    if not is_test:
+                        dataset.save_episode()
                     yield (task, task_ep_idx, ep_idx)
                     ep_idx += 1
                 except Exception as e:  # noqa: PERF203

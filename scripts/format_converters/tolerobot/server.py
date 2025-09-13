@@ -89,6 +89,13 @@ async def main() -> None:
         help="Number of threads per process to use for image writing. Default: 4",
     )
 
+    argparser.add_argument(
+        "--is-test",
+        action="store_true",
+        default=False,
+        help="Enable test mode (default: disabled)",
+    )
+
     args = argparser.parse_args()
 
     server = LeFormatConverterTaskServer(
@@ -108,6 +115,7 @@ async def main() -> None:
         video_backend=args.video_backend,
         image_writer_processes=args.image_writer_processes,
         image_writer_threads=args.image_writer_threads,
+        is_test=args.is_test,
     )
 
     await server.start()  # 创建任务并调度执行
@@ -135,7 +143,7 @@ python scripts/format_converters/tolerobot/server.py \
 
 # for test
 python scripts/format_converters/tolerobot/server.py \
-    --db-file=/home/adminpc1/Desktop/3/datasets.db \
+    --db-file=./db/datasets.db \
     --host=0.0.0.0 \
     --port=8765 \
     --timeout=10.0 \
@@ -146,5 +154,6 @@ python scripts/format_converters/tolerobot/server.py \
     --image-writer-threads=2 \
     --video-backend=pyav \
     --convert-root-path=/mnt/nas/robocoin_datasets_test/test \
-    --specific-device-model=realman_rmc_aidal
+    --specific-device-model=realman_rmc_aidal \
+    --is-test
 """

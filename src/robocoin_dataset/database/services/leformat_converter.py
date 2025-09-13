@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from robocoin_dataset.database.models import LeFormatConvertDB, TaskStatus
+from robocoin_dataset.database.models import LeFormatConvertDB, LeFormatConvertTestDB, TaskStatus
 
 
 def upsert_leformat_convert(
@@ -11,6 +11,7 @@ def upsert_leformat_convert(
     convert_status: TaskStatus,
     err_message: str | None = None,
     leformat_path: str | None = None,
+    is_test: bool = False,
 ) -> None:
     """
     Upsert LeFormatConvertDB 记录。
@@ -21,16 +22,20 @@ def upsert_leformat_convert(
     :param leformat_path: 可选，输出路径
     """
     try:
+        if is_test:
+            leformat_convert_db = LeFormatConvertTestDB
+        else:
+            leformat_convert_db = LeFormatConvertDB
         # 查询是否存在
         item = (
-            session.query(LeFormatConvertDB)
-            .filter(LeFormatConvertDB.dataset_uuid == ds_uuid)
+            session.query(leformat_convert_db)
+            .filter(leformat_convert_db.dataset_uuid == ds_uuid)
             .first()
         )
 
         if item is None:
             # 创建新记录
-            item = LeFormatConvertDB(
+            item = leformat_convert_db(
                 dataset_uuid=ds_uuid,
                 convert_status=convert_status,
                 convert_path=leformat_path,

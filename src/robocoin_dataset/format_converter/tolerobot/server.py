@@ -9,6 +9,7 @@ from robocoin_dataset.database.models import (
     DatasetDB,
     DmvAnnotationDB,
     LeFormatConvertDB,
+    LeFormatConvertTestDB,
     TaskStatus,
 )
 from robocoin_dataset.database.services.leformat_converter import upsert_leformat_convert
@@ -32,6 +33,7 @@ from robocoin_dataset.format_converter.tolerobot.constant import (
     DEVICE_MODEL_VERSION_KEY,
     IMAGE_WRITER_PROCESSES,
     IMAGE_WRITER_THREADS,
+    IS_TEST,
     LEFORMAT_PATH,
     REPO_ID,
     VIDEO_BACKEND,
@@ -53,6 +55,7 @@ class LeFormatConverterTaskServer(TaskServer):
         video_backend: str = "pyav",
         image_writer_processes: int = 4,
         image_writer_threads: int = 4,
+        is_test: bool = False,
     ) -> None:
         super().__init__(
             logger=logger,
@@ -71,7 +74,8 @@ class LeFormatConverterTaskServer(TaskServer):
         self.video_backend = video_backend
         self.image_writer_processes = image_writer_processes
         self.image_writer_threads = image_writer_threads
-        
+
+        self.is_test = is_test
 
         try:
             with open(converter_factory_config_path) as f:
@@ -131,11 +135,10 @@ class LeFormatConverterTaskServer(TaskServer):
                 converter_module_path = device_model_config["module"]
                 converter_class_name = device_model_config["class"]
                 converter_config_file_path = (
-                    self.factory_config_dir
-                    / device_model_config["converter_config_path"]
+                    self.factory_config_dir / device_model_config["converter_config_path"]
                 )
                 break
-        
+
         if converter_module_path is None:
             raise ValueError(
                 f"Device model {device_model} with version {device_model_version} not found in factory config."
@@ -149,13 +152,17 @@ class LeFormatConverterTaskServer(TaskServer):
 
     def generate_task_content(self) -> dict | None:
         with self.db.with_session() as session:
+            if self.is_test:
+                leformat_convert_db = LeFormatConvertTestDB
+            else:
+                leformat_convert_db = LeFormatConvertDB
             if not self.specific_device_model:
                 results = (
                     session.query(DmvAnnotationDB)
                     .filter(DmvAnnotationDB.annotation_status == TaskStatus.COMPLETED)
                     .filter(
-                        ~session.query(LeFormatConvertDB)
-                        .filter(LeFormatConvertDB.dataset_uuid == DmvAnnotationDB.dataset_uuid)
+                        ~session.query(leformat_convert_db)
+                        .filter(leformat_convert_db.dataset_uuid == DmvAnnotationDB.dataset_uuid)
                         .exists()
                     )
                     .all()
@@ -166,13 +173,12 @@ class LeFormatConverterTaskServer(TaskServer):
                     .filter(DmvAnnotationDB.annotation_status == TaskStatus.COMPLETED)
                     .filter(DmvAnnotationDB.device_model == self.specific_device_model)
                     .filter(
-                        ~session.query(LeFormatConvertDB)
-                        .filter(LeFormatConvertDB.dataset_uuid == DmvAnnotationDB.dataset_uuid)
+                        ~session.query(leformat_convert_db)
+                        .filter(leformat_convert_db.dataset_uuid == DmvAnnotationDB.dataset_uuid)
                         .exists()
                     )
                     .all()
                 )
-        
 
         if not results:
             return None
@@ -186,17 +192,17 @@ class LeFormatConverterTaskServer(TaskServer):
             leformat_path = str(
                 Path(self.convert_root_path) / f"{item.device_model}_{dataset_name}"
             )
-            
+
             leformat_name = f"{item.device_model.lower()}_{dataset_name.lower()}"
 
             client_log_path = Path(self.convert_root_path) / "client_logs" / leformat_name
-            
 
             # 在同一个 session 或新开一个
             upsert_leformat_convert(
                 session=session,
                 ds_uuid=item.dataset_uuid,
                 convert_status=TaskStatus.PROCESSING,
+                is_test=self.is_test,
             )
 
             converter_module_path, converter_class_name, converter_config = (
@@ -221,6 +227,7 @@ class LeFormatConverterTaskServer(TaskServer):
                 CONVERTER_LOG_DIR: str(client_log_path),
                 REPO_ID: repo_id,
                 CONVERTER_LOG_NAME: leformat_name,
+                IS_TEST: self.is_test,
             }
         return None
 
@@ -240,6 +247,7 @@ class LeFormatConverterTaskServer(TaskServer):
                 convert_status=convert_status,
                 leformat_path=leformat_path,
                 err_message=task_status_msg,
+                is_test=self.is_test,
             )
             self.logger.info(
                 f"Upsert {ds_uuid} convert status to {convert_status}, update_message: {task_status_msg}"

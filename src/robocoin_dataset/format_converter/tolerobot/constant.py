@@ -84,3 +84,5 @@ HDF5_SUFFIX = ".hdf5"
 
 DEVICE_MODEL_VERSION_KEY = "version"
 DEFAULT_DEVICE_MODEL_VERSION = "default_version"
+
+IS_TEST = "is_test"
