@@ -9,7 +9,7 @@ features:
       args:
 
         ### key and values by manual
-        image_key: color_head
+        image_key: color_0
 
 
       ### values by function

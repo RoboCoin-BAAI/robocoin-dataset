@@ -1,4 +1,4 @@
-### MMK2机器人配置 - JPG+BSON格式
+### MMK2机器人配置 - JPG+BSON格式 (Version: 4外, 6右, 11左)
 ### fps by manual
 fps: 30
 
@@ -6,20 +6,20 @@ features:
   observation:
     images:
     
-    # 头部相机 (camera_2)
-    - cam_name: head_camera
+    # 外部相机 (camera_4)
+    - cam_name: outside_camera
       args:
-        camera_dir: camera_2
+        camera_dir: camera_4
     
-    # 左手相机 (camera_0) 
-    - cam_name: left_wrist_camera
-      args:
-        camera_dir: camera_0
-        
-    # 右手相机 (camera_1)
+    # 右手相机 (camera_6) 
     - cam_name: right_wrist_camera
       args:
-        camera_dir: camera_1
+        camera_dir: camera_6
+        
+    # 左手相机 (camera_11)
+    - cam_name: left_wrist_camera
+      args:
+        camera_dir: camera_11
 
     state:
       # MMK2状态包含：左臂6关节 + 右臂6关节 + 左手末端1关节 + 右手末端1关节 + 头部2关节 + 脊柱1关节 + 双手24关节 = 42维
@@ -248,4 +248,3 @@ features:
         data_path: action.right_hand
         range_from: 0
         range_to: 12
-    

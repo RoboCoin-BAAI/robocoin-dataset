@@ -39,17 +39,49 @@ unitree_g1:
   converter_config_path: converter_config_unitree_g1_threecam.yaml
 
 discover_robotics_aitbot_mmk2:
-- version: default_version
-  verison_description: two arms and two hands, three rgb cameras with high, left wrist, right wrist ，one head  one spine
+# Version 1: 4外, 6右，11左
+- version: version_4_6_11
+  verison_description: two arms and two hands, three rgb cameras with camera_4(outside), camera_6(right_wrist), camera_11(left_wrist), one head one spine
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
   class: LerobotFormatConverterMmk2
-  converter_config_path: converter_config_discover_robotics_aitbot_mmk2.yaml
+  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_4_6_11.yaml
 
-- version: twocam_version
-  verison_description: two arms and two hands, two rgb cameras with head and left wrist, one head one spine
+# Version 2: 6右， 2左， 4外
+- version: version_6_2_4
+  verison_description: two arms and two hands, three rgb cameras with camera_6(right_wrist), camera_2(left_wrist), camera_4(outside), one head one spine
   module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
   class: LerobotFormatConverterMmk2
-  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_twocam.yaml
+  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_6_2_4.yaml
+
+# Version 3: 6右， 0左， 2外
+- version: version_6_0_2
+  verison_description: two arms and two hands, three rgb cameras with camera_6(right_wrist), camera_0(left_wrist), camera_2(outside), one head one spine
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
+  class: LerobotFormatConverterMmk2
+  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_6_0_2.yaml
+
+# Version 4: 0左 ，3外 ，8右
+- version: version_0_3_8
+  verison_description: two arms and two hands, three rgb cameras with camera_0(left_wrist), camera_3(outside), camera_8(right_wrist), one head one spine
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
+  class: LerobotFormatConverterMmk2
+  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_0_3_8.yaml
+
+# Version 5: 0头, 6左，8右，12外 (四相机)
+- version: version_0_6_8_12
+  verison_description: two arms and two hands, four rgb cameras with camera_0(head), camera_6(left_wrist), camera_8(right_wrist), camera_12(outside), one head one spine
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
+  class: LerobotFormatConverterMmk2
+  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_0_6_8_12.yaml
+
+# Version 6: 0头, 6右，11左，4外 (四相机)  
+- version: version_0_6_11_4
+  verison_description: two arms and two hands, four rgb cameras with camera_0(head), camera_6(right_wrist), camera_11(left_wrist), camera_4(outside), one head one spine
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
+  class: LerobotFormatConverterMmk2
+  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_0_6_11_4.yaml
+
+
 
 agiex_pika_sense_single:
 - version: default_version
