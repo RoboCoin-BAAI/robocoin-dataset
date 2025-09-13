@@ -382,8 +382,19 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
             raise ValueError("camera_groups not found in images_buffer")
 
         if camera_dir not in images_buffer["camera_groups"]:
+            available_cameras = list(images_buffer["camera_groups"].keys())
+            error_msg = f"Camera {camera_dir} not found. Available cameras: {available_cameras}"
+            
+            if self.logger:
+                self.logger.error(error_msg)
+                self.logger.info("Please check your configuration file to ensure camera_dir matches available cameras")
+                self.logger.info("Or consider using a different camera configuration version")
+            
+            # 提供更详细的错误信息以便调试
             raise ValueError(
-                f"Camera {camera_dir} not found. Available cameras: {list(images_buffer['camera_groups'].keys())}"
+                f"{error_msg}. "
+                f"This usually indicates a mismatch between the configuration file and actual dataset structure. "
+                f"Please update the converter configuration to use available cameras: {available_cameras}"
             )
 
         camera_files = images_buffer["camera_groups"][camera_dir]

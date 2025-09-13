@@ -45,6 +45,12 @@ discover_robotics_aitbot_mmk2:
   class: LerobotFormatConverterMmk2
   converter_config_path: converter_config_discover_robotics_aitbot_mmk2.yaml
 
+- version: twocam_version
+  verison_description: two arms and two hands, two rgb cameras with head and left wrist, one head one spine
+  module: robocoin_dataset.format_converter.tolerobot.lerobot_format_converter_mmk2
+  class: LerobotFormatConverterMmk2
+  converter_config_path: converter_config_discover_robotics_aitbot_mmk2_twocam.yaml
+
 agiex_pika_sense_single:
 - version: default_version
   verison_description: one arm and one gripper, one rgb camera with high 
