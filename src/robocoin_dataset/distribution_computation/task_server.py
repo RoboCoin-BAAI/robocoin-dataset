@@ -1,8 +1,8 @@
 import asyncio
 import json
 import logging
-from abc import abstractmethod
 import traceback
+from abc import abstractmethod
 
 from websockets.exceptions import ConnectionClosed
 from websockets.legacy.server import WebSocketServerProtocol, serve

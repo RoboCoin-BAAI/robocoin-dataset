@@ -211,11 +211,11 @@ python scripts/format_converters/tolerobot/convert2lerobot.py \
 --video_backend pyav
 
 python scripts/format_converters/tolerobot/convert2lerobot.py \
---dataset_path /mnt/nas/11realman_rmc_aidal/pour_bowl_repeatedly \
---output_path ./outputs/lerobot_converter/pour_bowl_repeatedly \
+--dataset_path /mnt/nas/11realman_rmc_aidal/basket_storage_banana \
+--output_path ./outputs/lerobot_converter/basket_storage_banana \
 --device_model realman_rmc_aidal \
---factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config_test.yaml \
---repo_id robocoin/realman_rmc_aidal_stir_coffee \
+--factory_config_path scripts/format_converters/tolerobot/configs/converter_factory_config.yaml \
+--repo_id robocoin/basket_storage \
 --log_dir ./outputs/robocoin/logs \
 --image_writer_processes 10 \
 --image_writer_threads 4 \
