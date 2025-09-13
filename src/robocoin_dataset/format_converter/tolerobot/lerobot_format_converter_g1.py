@@ -233,11 +233,28 @@ class LerobotFormatConverterG1(LerobotFormatConverter):
         camera_groups = images_buffer.get("camera_groups", {})
 
         if camera_idx not in camera_groups:
-            raise ValueError(
-                f"Camera {camera_idx} not found. Available cameras: {list(camera_groups.keys())}"
-            )
+            available_cameras = list(camera_groups.keys())
+            error_msg = f"Camera {camera_idx} not found. Available cameras: {available_cameras}"
+            
+            if self.logger:
+                self.logger.error(error_msg)
+                if not available_cameras:
+                    self.logger.error("No camera data found in the dataset. Please check if images exist and are properly formatted.")
+                    self.logger.error("Expected G1 image naming pattern: *0.jpg, *1.jpg, etc. where the last digit indicates camera index")
+                else:
+                    self.logger.info(f"Please update your configuration to use one of the available cameras: {available_cameras}")
+                    self.logger.info("Or check if your dataset has the expected camera data")
+            
+            raise ValueError(error_msg)
 
         camera_files = camera_groups[camera_idx]
+        
+        if not camera_files:
+            error_msg = f"No image files found for camera {camera_idx}"
+            if self.logger:
+                self.logger.error(error_msg)
+                self.logger.error("This could indicate missing or corrupted image data in the dataset")
+            raise ValueError(error_msg)
 
         # 查找与frame_idx匹配的图像文件，支持稀疏采样
         target_image_path = None

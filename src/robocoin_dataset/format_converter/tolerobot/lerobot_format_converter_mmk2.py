@@ -178,9 +178,9 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 self.logger.info(f"Validating MMK2 episode structure: {episode_dir}")
             
             # Validate BSON files structure
-            main_bson_file = episode_dir / "episode_0(8).bson"
-            hand_bson_file = episode_dir / "xhand_control_data(7).bson"
-            
+            main_bson_file = episode_dir / "episode_0.bson"
+            hand_bson_file = episode_dir / "xhand_control_data.bson"
+
             # Check required BSON files exist
             if not main_bson_file.exists():
                 if self.logger:
@@ -231,7 +231,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 state_config = self.converter_config.get('features', {}).get('observation', {}).get('state', {})
                 if 'sub_state' in state_config:
                     for sub_state in state_config['sub_state']:
-                        if 'args' in sub_state and sub_state['args'].get('bson_file') == 'episode_0(8).bson':
+                        if 'args' in sub_state and sub_state['args'].get('bson_file') == 'episode_0.bson':
                             data_path = sub_state['args'].get('data_path', '').lstrip('/')
                             expected_paths.add(data_path)
                 
@@ -239,7 +239,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 action_config = self.converter_config.get('features', {}).get('action', {})
                 if 'sub_action' in action_config:
                     for sub_action in action_config['sub_action']:
-                        if 'args' in sub_action and sub_action['args'].get('bson_file') == 'episode_0(8).bson':
+                        if 'args' in sub_action and sub_action['args'].get('bson_file') == 'episode_0.bson':
                             data_path = sub_action['args'].get('data_path', '').lstrip('/')
                             expected_paths.add(data_path)
             
@@ -297,7 +297,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 state_config = self.converter_config.get('features', {}).get('observation', {}).get('state', {})
                 if 'sub_state' in state_config:
                     for sub_state in state_config['sub_state']:
-                        if 'args' in sub_state and sub_state['args'].get('bson_file') == 'xhand_control_data(7).bson':
+                        if 'args' in sub_state and sub_state['args'].get('bson_file') == 'xhand_control_data.bson':
                             data_path = sub_state['args'].get('data_path', '')
                             expected_paths.add(data_path)
                 
@@ -305,7 +305,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 action_config = self.converter_config.get('features', {}).get('action', {})
                 if 'sub_action' in action_config:
                     for sub_action in action_config['sub_action']:
-                        if 'args' in sub_action and sub_action['args'].get('bson_file') == 'xhand_control_data(7).bson':
+                        if 'args' in sub_action and sub_action['args'].get('bson_file') == 'xhand_control_data.bson':
                             data_path = sub_action['args'].get('data_path', '')
                             expected_paths.add(data_path)
             
@@ -381,20 +381,28 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
         if "camera_groups" not in images_buffer:
             raise ValueError("camera_groups not found in images_buffer")
 
-        if camera_dir not in images_buffer["camera_groups"]:
-            available_cameras = list(images_buffer["camera_groups"].keys())
-            error_msg = f"Camera {camera_dir} not found. Available cameras: {available_cameras}"
+        # Add available_cameras info to buffer if not present
+        if "available_cameras" not in images_buffer:
+            images_buffer["available_cameras"] = set(images_buffer["camera_groups"].keys())
+
+        available_cameras = images_buffer["available_cameras"]
+        if camera_dir not in available_cameras:
+            error_msg = f"Camera {camera_dir} not found. Available cameras: {sorted(available_cameras)}"
             
             if self.logger:
                 self.logger.error(error_msg)
                 self.logger.info("Please check your configuration file to ensure camera_dir matches available cameras")
                 self.logger.info("Or consider using a different camera configuration version")
+                
+                # 建议使用twocam版本
+                if available_cameras == {"camera_0", "camera_2"}:
+                    self.logger.info("Detected camera_0 and camera_2 only. Consider using 'twocam_version' configuration.")
             
             # 提供更详细的错误信息以便调试
             raise ValueError(
                 f"{error_msg}. "
                 f"This usually indicates a mismatch between the configuration file and actual dataset structure. "
-                f"Please update the converter configuration to use available cameras: {available_cameras}"
+                f"Please update the converter configuration to use available cameras: {sorted(available_cameras)}"
             )
 
         camera_files = images_buffer["camera_groups"][camera_dir]
@@ -437,7 +445,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
         range_to = args_dict["range_to"]
 
         # 根据不同的BSON文件处理数据
-        if bson_file == "episode_0(8).bson":
+        if bson_file == "episode_0.bson":
             # 主要关节数据
             field = args_dict.get("field", "pos")  # 默认使用pos字段
 
@@ -458,7 +466,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
             values = frame_data["data"][field]
             return np.array(values[range_from:range_to], dtype=np.float32)
 
-        if bson_file == "xhand_control_data(7).bson":
+        if bson_file == "xhand_control_data.bson":
             # 手部数据
             hand_data = sub_states_buffer["hand_data"]
 
@@ -505,7 +513,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
     def _get_episode_frames_num(self, task_path: Path, ep_idx: int) -> int:
         """获取episode的帧数 - 使用主BSON文件的帧数"""
         episode_dir = self._get_episode_directory(task_path, ep_idx)
-        main_bson_file = episode_dir / "episode_0(8).bson"
+        main_bson_file = episode_dir / "episode_0.bson"
 
         if not main_bson_file.exists():
             raise ValueError(f"Main BSON file not found: {main_bson_file}")
@@ -545,7 +553,13 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 jpg_files = natsorted(list(camera_path.glob("*.jpg")))
                 camera_groups[camera_dir] = jpg_files
 
-        return {"camera_groups": camera_groups}
+        # Add available cameras metadata for validation
+        available_cameras = set(camera_groups.keys())
+        
+        return {
+            "camera_groups": camera_groups,
+            "available_cameras": available_cameras
+        }
 
     # @override
     def _prepare_episode_states_buffer(self, task_path: Path, ep_idx: int) -> any:
@@ -553,7 +567,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
         episode_dir = self._get_episode_directory(task_path, ep_idx)
 
         # 读取主BSON文件
-        main_bson_file = episode_dir / "episode_0(8).bson"
+        main_bson_file = episode_dir / "episode_0.bson"
         main_data = {}
         if main_bson_file.exists():
             with open(main_bson_file, "rb") as f:
@@ -563,7 +577,7 @@ class LerobotFormatConverterMmk2(LerobotFormatConverter):
                 main_data = doc["data"]
 
         # 读取手部BSON文件
-        hand_bson_file = episode_dir / "xhand_control_data(7).bson"
+        hand_bson_file = episode_dir / "xhand_control_data.bson"
         hand_data = []
         if hand_bson_file.exists():
             with open(hand_bson_file, "rb") as f:

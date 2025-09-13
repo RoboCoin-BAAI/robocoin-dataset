@@ -29,7 +29,7 @@ features:
         - left_arm_joint_5
         - left_arm_joint_6
         args:
-          bson_file: episode_0(8).bson
+          bson_file: episode_0.bson
           data_path: observation/left_arm/joint_state
           field: pos
           range_from: 0
@@ -44,7 +44,7 @@ features:
         - right_arm_joint_5
         - right_arm_joint_6
         args:
-          bson_file: episode_0(8).bson
+          bson_file: episode_0.bson
           data_path: observation/right_arm/joint_state
           field: pos
           range_from: 0
@@ -54,7 +54,7 @@ features:
       - names:
         - left_arm_eef
         args:
-          bson_file: episode_0(8).bson
+          bson_file: episode_0.bson
           data_path: observation/left_arm_eef/joint_state
           field: pos
           range_from: 0
@@ -64,7 +64,7 @@ features:
       - names:
         - right_arm_eef
         args:
-          bson_file: episode_0(8).bson
+          bson_file: episode_0.bson
           data_path: observation/right_arm_eef/joint_state
           field: pos
           range_from: 0
@@ -75,7 +75,7 @@ features:
         - head_joint_1
         - head_joint_2
         args:
-          bson_file: episode_0(8).bson
+          bson_file: episode_0.bson
           data_path: observation/head/joint_state
           field: pos
           range_from: 0
@@ -85,7 +85,7 @@ features:
       - names:
         - spine_joint
         args:
-          bson_file: episode_0(8).bson
+          bson_file: episode_0.bson
           data_path: observation/spine/joint_state
           field: pos
           range_from: 0
@@ -106,7 +106,7 @@ features:
         - left_hand_joint_11
         - left_hand_joint_12
         args:
-          bson_file: xhand_control_data(7).bson
+          bson_file: xhand_control_data.bson
           data_path: observation.left_hand
           range_from: 0
           range_to: 12
@@ -126,7 +126,7 @@ features:
         - right_hand_joint_11
         - right_hand_joint_12
         args:
-          bson_file: xhand_control_data(7).bson
+          bson_file: xhand_control_data.bson
           data_path: observation.right_hand
           range_from: 0
           range_to: 12
@@ -143,7 +143,7 @@ features:
       - left_arm_action_4
       - left_arm_action_5
       args:
-        bson_file: episode_0(8).bson
+        bson_file: episode_0.bson
         data_path: action/left_arm/joint_state
         field: pos
         range_from: 0
@@ -157,7 +157,7 @@ features:
       - right_arm_action_4
       - right_arm_action_5
       args:
-        bson_file: episode_0(8).bson
+        bson_file: episode_0.bson
         data_path: action/right_arm/joint_state
         field: pos
         range_from: 0
@@ -167,7 +167,7 @@ features:
     - names:
       - left_arm_eef_action
       args:
-        bson_file: episode_0(8).bson
+        bson_file: episode_0.bson
         data_path: action/left_arm_eef/joint_state
         field: pos
         range_from: 0
@@ -177,7 +177,7 @@ features:
     - names:
       - right_arm_eef_action
       args:
-        bson_file: episode_0(8).bson
+        bson_file: episode_0.bson
         data_path: action/right_arm_eef/joint_state
         field: pos
         range_from: 0
@@ -188,7 +188,7 @@ features:
       - head_action_1
       - head_action_2
       args:
-        bson_file: episode_0(8).bson
+        bson_file: episode_0.bson
         data_path: action/head/joint_state
         field: pos
         range_from: 0
@@ -198,7 +198,7 @@ features:
     - names:
       - spine_action
       args:
-        bson_file: episode_0(8).bson
+        bson_file: episode_0.bson
         data_path: action/spine/joint_state
         field: pos
         range_from: 0
@@ -219,7 +219,7 @@ features:
       - left_hand_action_11
       - left_hand_action_12
       args:
-        bson_file: xhand_control_data(7).bson
+        bson_file: xhand_control_data.bson
         data_path: action.left_hand
         range_from: 0
         range_to: 12
@@ -239,7 +239,7 @@ features:
       - right_hand_action_11
       - right_hand_action_12
       args:
-        bson_file: xhand_control_data(7).bson
+        bson_file: xhand_control_data.bson
         data_path: action.right_hand
         range_from: 0
         range_to: 12
